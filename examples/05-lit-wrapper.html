@@ -1,0 +1,33 @@
+<!doctype html><meta charset="utf-8"><title>PAN – 05 Lit</title>
+<script type="module">
+  import { LitElement, html, css } from 'https://unpkg.com/lit?module';
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail); this.h.addEventListener('pan:deliver',on);
+      this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t]},bubbles:true,composed:true})); return ()=>this.h.removeEventListener('pan:deliver',on);}
+    static matches(topic, pattern){ if(pattern==='*'||topic===pattern) return true; if(pattern.includes('*')){const esc=s=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  customElements.define('pan-bus', class extends HTMLElement{ subs=[]; connectedCallback(){
+    document.addEventListener('pan:publish', e=>this.#pub(e), true);
+    document.addEventListener('pan:subscribe', e=>this.#sub(e), true);
+  } #sub(e){const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=>this.subs.push({p,el}));}
+    #pub(e){const m=e.detail; this.subs.forEach(s=> PanClient.matches(m.topic,s.p) && s.el.dispatchEvent(new CustomEvent('pan:deliver',{detail:m}))); }
+  });
+  class LitChat extends LitElement{
+    static styles = css`:host{display:block;padding:12px;border:1px solid #ccc;border-radius:8px}`;
+    pc = new PanClient(this);
+    firstUpdated(){ this.off = this.pc.sub('chat.message', m=>{ this.last = m.data; this.requestUpdate(); }); }
+    disconnectedCallback(){ super.disconnectedCallback(); this.off && this.off(); }
+    render(){ return html`
+      <h3>Lit ↔ PAN</h3>
+      ${this.last ? html`<pre>${JSON.stringify(this.last,null,2)}</pre>` : html`<em>no messages yet</em>`}
+      <form @submit=${e=>{e.preventDefault(); const v=this.renderRoot.getElementById('t').value.trim(); if(!v) return; this.pc.pub({topic:'chat.message', data:{text:v}}); this.renderRoot.getElementById('t').value='';}}>
+        <input id="t" placeholder="Say hi" />
+        <button>Send</button>
+      </form>` }
+  }
+  customElements.define('lit-chat', LitChat);
+</script>
+<pan-bus></pan-bus>
+<lit-chat></lit-chat>
+

@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>PAN – 04 React</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<pan-bus></pan-bus>
+<div id="app"></div>
+<script type="module">
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail); this.h.addEventListener('pan:deliver',on);
+      this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t]},bubbles:true,composed:true})); return ()=>this.h.removeEventListener('pan:deliver',on);}
+    static matches(topic, pattern){ if(pattern==='*'||topic===pattern) return true; if(pattern.includes('*')){const esc=s=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  const pc = new PanClient();
+  function usePan(topic){ const [msg,setMsg]=React.useState(null);
+    React.useEffect(()=>{ const off=pc.sub(topic, setMsg); return ()=>off&&off(); },[topic]);
+    return [msg, (m)=>pc.pub(m)]; }
+  function App(){ const [msg, send] = usePan('chat.message');
+    const [text,setText] = React.useState('');
+    return React.createElement('div',{},
+      React.createElement('h3',{},'React ↔ PAN'),
+      msg && React.createElement('pre',{}, JSON.stringify(msg.data,null,2)),
+      React.createElement('input',{value:text,onChange:e=>setText(e.target.value)}),
+      React.createElement('button',{onClick:()=>{send({topic:'chat.message', data:{text}}); setText('');}},'Send')
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(App));
+</script>
+

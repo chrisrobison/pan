@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PAN demo: bus + client helper + <todo-list></title>
+  <style>
+    :root { font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    body { margin: 0; padding: 24px; background: #0b0c0f; color: #e7e9ee; }
+    header { display:flex; align-items:center; gap: 12px; margin-bottom: 16px; }
+    header h1 { font-size: 20px; margin: 0; font-weight: 600; }
+    .row { display:flex; gap:16px; flex-wrap: wrap; }
+    card { display:block; background:#141621; border:1px solid #1e2230; border-radius:16px; padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .muted { color:#9aa4b2; font-size: 12px; }
+    .pill { padding:2px 8px; border-radius:999px; background:#1e2230; font-size:12px; }
+    a { color:#90c2ff; }
+    button, input[type="text"] { background:#0f1220; color:#e7e9ee; border:1px solid #2a2f42; border-radius:10px; padding:10px 12px; }
+    button { cursor:pointer; }
+    button:hover { background:#12162a; }
+    ul { list-style:none; padding:0; margin:8px 0 0; }
+    li { display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px dashed #23283a; }
+    li:last-child { border-bottom:none; }
+    li.done .title { text-decoration: line-through; color:#9aa4b2; }
+    .spacer { flex:1; }
+    .small { font-size:12px; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; padding:2px 6px; border-radius:6px; background:#1a1f2f; border:1px solid #2a2f42; }
+  </style>
+</head>
+<body>
+  <pan-bus id="bus" version="0.1"></pan-bus>
+
+  <header>
+    <h1>Page Area Network (PAN) Demo</h1>
+    <span class="pill" id="status">starting…</span>
+    <span class="spacer"></span>
+    <span class="muted small">Tip: open DevTools → Elements → listen for <span class="kbd">pan:*</span> events.</span>
+  </header>
+
+  <div class="row">
+    <card style="min-width:320px; max-width:560px;">
+      <h3 style="margin:0 0 8px 0">&lt;todo-list&gt;</h3>
+      <todo-list></todo-list>
+    </card>
+
+    <card style="min-width:320px; max-width:560px;">
+      <h3 style="margin:0 0 8px 0">Bus Inspector (mini)</h3>
+      <div id="log" class="small" style="max-height:320px; overflow:auto; white-space:pre-wrap; line-height:1.35"></div>
+    </card>
+  </div>
+
+  <!-- PAN Client helper (minimal) -->
+  <script type="module" id="pan-client">
+    export class PanClient {
+      /** @param {HTMLElement|Document} host */
+      constructor(host = document, busSelector = 'pan-bus') {
+        this.host = host;
+        this.bus = /** @type {HTMLElement|null} */(document.querySelector(busSelector));
+        if (!this.bus) throw new Error('PAN bus not found');
+        this.clientId = `${(host instanceof HTMLElement && (host.tagName.toLowerCase()+ (host.id?('#'+host.id):''))) || 'doc'}#${Math.random().toString(36).slice(2,8)}`;
+        this._ready = new Promise(res => {
+          const onReady = () => { document.removeEventListener('pan:sys.ready', onReady, true); res(); };
+          if (window.__panReady) return res();
+          document.addEventListener('pan:sys.ready', onReady, true);
+        });
+        // say hello once ready
+        this._ready.then(()=>{
+          this._dispatch('pan:hello', { id:this.clientId, caps:['client'] });
+        });
+      }
+      ready(){ return this._ready; }
+      /** @param {string} type @param {any} detail */
+      _dispatch(type, detail){
+        this.host.dispatchEvent(new CustomEvent(type, { detail, bubbles:true, composed:true }));
+      }
+      /** @param {import('./types').PanMessage} msg */
+      publish(msg){ this._dispatch('pan:publish', msg); }
+      /** @param {string|string[]} topics @param {(m:any)=>void} handler */
+      subscribe(topics, handler, opts={}){
+        topics = Array.isArray(topics)? topics : [topics];
+        const onDeliver = (ev) => {
+          const m = ev.detail;
+          if (!m || !m.topic) return;
+          // naive topic match for direct delivery; bus filters too
+          if (topics.some(t=> PanClient.matches(m.topic, t))) handler(m);
+        };
+        this.host.addEventListener('pan:deliver', onDeliver);
+        this._dispatch('pan:subscribe', { clientId:this.clientId, topics, options: { retained: !!opts.retained } });
+        return () => {
+          this.host.removeEventListener('pan:deliver', onDeliver);
+          this._dispatch('pan:unsubscribe', { clientId:this.clientId, topics });
+        };
+      }
+      /** request/response sugar */
+      request(topic, data, { timeoutMs=5000 }={}){
+        const correlationId = crypto.randomUUID();
+        const replyTo = `pan:$reply:${this.clientId}:${correlationId}`;
+        return new Promise((resolve, reject)=>{
+          const off = this.subscribe(replyTo, (m)=>{ off(); resolve(m); });
+          const timer = setTimeout(()=>{ off(); reject(new Error('PAN request timeout')); }, timeoutMs);
+          const clear = (v)=>{ clearTimeout(timer); return v; };
+          this.publish({ topic, data, replyTo, correlationId });
+        }).then(clearTimeout);
+      }
+      static matches(topic, pattern){
+        if (pattern === '*' || topic === pattern) return true;
+        if (pattern.includes('*')){
+          // support trailing or segment wildcards: foo.*, *.bar, foo.*.baz
+          const esc = s=> s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+');
+          const rx = new RegExp(`^${esc(pattern)}$`);
+          return rx.test(topic);
+        }
+        return false;
+      }
+    }
+    window.PanClient = PanClient;
+  </script>
+
+  <!-- PAN Bus (reference, minimal) -->
+  <script type="module" id="pan-bus">
+    class PanBus extends HTMLElement {
+      constructor(){ super(); this.subs = []; this.retained = new Map(); }
+      connectedCallback(){
+        // capture to intercept before other listeners
+        document.addEventListener('pan:publish', this.onPublish, true);
+        document.addEventListener('pan:request', this.onPublish, true); // same path, but expects reply
+        document.addEventListener('pan:reply', this.onReply, true);
+        document.addEventListener('pan:subscribe', this.onSubscribe, true);
+        document.addEventListener('pan:unsubscribe', this.onUnsubscribe, true);
+        document.addEventListener('pan:hello', this.onHello, true);
+        // announce ready
+        window.__panReady = true;
+        document.dispatchEvent(new CustomEvent('pan:sys.ready', { bubbles:true, composed:true }));
+      }
+      disconnectedCallback(){
+        document.removeEventListener('pan:publish', this.onPublish, true);
+        document.removeEventListener('pan:request', this.onPublish, true);
+        document.removeEventListener('pan:reply', this.onReply, true);
+        document.removeEventListener('pan:subscribe', this.onSubscribe, true);
+        document.removeEventListener('pan:unsubscribe', this.onUnsubscribe, true);
+        document.removeEventListener('pan:hello', this.onHello, true);
+      }
+      // subscription registry: array of { pattern, el, retained }
+      subs; retained; clients = new Map();
+      log(ev, payload){ document.getElementById('log')?.prepend(`[${new Date().toLocaleTimeString()}] ${ev} ${JSON.stringify(payload)}\n`); }
+      onHello = (e)=>{ const d = e.detail||{}; if(d.id) this.clients.set(d.id, { el: e.composedPath?.()[0], caps:d.caps }); this.log('HELLO', d); };
+      onSubscribe = (e)=>{
+        const { topics=[], options={}, clientId } = e.detail||{};
+        const el = e.composedPath?.()[0];
+        for (const pattern of topics){ this.subs.push({ pattern, el, clientId, retained: !!options.retained }); }
+        // deliver retained if asked
+        if (options.retained){
+          for (const [topic,msg] of this.retained){ if (topics.some(p=>PanBus.matches(topic,p))) this.deliver(el, msg); }
+        }
+        this.log('SUB', { clientId, topics });
+      }
+      onUnsubscribe = (e)=>{
+        const { topics=[], clientId } = e.detail||{};
+        this.subs = this.subs.filter(s=> !(s.clientId===clientId && topics.includes(s.pattern)));
+        this.log('UNSUB', { clientId, topics });
+      }
+      onPublish = (e)=>{
+        const msg = Object.assign({ ts:Date.now(), id:crypto.randomUUID() }, e.detail||{});
+        if (msg.retain) this.retained.set(msg.topic, msg);
+        // deliver to matching subs
+        for (const s of this.subs){ if (PanBus.matches(msg.topic, s.pattern)) this.deliver(s.el, msg); }
+        this.log('PUB', { topic: msg.topic, id: msg.id });
+      }
+      onReply = (e)=>{ const msg = e.detail||{}; for (const s of this.subs){ if (PanBus.matches(msg.topic, s.pattern)) this.deliver(s.el, msg); } this.log('REPLY', { topic: msg.topic }); }
+      deliver(target, msg){ try { target.dispatchEvent(new CustomEvent('pan:deliver', { detail: msg })); } catch(err) { /* ignore */ } }
+      static matches(topic, pattern){ return window.PanClient?.matches(topic, pattern) || topic===pattern; }
+    }
+    customElements.define('pan-bus', PanBus);
+  </script>
+
+  <!-- <todo-list> component using PAN -->
+  <script type="module" id="todo-list">
+    class TodoList extends HTMLElement {
+      constructor(){ super(); this.attachShadow({mode:'open'}); this.pc = new window.PanClient(this); this.todos = []; }
+      async connectedCallback(){
+        this.render();
+        await this.pc.ready();
+        // subscribe to todos
+        this.off = this.pc.subscribe(['todos.change','todos.remove','todos.toggle','todos.state'], (m)=>{
+          if (m.topic === 'todos.state') { this.todos = m.data.items; this.render(); return; }
+          if (m.topic === 'todos.change') { this.todos.push(m.data.item); }
+          if (m.topic === 'todos.remove') { this.todos = this.todos.filter(t=> t.id!==m.data.id); }
+          if (m.topic === 'todos.toggle') { const t = this.todos.find(x=>x.id===m.data.id); if (t) t.done = !!m.data.done; }
+          this.render();
+        }, { retained:true });
+        // request initial state (in case there is a provider)
+        this.pc.publish({ topic:'todos:get', data:{} , replyTo:'todos.state' });
+      }
+      disconnectedCallback(){ this.off && this.off(); }
+      render(){
+        const html = String.raw;
+        this.shadowRoot.innerHTML = html`
+          <style>
+            :host{ display:block; }
+            form{ display:flex; gap:8px; }
+            input[type=text]{ flex:1; }
+            .empty{ color:#9aa4b2; margin-top:8px; font-size: 13px; }
+          </style>
+          <form id="f">
+            <input id="title" type="text" placeholder="Add a task… (Enter)" autocomplete="off" />
+            <button type="submit">Add</button>
+          </form>
+          ${this.todos.length? '' : '<div class="empty">No tasks yet.</div>'}
+          <ul>
+            ${this.todos.map(t=>`
+              <li class="${t.done?'done':''}" data-id="${t.id}">
+                <input type="checkbox" ${t.done?'checked':''} aria-label="toggle" />
+                <span class="title">${this.escape(t.title)}</span>
+                <span class="spacer"></span>
+                <button class="del" title="Remove">✕</button>
+              </li>`).join('')}
+          </ul>
+        `;
+        const form = this.shadowRoot.getElementById('f');
+        const title = this.shadowRoot.getElementById('title');
+        form.onsubmit = (ev)=>{ ev.preventDefault(); const v = title.value.trim(); if(!v) return; title.value=''; this.pc.publish({ topic:'todos.change', data:{ item:{ id:crypto.randomUUID(), title:v, done:false } }, retain:true }); };
+        this.shadowRoot.querySelectorAll('li input[type=checkbox]').forEach(cb=>{
+          cb.addEventListener('change', (e)=>{
+            const li = e.target.closest('li'); const id = li.getAttribute('data-id');
+            this.pc.publish({ topic:'todos.toggle', data:{ id, done: e.target.checked }, retain:true });
+          });
+        });
+        this.shadowRoot.querySelectorAll('li button.del').forEach(btn=>{
+          btn.addEventListener('click', (e)=>{ const li = e.target.closest('li'); const id = li.getAttribute('data-id'); this.pc.publish({ topic:'todos.remove', data:{ id }, retain:true }); });
+        });
+      }
+      escape(s){ return s.replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+    }
+    customElements.define('todo-list', TodoList);
+  </script>
+
+  <!-- Minimal provider that retains state on the bus (optional). 
+       This simulates a data service; could be replaced by an IndexedDB-backed provider. -->
+  <script type="module" id="todo-provider">
+    class TodoProvider extends HTMLElement{
+      constructor(){ super(); this.pc = new window.PanClient(this); this.items = []; }
+      async connectedCallback(){
+        await this.pc.ready();
+        this.pc.subscribe(['todos.change','todos.remove','todos.toggle','todos:get'], (m)=>{
+          if (m.topic === 'todos.change') this.items.push(m.data.item);
+          if (m.topic === 'todos.remove') this.items = this.items.filter(t=> t.id!==m.data.id);
+          if (m.topic === 'todos.toggle') { const t=this.items.find(x=>x.id===m.data.id); if (t) t.done = !!m.data.done; }
+          if (m.topic === 'todos:get') { /* just fall through to publish state */ }
+          this.pc.publish({ topic:'todos.state', data:{ items:this.items }, retain:true });
+        }, { retained:false });
+      }
+    }
+    customElements.define('todo-provider', TodoProvider);
+    // instantiate a provider
+    document.body.appendChild(document.createElement('todo-provider'));
+  </script>
+
+  <script>
+    // simple status chip
+    document.addEventListener('pan:sys.ready', ()=>{
+      const s = document.getElementById('status'); if (s) s.textContent = 'ready';
+    }, { once:true });
+  </script>
+</body>
+</html>

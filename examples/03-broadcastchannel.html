@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>PAN – 03 BroadcastChannel</title>
+<pan-bus mirror="settings.*"></pan-bus>
+<script type="module">
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail); this.h.addEventListener('pan:deliver',on);
+      this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t]},bubbles:true,composed:true}));}
+    static matches(topic, pattern){ if(pattern==='*'||topic===pattern) return true; if(pattern.includes('*')){const esc=s=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  customElements.define('pan-bus', class extends HTMLElement{ subs=[]; bc=null; connectedCallback(){ const allow=(this.getAttribute('mirror')||'').split(/\s+/).filter(Boolean);
+    this.bc = new BroadcastChannel('pan'); this.bc.onmessage = (ev)=> this.#deliver(ev.data);
+    document.addEventListener('pan:publish', e=>{const m=e.detail; this.#deliver(m); if(allow.some(p=>PanClient.matches(m.topic,p))) this.bc.postMessage(m);}, true);
+    document.addEventListener('pan:subscribe', e=>{const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=>this.subs.push({p,el}));}, true);
+  }
+  #deliver(m){ this.subs.forEach(s=> PanClient.matches(m.topic,s.p) && s.el.dispatchEvent(new CustomEvent('pan:deliver',{detail:m}))); }
+  });
+  // Demo usage
+  const pc = new PanClient();
+  setInterval(()=> pc.pub({ topic:'settings.clock', data: Date.now(), retain:true }), 1000);
+  pc.sub('settings.clock', m=> console.log('tick', m.data));
+</script>
+
