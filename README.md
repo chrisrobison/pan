@@ -1,6 +1,6 @@
 # Page Area Network (PAN)
 
-> **DOM‑native message bus for Web Components & micro‑frontends:** topics, request/reply, retained messages — no build — with an Inspector.
+> **A DOM‑native message bus for Web Components & micro‑frontends:** topics, request/reply, retained messages, lightweight,  no buildi...with an Inspector! 
 
 * **Zero build:** drop a `<pan-bus>` on the page; talk via `CustomEvent`s.
 * **Loose coupling:** components depend on topic contracts (JSON‑Schema), not imports.
