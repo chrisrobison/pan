@@ -1,0 +1,14 @@
+{
+  "name": "pan",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Page Area Network (PAN) examples and tests",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.1"
+  }
+}

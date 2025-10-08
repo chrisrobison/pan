@@ -362,6 +362,19 @@ Use PAN from a Lit element (CDN Lit, no build).
 
 ---
 
+## E2E Tests (Playwright)
+
+- Prereqs: Node 18+.
+- Install Playwright (downloads browsers):
+  - `npx -y playwright install`
+- Run tests:
+  - `npx playwright test` (headless)
+  - `npx playwright test --headed` (headed)
+  - `npx playwright test --ui` (watch mode)
+- Notes: tests open the example pages via `file://` URLs and validate UI actions and bus traffic.
+
+---
+
 ## License
 
 MIT for core libraries. Pro/enterprise add‑ons under commercial license.
