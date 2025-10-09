@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `README.md`: overview, quickstart, API, and recipes.
-- `SPEC.v0.md`: draft spec, architecture, and compliance notes.
+ - `LARC_SPEC.v0.md`: draft spec, architecture, and compliance notes.
 - `examples/`: single‑file HTML demos runnable directly in a browser.
 - `demo.html`: compact reference/mini‑demo of the bus and client.
 - No build system; artifacts (if produced) would live under `dist/`.
@@ -23,7 +23,7 @@
 - Manual smoke tests via `examples/*`:
   - `02-todos-and-inspector.html`: add/remove/toggle; inspector shows traffic and retained state.
   - `03-broadcastchannel.html`: open two tabs; confirm mirrored topics sync.
-- Future automation: compliance tests (Web Test Runner/Playwright) as outlined in `SPEC.v0.md`.
+ - Future automation: compliance tests (Web Test Runner/Playwright) as outlined in `LARC_SPEC.v0.md`.
 
 ## Commit & Pull Request Guidelines
 - Commits: follow Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`). Keep scope focused.
@@ -33,4 +33,3 @@
 ## Security & Configuration Tips
 - Mirror only explicit topics across tabs; avoid sensitive data in mirrored channels.
 - Message payloads must be JSON‑serializable; keep sizes small and use headers for schema/version when needed.
-

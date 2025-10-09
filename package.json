@@ -1,8 +1,8 @@
 {
-  "name": "pan",
+  "name": "larc",
   "private": true,
   "version": "0.0.0",
-  "description": "Page Area Network (PAN) examples and tests",
+  "description": "LARC (Lightweight Asynchronous Relay Core) — Page Area Network (PAN) examples and tests",
   "scripts": {
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",

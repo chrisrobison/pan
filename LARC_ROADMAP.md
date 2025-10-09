@@ -1,4 +1,4 @@
-# PAN Roadmap
+# LARC Roadmap (PAN)
 
 Vision: deliver a lightweight, standards‑based alternative to heavy SPA frameworks using Web Components + PAN as the decoupled communication backbone. Components interoperate with vanilla JS or frameworks (React/Vue/Lit) without build steps, JSX, or globals. Heavy work runs in Web Workers to keep the UI snappy.
 
@@ -58,4 +58,3 @@ Milestones
 - M1: pan-worker + workers demo + query orchestrator (basic).
 - M2: schema form + router + GraphQL connector.
 - M3: IndexedDB cache + SSE/WebSocket bridge + Inspector Pro.
-

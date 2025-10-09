@@ -1,4 +1,4 @@
-# Page Area Network (PAN)
+# LARC — Page Area Network (PAN)
 
 **Version:** 0.1 (Draft)
 **Status:** Proposal

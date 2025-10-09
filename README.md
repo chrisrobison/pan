@@ -1,16 +1,15 @@
-# Page Area Network (PAN)
+# LARC — Lightweight Asynchronous Relay Core
 
-> **A very lightweight DOM‑native message bus for Web Components & micro‑frontends:** topics, request/reply, retained messages, lightweight,  no buildi...with an Inspector! 
+> **A very lightweight DOM‑native message bus reference (PAN) and its reference implementation:** topics, request/reply, retained messages, lightweight, no build, with an Inspector!
 
 * **Zero build:** drop a `<pan-bus>` on the page; talk via `CustomEvent`s.
 * **Loose coupling:** components depend on topic contracts (JSON‑Schema), not imports.
 * **Interoperable:** works with vanilla, Web Components, React/Lit/Vue, iframes.
 * **Batteries included:** retained messages, req/rep, optional cross‑tab mirror, DevTools‑style inspector.
 
-PAN (Page Area Network) is a messaging bus designed to be a central communications hub for web components or micro-frontends. It works with any and all frameworks, or no framework at all.
-It allows web components to broadcast information to the page and then to any components that are listening via the PAN. The web component can also subscribe or listen to the PAN traffic
-and take action upon matching a particular string or event being fired. It is meant to be the linchpin that holds the various components together on a page without any build process or 
-transpiling required.
+LARC is the project and reference implementation for the Page Area Network (PAN) messaging bus. The PAN bus element and topic conventions remain named with the `pan-`/`pan:` prefixes (for example `<pan-bus>` and `pan:publish`) — this repo provides LARC as the lightweight implementation, docs, and examples.
+
+PAN (Page Area Network) is the messaging model and bus that enables a central communications hub for web components or micro-frontends. It works with any framework or no framework at all.
 
 ---
 
@@ -82,7 +81,7 @@ Copy this into an `.html` file and open it.
 
 ## Install
 
-PAN is pure ESM/HTML. Use any of:
+LARC is distributed as pure ESM/HTML. Use any of:
 
 * **CDN (when published):**
 
@@ -188,7 +187,7 @@ Minimal counter (publish/subscribe).
 ```html
 <!DOCTYPE html>
 <meta charset="utf-8" />
-<title>PAN – 01 Hello</title>
+<title>LARC – 01 Hello</title>
 <pan-bus></pan-bus>
 <x-counter></x-counter>
 <script type="module">
@@ -218,7 +217,7 @@ Todo list + retained state + DevTools‑style Inspector.
 
 ```html
 <!DOCTYPE html><meta charset="utf-8" />
-<title>PAN – 02 Todos & Inspector</title>
+<title>LARC – 02 Todos & Inspector</title>
 <pan-bus></pan-bus>
 <todo-provider></todo-provider>
 <todo-list></todo-list>
@@ -277,7 +276,7 @@ Todo list + retained state + DevTools‑style Inspector.
 Mirror specific topics across tabs using `BroadcastChannel('pan')`.
 
 ```html
-<!doctype html><meta charset="utf-8"><title>PAN – 03 BroadcastChannel</title>
+<!doctype html><meta charset="utf-8"><title>LARC – 03 BroadcastChannel</title>
 <pan-bus mirror="settings.*"></pan-bus>
 <script type="module">
   class PanClient{constructor(h=document){this.h=h}
@@ -305,7 +304,7 @@ Mirror specific topics across tabs using `BroadcastChannel('pan')`.
 Use PAN from React with no build (CDN React, plain JS, no JSX).
 
 ```html
-<!doctype html><meta charset="utf-8"><title>PAN – 04 React</title>
+<!doctype html><meta charset="utf-8"><title>LARC – 04 React</title>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <pan-bus></pan-bus>
@@ -339,7 +338,7 @@ Use PAN from React with no build (CDN React, plain JS, no JSX).
 Use PAN from a Lit element (CDN Lit, no build).
 
 ```html
-<!doctype html><meta charset="utf-8"><title>PAN – 05 Lit</title>
+<!doctype html><meta charset="utf-8"><title>LARC – 05 Lit</title>
 <script type="module">
   import { LitElement, html, css } from 'https://unpkg.com/lit?module';
   class PanClient{constructor(h=document){this.h=h}
@@ -483,7 +482,7 @@ Topic contract (generic CRUD):
 
 ## Spec & Guarantees
 
-* Spec lives in `SPEC.v0.md` (topics, envelopes, versioning, compliance tests).
+* Spec lives in `LARC_SPEC.v0.md` (topics, envelopes, versioning, compliance tests).
 * Backwards compatibility: topic schemas versioned with semver; minor bumps are additive.
 
 ---
