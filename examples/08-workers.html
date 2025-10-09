@@ -1,0 +1,90 @@
+<!doctype html><meta charset="utf-8">
+<title>PAN – 08 Workers (Filter/Sort 10k)</title>
+<style>
+  :root{ font-family: system-ui, sans-serif }
+  body{ margin:16px }
+  .row{ display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap }
+  card{ display:block; border:1px solid #ddd; border-radius:12px; padding:12px; min-width:320px }
+  h3{ margin:0 0 8px 0 }
+  .controls{ display:flex; gap:8px; align-items:center; margin-bottom:8px }
+  input, select, button{ padding:6px 8px }
+  .spacer{ flex:1 }
+</style>
+
+<pan-bus></pan-bus>
+
+<div class="row">
+  <card style="flex:1">
+    <h3>Users (10k) — Worker‑powered filter/sort</h3>
+    <!-- Query orchestrator retains state and drives list.get; syncs with URL search params -->
+    <pan-query resource="users" sync-url="search">
+      <script type="application/json">{"q":"","sort":"name:asc","page":1,"size":100}</script>
+    </pan-query>
+    <div class="controls">
+      <input id="q" placeholder="Filter (name/email)…" />
+      <select id="sort">
+        <option value="name:asc">Name ↑</option>
+        <option value="name:desc">Name ↓</option>
+        <option value="email:asc">Email ↑</option>
+        <option value="email:desc">Email ↓</option>
+      </select>
+      <button id="apply">Apply</button>
+      <span class="spacer"></span>
+      <small class="muted">Computation runs inside a Web Worker.</small>
+    </div>
+    <pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+  </card>
+  <card style="flex:1">
+    <h3>Traffic</h3>
+    <pan-inspector style="height:360px"></pan-inspector>
+  </card>
+
+  <!-- Bridge PAN topics to a Worker; worker generates 10k records and computes filter/sort -->
+  <pan-worker topics="users.list.get users.query.set">
+    <script type="application/worker">
+      let items = [];
+      function synth(count=10000){
+        const out = new Array(count);
+        for (let i=0;i<count;i++){
+          const id = `u${i+1}`; const name = `User ${String(i+1).padStart(5,'0')}`;
+          out[i] = { id, name, email: `${name.toLowerCase().replace(/\s+/g,'')}@example.com` };
+        }
+        return out;
+      }
+      items = synth(10000);
+      let q = { q:'', sort:'name:asc' };
+      function publish(){
+        const { q:qq, sort } = q; const [key,dir] = (sort||'name:asc').split(':');
+        let view = items;
+        if (qq) { const s=qq.toLowerCase(); view = view.filter(it=> String(it.name).toLowerCase().includes(s) || String(it.email).toLowerCase().includes(s)); }
+        view = view.slice().sort((a,b)=>{ const av=a[key], bv=b[key]; return (av>bv?1:av<bv?-1:0) * (dir==='desc'?-1:1); });
+        postMessage({ topic:'users.list.state', data:{ items:view }, retain:true });
+      }
+      onmessage = (ev)=>{
+        const m = ev.data || {};
+        if (m.topic === 'users.query.set') { q = Object.assign({}, q, m.data||{}); publish(); }
+        if (m.topic === 'users.list.get') { publish(); }
+      };
+    </script>
+  </pan-worker>
+</div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-inspector.js';
+  import '../dist/pan-data-table.js';
+  import '../dist/pan-query.js';
+  import '../dist/pan-worker.js';
+  import { PanClient } from '../dist/pan-client.js';
+  const pc = new PanClient();
+  const $ = (s)=>document.querySelector(s);
+  const apply = ()=> pc.publish({ topic:'users.query.set', data:{ q: $('#q').value, sort: $('#sort').value } });
+  $('#apply').addEventListener('click', ()=> apply());
+  $('#q').addEventListener('keydown', (e)=>{ if (e.key==='Enter') apply(); });
+  // Query orchestrator will publish initial users.list.get based on defaults
+  // Focus the filter for convenience
+  $('#q').focus();
+  // Preselect name asc
+  $('#sort').value = 'name:asc';
+</script>

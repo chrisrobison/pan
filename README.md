@@ -1,13 +1,42 @@
 # Page Area Network (PAN)
 
-> **A DOM‑native message bus for Web Components & micro‑frontends:** topics, request/reply, retained messages, lightweight,  no buildi...with an Inspector! 
+> **A very lightweight DOM‑native message bus for Web Components & micro‑frontends:** topics, request/reply, retained messages, lightweight,  no buildi...with an Inspector! 
 
 * **Zero build:** drop a `<pan-bus>` on the page; talk via `CustomEvent`s.
 * **Loose coupling:** components depend on topic contracts (JSON‑Schema), not imports.
 * **Interoperable:** works with vanilla, Web Components, React/Lit/Vue, iframes.
 * **Batteries included:** retained messages, req/rep, optional cross‑tab mirror, DevTools‑style inspector.
 
+PAN (Page Area Network) is a messaging bus designed to be a central communications hub for web components or micro-frontends. It works with any and all frameworks, or no framework at all.
+It allows web components to broadcast information to the page and then to any components that are listening via the PAN. The web component can also subscribe or listen to the PAN traffic
+and take action upon matching a particular string or event being fired. It is meant to be the linchpin that holds the various components together on a page without any build process or 
+transpiling required.
+
 ---
+
+## Architecture & Goals
+
+We are building a suite of Web Components that communicate over PAN to form composable, framework-agnostic UIs.
+
+- Roles:
+  - Providers/Connectors: talk to backends (REST/GraphQL/IndexedDB), publish retained state, answer requests.
+  - Views: tables, forms, inspectors that subscribe to state and publish user intents (select, save, delete, filter).
+  - Adapters/Controllers: optional mappers that translate between domain topics and transports.
+- Message types:
+  - Commands: `*.get`, `*.save`, `*.delete` (request/reply; not retained).
+  - Events: `*.changed`, `*.error` (notifications; not retained).
+  - State: `*.state` (retained snapshot for late joiners).
+- Topic contracts (CRUD v1):
+  - List: `${resource}.list.get` → replies `{ items }` and publishes `${resource}.list.state` (retain:true).
+  - Select: `${resource}.item.select` with `{ id }` (view event, no reply).
+  - Get: `${resource}.item.get` with `{ id }` → replies `{ ok, item? }`.
+  - Save: `${resource}.item.save` with `{ item }` → replies `{ ok, item }`; provider updates list state.
+  - Delete: `${resource}.item.delete` with `{ id }` → replies `{ ok, id }`; provider updates list state.
+
+Security tips:
+
+- Mirror only non-sensitive topics across tabs; avoid secrets in mirrored traffic.
+- Keep payloads JSON-serializable; prefer headers for schema/version metadata.
 
 ## Quickstart (10‑second demo)
 
@@ -21,7 +50,7 @@ Copy this into an `.html` file and open it.
   // Minimal PanClient helper
   class PanClient{constructor(h=document){this.h=h}
     pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
-    sub(t,fn){const on=e=>e.detail?.topic&&PAN.matches(e.detail.topic,t)&&fn(e.detail);
+    sub(t,fn){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail);
       this.h.addEventListener('pan:deliver',on);
       this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t]},bubbles:true,composed:true}));
       return ()=>{this.h.removeEventListener('pan:deliver',on);
@@ -344,11 +373,117 @@ Use PAN from a Lit element (CDN Lit, no build).
 <lit-chat></lit-chat>
 ```
 
+### `examples/06-crud.html`
+
+Basic CRUD stack wired to a mock provider (local state, optional `localStorage` persistence).
+
+```html
+<!doctype html><meta charset="utf-8">
+<pan-bus></pan-bus>
+<div class="row">
+  <pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+  <pan-form resource="users" fields="name,email"></pan-form>
+  <pan-inspector style="height:320px"></pan-inspector>
+  <pan-data-provider resource="users" persist="localStorage">
+    <script type="application/json">[{"id":"u1","name":"Ada","email":"ada@example.com"}]</script>
+  </pan-data-provider>
+  <script type="module">
+    import '../dist/pan-bus.js';
+    import '../dist/pan-client.js';
+    import '../dist/pan-inspector.js';
+    import '../dist/pan-data-provider-mock.js';
+    import '../dist/pan-data-table.js';
+    import '../dist/pan-form.js';
+  </script>
+  <!-- Open examples/06-crud.html to try it. -->
+```
+
+### `examples/07-rest-connector.html`
+
+CRUD stack driving a remote REST API via `<pan-data-connector>`. Uses JSONPlaceholder for demo.
+
+```html
+<!doctype html><meta charset="utf-8">
+<pan-bus></pan-bus>
+<pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+<pan-form resource="users" fields="name,email"></pan-form>
+<pan-inspector style="height:340px"></pan-inspector>
+<pan-data-connector resource="users" base-url="https://jsonplaceholder.typicode.com"></pan-data-connector>
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-inspector.js';
+  import '../dist/pan-data-table.js';
+  import '../dist/pan-form.js';
+  import '../dist/pan-data-connector.js';
+  // Optional refresh
+  import { PanClient } from '../dist/pan-client.js';
+  new PanClient().publish({ topic:'users.list.get', data:{} });
+  // Open examples/07-rest-connector.html to try it.
+</script>
+```
+
+---
+
+### `examples/08-workers.html`
+
+Offload filter/sort of 10k records to a Web Worker via `<pan-worker>`; publishes computed `${resource}.list.state` for `<pan-data-table>`.
+
+```html
+<!doctype html><meta charset="utf-8">
+<pan-bus></pan-bus>
+<pan-worker topics="users.list.get users.query.set">
+  <script type="application/worker">
+    // Worker: generate 10k users, compute filter/sort, publish users.list.state
+    let items=[]; for(let i=0;i<10000;i++){ const id=`u${i+1}`; const name=`User ${String(i+1).padStart(5,'0')}`; items.push({id,name,email:`${name.toLowerCase().replace(/\s+/g,'')}@example.com`}); }
+    let q={q:'',sort:'name:asc'};
+    function pub(){ const [k,d]=(q.sort||'name:asc').split(':'); let v=items; if(q.q){const s=q.q.toLowerCase(); v=v.filter(it=>it.name.toLowerCase().includes(s)||it.email.toLowerCase().includes(s));} v=v.slice().sort((a,b)=>{const av=a[k],bv=b[k];return (av>bv?1:av<bv?-1:0)*(d==='desc'?-1:1)}); postMessage({topic:'users.list.state',data:{items:v},retain:true}); }
+    onmessage=(e)=>{ const m=e.data||{}; if(m.topic==='users.query.set'){ q=Object.assign({},q,m.data||{}); pub(); } if(m.topic==='users.list.get'){ pub(); } };
+  </script>
+</pan-worker>
+<pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-data-table.js';
+  import '../dist/pan-worker.js';
+  import { PanClient } from '../dist/pan-client.js';
+  new PanClient().publish({ topic:'users.list.get', data:{} });
+</script>
+```
+
+---
+
+## CRUD Components
+
+- `pan-data-table`: subscribes to `${resource}.list.state` and renders a table. Publishes row clicks as `${resource}.item.select`.
+- `pan-form`: listens for `${resource}.item.select`, requests `${resource}.item.get`, and submits to `${resource}.item.save` / `${resource}.item.delete`.
+- `pan-data-provider`: mock in‑memory provider. Seeds from child JSON script and can persist to `localStorage`. Handles get/save/delete topics and publishes `${resource}.list.state` (retained).
+- `pan-data-connector`: REST bridge. Maps PAN CRUD topics to HTTP endpoints. Publishes `${resource}.list.state` (retained).
+- `pan-query`: query orchestrator; retains `${resource}.query.state` and triggers `${resource}.list.get`. Supports URL sync via `sync-url="search|hash"`.
+
+Defaults and attributes:
+
+- `resource`: logical name (default `items`).
+- `pan-data-table` attributes: `columns="col1,col2"`, optional `key` (id field, default `id`).
+- `pan-form` attributes: `fields="name,email"`, optional `key` (id field, default `id`).
+- `pan-data-provider` attributes: `persist="localStorage"`, optional `key`.
+- `pan-data-connector` attributes: `base-url`, optional `list-path` (default `/${resource}`), `item-path` (default `/${resource}/:id`), `update-method` (`PUT`|`PATCH`, default `PUT`), `credentials` (e.g. `include`). Optional child `<script type="application/json">` supplies fetch options (e.g., headers).
+
+Topic contract (generic CRUD):
+
+- Request list: `${resource}.list.get` → replies `{ items }`; also causes `${resource}.list.state` to be retained.
+- Select row: `${resource}.item.select` with `{ id }`.
+- Get item: `${resource}.item.get` with `{ id }` → replies `{ ok, item? }`.
+- Save item: `${resource}.item.save` with `{ item }` → replies `{ ok, item }`.
+- Delete item: `${resource}.item.delete` with `{ id }` → replies `{ ok, id }`.
+
+
 ---
 
 ## Spec & Guarantees
 
-* Spec lives in `/spec` (topics, envelopes, versioning, compliance tests).
+* Spec lives in `SPEC.v0.md` (topics, envelopes, versioning, compliance tests).
 * Backwards compatibility: topic schemas versioned with semver; minor bumps are additive.
 
 ---
@@ -359,6 +494,16 @@ Use PAN from a Lit element (CDN Lit, no build).
 * Schema registry & TS typegen.
 * Cross‑origin gateway (`postMessage`) with allowlists.
 * IndexedDB/Yjs providers for offline + CRDT sync.
+
+---
+
+## Sample Data
+
+Static JSON you can load in examples or serve via a simple static server:
+
+- `examples/data/users.json`
+- `examples/data/products.json`
+- `examples/data/todos.json`
 
 ---
 

@@ -1,0 +1,41 @@
+<!doctype html><meta charset="utf-8">
+<title>PAN – 06 CRUD (Mock)</title>
+<style>
+  :root{ font-family: system-ui, sans-serif }
+  body{ margin:16px }
+  .row{ display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap }
+  card{ display:block; border:1px solid #ddd; border-radius:12px; padding:12px; min-width:320px }
+  h3{ margin:0 0 8px 0 }
+</style>
+<pan-bus></pan-bus>
+<div class="row">
+  <card style="flex:1">
+    <h3>Users</h3>
+    <pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+  </card>
+  <card style="flex:1">
+    <h3>User Details</h3>
+    <pan-form resource="users" fields="name,email"></pan-form>
+  </card>
+  <card style="flex:1">
+    <h3>Traffic</h3>
+    <pan-inspector style="height:320px"></pan-inspector>
+  </card>
+  <pan-data-provider resource="users" persist="localStorage">
+    <script type="application/json">[
+      {"id":"u1","name":"Ada Lovelace","email":"ada@example.com"},
+      {"id":"u2","name":"Grace Hopper","email":"grace@example.com"},
+      {"id":"u3","name":"Alan Turing","email":"alan@example.com"}
+    ]</script>
+  </pan-data-provider>
+</div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-inspector.js';
+  import '../dist/pan-data-provider-mock.js';
+  import '../dist/pan-data-table.js';
+  import '../dist/pan-form.js';
+</script>
+

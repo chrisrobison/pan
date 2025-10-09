@@ -95,11 +95,10 @@
         const correlationId = crypto.randomUUID();
         const replyTo = `pan:$reply:${this.clientId}:${correlationId}`;
         return new Promise((resolve, reject)=>{
-          const off = this.subscribe(replyTo, (m)=>{ off(); resolve(m); });
           const timer = setTimeout(()=>{ off(); reject(new Error('PAN request timeout')); }, timeoutMs);
-          const clear = (v)=>{ clearTimeout(timer); return v; };
+          const off = this.subscribe(replyTo, (m)=>{ clearTimeout(timer); off(); resolve(m); });
           this.publish({ topic, data, replyTo, correlationId });
-        }).then(clearTimeout);
+        });
       }
       static matches(topic, pattern){
         if (pattern === '*' || topic === pattern) return true;

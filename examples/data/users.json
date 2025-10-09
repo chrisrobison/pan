@@ -1,0 +1,23 @@
+[
+  {"id":"u1","name":"Ada Lovelace","email":"ada@example.com"},
+  {"id":"u2","name":"Grace Hopper","email":"grace@example.com"},
+  {"id":"u3","name":"Alan Turing","email":"alan@example.com"},
+  {"id":"u4","name":"Edsger Dijkstra","email":"edsger@example.com"},
+  {"id":"u5","name":"Donald Knuth","email":"donald@example.com"},
+  {"id":"u6","name":"Barbara Liskov","email":"barbara@example.com"},
+  {"id":"u7","name":"Margaret Hamilton","email":"margaret@example.com"},
+  {"id":"u8","name":"Ken Thompson","email":"ken@example.com"},
+  {"id":"u9","name":"Dennis Ritchie","email":"dennis@example.com"},
+  {"id":"u10","name":"Linus Torvalds","email":"linus@example.com"},
+  {"id":"u11","name":"Guido van Rossum","email":"guido@example.com"},
+  {"id":"u12","name":"Brendan Eich","email":"brendan@example.com"},
+  {"id":"u13","name":"Hedy Lamarr","email":"hedy@example.com"},
+  {"id":"u14","name":"Radia Perlman","email":"radia@example.com"},
+  {"id":"u15","name":"Bjarne Stroustrup","email":"bjarne@example.com"},
+  {"id":"u16","name":"James Gosling","email":"james@example.com"},
+  {"id":"u17","name":"Anders Hejlsberg","email":"anders@example.com"},
+  {"id":"u18","name":"Niklaus Wirth","email":"niklaus@example.com"},
+  {"id":"u19","name":"Adele Goldberg","email":"adele@example.com"},
+  {"id":"u20","name":"Mary Shaw","email":"mary@example.com"}
+]
+

@@ -1,0 +1,61 @@
+<!doctype html><meta charset="utf-8">
+<title>PAN – 07 REST Connector (JSONPlaceholder)</title>
+<style>
+  :root{ font-family: system-ui, sans-serif }
+  body{ margin:16px }
+  .row{ display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap }
+  card{ display:block; border:1px solid #ddd; border-radius:12px; padding:12px; min-width:320px }
+  h3{ margin:0 0 8px 0 }
+  .muted{ color:#888 }
+  .note{ font-size:12px; color:#666; margin-bottom:8px }
+  pan-inspector{ height:340px }
+  pan-form, pan-data-table{ display:block }
+  .actions{ display:flex; gap:8px; margin-bottom:8px }
+  button{ padding:6px 10px }
+  .spacer{ flex:1 }
+  .small{ font-size:12px }
+</style>
+
+<!-- Bus -->
+<pan-bus></pan-bus>
+
+<div class="row">
+  <card style="flex:1">
+    <h3>Users (Remote)</h3>
+    <div class="note">Backed by JSONPlaceholder <code>/users</code> (GET works; POST/PUT/DELETE are faked).</div>
+    <div class="actions small">
+      <button id="refresh">Refresh</button>
+      <span class="spacer"></span>
+      <span class="muted">Tip: select a row to load details.</span>
+    </div>
+    <pan-data-table id="table" resource="users" columns="id,name,email"></pan-data-table>
+  </card>
+  <card style="flex:1">
+    <h3>User Details</h3>
+    <pan-form id="form" resource="users" fields="name,email"></pan-form>
+  </card>
+  <card style="flex:1">
+    <h3>Traffic</h3>
+    <pan-inspector></pan-inspector>
+  </card>
+
+  <!-- REST connector: maps PAN topics to HTTP endpoints -->
+  <pan-data-connector resource="users" base-url="https://jsonplaceholder.typicode.com"></pan-data-connector>
+</div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-inspector.js';
+  import '../dist/pan-data-table.js';
+  import '../dist/pan-form.js';
+  import '../dist/pan-data-connector.js';
+
+  // Simple refresh button to re-request list
+  import { PanClient } from '../dist/pan-client.js';
+  const pc = new PanClient();
+  document.getElementById('refresh')?.addEventListener('click', ()=>{
+    pc.publish({ topic: 'users.list.get', data: {} });
+  });
+</script>
+

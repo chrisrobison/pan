@@ -371,3 +371,43 @@ customElements.define('pan-bus', PanBus);
 * Ship `pan-client` helper (1KB gz).
 * Build PAN Inspector (traffic console + replay).
 * Author compliance test suite (Web Test Runner).
+
+---
+
+## 26. CRUD Suite v1 (Draft)
+
+This section specifies a minimal, interoperable contract for CRUD-style components communicating over PAN. It defines topics, message shapes, and component roles so tables, forms, and connectors can be mixed-and-matched.
+
+### 26.1 Topics
+
+- List request: `${resource}.list.get` with `data?: { page?, size?, sort?, filter? }`
+  - Provider optionally replies on `replyTo` with `{ items, page?, size?, total? }`.
+  - Provider publishes `${resource}.list.state` with `{ items, page?, size?, total? }` and `retain:true`.
+- List state: `${resource}.list.state` (retained snapshot for subscribers with `retained:true`).
+- Item select: `${resource}.item.select` with `{ id }` (view → provider hint; no reply required).
+- Item get: `${resource}.item.get` with `{ id }` → reply `{ ok:boolean, item?:object, error?:any }`.
+- Item save: `${resource}.item.save` with `{ item:object }` → reply `{ ok:boolean, item?:object, error?:any }`.
+- Item delete: `${resource}.item.delete` with `{ id }` → reply `{ ok:boolean, id?:string|number, error?:any }`.
+
+Notes:
+
+- Providers SHOULD publish an updated `${resource}.list.state` after save/delete.
+- Providers SHOULD accept `key` other than `id` (attribute or header-driven), but reply payloads MUST include the resolved identifier.
+- Versioning MAY be conveyed via topic suffix `@N` or header `schema: '<topic>@<N>'`.
+
+### 26.2 Component Roles
+
+- Data Table (`<pan-data-table>`): subscribes to `${resource}.list.state` (retained), renders tabular rows, and publishes `${resource}.item.select` on row click. Attributes: `resource`, `columns`, optional `key`.
+- Form (`<pan-form>`): listens for `${resource}.item.select`, requests `${resource}.item.get`, and publishes `${resource}.item.save` / `${resource}.item.delete`. Attributes: `resource`, `fields`, optional `key`.
+- Mock Provider (`<pan-data-provider>`): in-memory storage, optional localStorage persistence; handles CRUD topics and publishes list state.
+- REST Connector (`<pan-data-connector>`): maps CRUD topics to HTTP endpoints. Attributes: `base-url`, optional `list-path`, `item-path`, `update-method`, `credentials`. Accepts child JSON for fetch options.
+
+### 26.3 Error Semantics
+
+- On failure, providers SHOULD reply `{ ok:false, error }` on the original request's `replyTo`; `error` MAY include `status`, `statusText`, and parsed body when applicable.
+- Providers MAY also emit `*.error` event topics for ambient error displays.
+
+### 26.4 Security & Privacy
+
+- Only mirror non-sensitive topics across tabs (e.g., view filters). Do not mirror PII or secrets.
+- Keep payload sizes small; consider pagination and server-side filtering.

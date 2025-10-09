@@ -1,0 +1,18 @@
+[
+  {"id":"t1","title":"Write documentation","done":false},
+  {"id":"t2","title":"Implement pan-worker","done":true},
+  {"id":"t3","title":"Create workers demo","done":true},
+  {"id":"t4","title":"Build pan-query orchestrator","done":false},
+  {"id":"t5","title":"Add REST connector example","done":true},
+  {"id":"t6","title":"Draft SPEC CRUD section","done":true},
+  {"id":"t7","title":"Seed sample data files","done":true},
+  {"id":"t8","title":"Add schema-driven form","done":false},
+  {"id":"t9","title":"Implement router prototype","done":false},
+  {"id":"t10","title":"Enhance inspector with replay","done":false},
+  {"id":"t11","title":"GraphQL connector spike","done":false},
+  {"id":"t12","title":"IndexedDB cache provider","done":false},
+  {"id":"t13","title":"SSE/WebSocket bridge","done":false},
+  {"id":"t14","title":"Write basic e2e tests","done":false},
+  {"id":"t15","title":"Polish README & examples","done":true}
+]
+

@@ -1,0 +1,23 @@
+[
+  {"id":"p1","name":"Wireless Mouse","price":24.99,"category":"Accessories"},
+  {"id":"p2","name":"Mechanical Keyboard","price":89.99,"category":"Accessories"},
+  {"id":"p3","name":"USB‑C Hub","price":39.99,"category":"Accessories"},
+  {"id":"p4","name":"27"" 4K Monitor","price":329.0,"category":"Displays"},
+  {"id":"p5","name":"Laptop Stand","price":19.99,"category":"Accessories"},
+  {"id":"p6","name":"Noise‑Canceling Headphones","price":129.99,"category":"Audio"},
+  {"id":"p7","name":"Portable SSD 1TB","price":109.5,"category":"Storage"},
+  {"id":"p8","name":"Webcam 1080p","price":49.99,"category":"Video"},
+  {"id":"p9","name":"Ergonomic Chair","price":249.0,"category":"Furniture"},
+  {"id":"p10","name":"LED Desk Lamp","price":34.99,"category":"Lighting"},
+  {"id":"p11","name":"Bluetooth Speaker","price":59.0,"category":"Audio"},
+  {"id":"p12","name":"Smart Plug","price":14.99,"category":"Smart Home"},
+  {"id":"p13","name":"USB‑C Cable","price":8.99,"category":"Cables"},
+  {"id":"p14","name":"Thunderbolt Dock","price":199.99,"category":"Accessories"},
+  {"id":"p15","name":"Wireless Charger","price":29.99,"category":"Power"},
+  {"id":"p16","name":"Laptop 14""","price":999.0,"category":"Computers"},
+  {"id":"p17","name":"Tablet 10""","price":299.0,"category":"Tablets"},
+  {"id":"p18","name":"Smartphone Case","price":12.99,"category":"Accessories"},
+  {"id":"p19","name":"Action Camera","price":249.99,"category":"Video"},
+  {"id":"p20","name":"Microphone USB","price":79.99,"category":"Audio"}
+]
+
