@@ -461,6 +461,12 @@ Offload filter/sort of 10k records to a Web Worker via `<pan-worker>`; publishes
 - `pan-data-connector`: REST bridge. Maps PAN CRUD topics to HTTP endpoints. Publishes `${resource}.list.state` (retained).
 - `pan-query`: query orchestrator; retains `${resource}.query.state` and triggers `${resource}.list.get`. Supports URL sync via `sync-url="search|hash"`.
 
+Realtime bridges and stores:
+
+- `pan-sse`: bridges Server-Sent Events into PAN topics. Attributes: `src`, optional `topics` (space-separated), `persist-last-event`, and `backoff` (e.g., `1000,15000`). Emits events where either `event:` is the topic or JSON payload contains `{ topic, data }`.
+- `pan-store`: tiny reactive store and `bind()` helper for wiring form fields ↔ state.
+- `pan-store-pan`: helpers `syncItem()` and `syncList()` to connect stores to PAN topics (auto-save, live updates).
+
 Defaults and attributes:
 
 - `resource`: logical name (default `items`).
@@ -476,6 +482,98 @@ Topic contract (generic CRUD):
 - Get item: `${resource}.item.get` with `{ id }` → replies `{ ok, item? }`.
 - Save item: `${resource}.item.save` with `{ item }` → replies `{ ok, item }`.
 - Delete item: `${resource}.item.delete` with `{ id }` → replies `{ ok, id }`.
+
+Realtime updates (optional, generic):
+
+- Per‑item state: providers may publish retained `${resource}.item.state.${id}` with `{ item }` when an item changes.
+- Deletions: publish `${resource}.item.state.${id}` with `{ id, deleted: true }` (not retained).
+- `pan-data-table` and `pan-form` listen for these automatically when `live="true"` (default).
+
+---
+
+## SSE Sidecar + Store Example
+
+Run a minimal SSE + REST sidecar (no deps):
+
+```
+node examples/server/sse-server.js
+```
+
+Then open: `examples/10-sse-store.html`
+
+- The page uses `<pan-sse>` to receive server events and republish as PAN topics.
+- `<pan-data-connector>` points to the sidecar REST API for CRUD.
+- A small store auto-saves changes to `${resource}.item.save` and updates live from `${resource}.item.state.${id}`.
+
+---
+
+## Stores & Sync APIs
+
+`pan-store` (dist/pan-store.js)
+
+- createStore(initial)
+  - Returns `{ state, subscribe(fn), snapshot(), set(k,v), patch(obj), update(fn) }`.
+  - Proxy-backed `state` emits a `state` event on key change.
+- bind(el, store, map, opts?)
+  - Two-way binds form elements to store keys.
+  - `map`: `{ 'input[name=name]':'name', 'input[name=email]':'email' }`.
+  - `opts.events`: default `['input','change']`.
+
+`pan-store-pan` (dist/pan-store-pan.js)
+
+- syncItem(store, opts)
+  - Bridges a store to item topics; applies live updates and (optionally) auto-saves edits.
+  - Options:
+    - `resource='items'`, `key='id'`
+    - `id`: fixed id; if omitted and `followSelect=true`, follows `${resource}.item.select`.
+    - `live=true`: subscribe to `${resource}.item.state.${id}` (retained) and apply `{ item }`, `{ patch }`, or top-level patches; clear on `{ deleted:true }`.
+    - `autoSave=true`: debounce changes and request `${resource}.item.save` with `{ item: store.snapshot() }`.
+    - `debounceMs=300`, `followSelect=true`.
+  - Returns an `unsubscribe` function.
+- syncList(store, opts)
+  - Tracks `${resource}.list.state` and `${resource}.item.state.*` into an in-memory array.
+  - Options: `resource='items'`, `key='id'`, `live=true`.
+  - Expects a store with at least an `items` key; updates via `store._setAll({ items })`.
+
+`pan-sse` (dist/pan-sse.js)
+
+- Attributes
+  - `src`: SSE endpoint URL (absolute or relative).
+  - `topics`: optional space-separated list; added as `?topics=...` to the request.
+  - `persist-last-event`: key for localStorage to resume with `?lastEventId=`.
+  - `backoff`: `min,max` in ms (e.g., `1000,15000`).
+  - `with-credentials`: include cookies; default true if present.
+- Server payloads supported
+  - Event-as-topic: `event: users.item.state.u123` + `data: {"item":{...}}`.
+  - JSON envelope: `event: message` + `data: {"topic":"users.item.state.u123","data":{...},"retain":true}`.
+  - The bridge republishes `{ topic, data, retain? }` onto the PAN bus.
+
+`pan-form` and `pan-data-table`
+
+- Both now support `live` (default `true`) and optional `key` for id field.
+- `pan-data-table` remains subscribed to `${resource}.list.state` and merges `${resource}.item.state.*` updates.
+- `pan-form` follows `${resource}.item.select` and keeps the selected item live-synced.
+
+`pan-table`
+
+- `dist/pan-table.js` defines `<pan-table>` as an alias for `<pan-data-table>`.
+
+Topic patterns in use
+
+- Bulk: `${resource}.list.state` with `{ items: [...] }` (retained).
+- Per-item: `${resource}.item.state.${id}` with either `{ item }` (retained) or `{ patch }`.
+- Deletion: `${resource}.item.state.${id}` with `{ id, deleted:true }` (not retained).
+
+Providers
+
+- `pan-data-provider` (mock) and `pan-data-connector` (REST) now also publish per-item snapshots on get/save and deletion notices.
+  - Mock: dist/pan-data-provider-mock.js
+  - REST: dist/pan-data-connector.js
+
+Operational notes (PHP)
+
+- For PHP (mod_php or PHP-FPM), prefer using the small sidecar for SSE/WebSocket rather than holding long-lived connections in PHP workers.
+- If serving SSE from PHP directly, disable output buffering, avoid locking sessions, send keep-alives regularly, and ensure reverse proxies don’t buffer.
 
 
 ---

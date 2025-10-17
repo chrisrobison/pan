@@ -1,0 +1,75 @@
+<!doctype html><meta charset="utf-8" />
+<title>PAN + SSE + Store (Auto‑save)</title>
+<style>
+  body{font:14px/1.4 system-ui;margin:20px}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  pan-data-table, .card{border:1px solid #ddd;border-radius:12px}
+  .card{padding:16px}
+  label{display:block;margin:.5rem 0 .25rem;color:#555}
+  input,select,textarea{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
+  .muted{color:#777;font-size:12px}
+  .row{display:flex;gap:8px;align-items:center}
+  .spacer{flex:1}
+</style>
+
+<pan-bus></pan-bus>
+<pan-sse id="sse" src="http://localhost:3000/events" topics="users.list.state users.item.state.*" persist-last-event="users"></pan-sse>
+
+<div class="grid">
+  <pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+  <div class="card">
+    <h3 style="margin:.25rem 0 1rem">User (Auto‑save)</h3>
+    <div id="form">
+      <label>Name <input name="name" /></label>
+      <label>Email <input name="email" type="email" /></label>
+      <div class="row muted"><span class="spacer"></span><span id="status">Idle</span></div>
+    </div>
+    <p class="muted">Edits save automatically after you type.</p>
+  </div>
+</div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-data-table.js';
+  import '../dist/pan-data-connector.js';
+  import '../dist/pan-sse.js';
+  import { createStore, bind } from '../dist/pan-store.js';
+  import { syncItem } from '../dist/pan-store-pan.js';
+  import { PanClient } from '../dist/pan-client.js';
+
+  // REST connector points to the sidecar server
+  const dc = document.createElement('pan-data-connector');
+  dc.setAttribute('resource','users');
+  dc.setAttribute('base-url','http://localhost:3000/api');
+  document.body.appendChild(dc);
+
+  // Make sure we have an initial list
+  const pc = new PanClient();
+  pc.publish({ topic:'users.list.get', data:{} });
+
+  // A simple store for the selected user; start empty until a row is selected
+  const store = createStore({ id:'', name:'', email:'' });
+  const form = document.getElementById('form');
+  const unbind = bind(form, store, {
+    'input[name=name]':'name',
+    'input[name=email]':'email'
+  });
+
+  // Wire store <-> PAN item with autoSave
+  const statusEl = document.getElementById('status');
+  let savingTimer = null;
+  const unsubSync = syncItem(store, {
+    resource:'users', key:'id', live:true, autoSave:true, debounceMs:400, followSelect:true
+  });
+
+  // Visual save indicator
+  const unsubStore = store.subscribe(()=>{
+    clearTimeout(savingTimer);
+    statusEl.textContent = 'Saving…';
+    savingTimer = setTimeout(()=>{ statusEl.textContent = 'Saved'; }, 600);
+  });
+
+  // Cleanup on unload
+  addEventListener('beforeunload', ()=>{ try{ unbind(); unsubSync(); unsubStore(); }catch{} });
+</script>
