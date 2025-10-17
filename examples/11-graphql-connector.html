@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 11 GraphQL Connector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+        <a class="nav-item" href="./09-schema-form.html"><span>Schema Form</span><span class="hint">09</span></a>
+        <a class="nav-item active" aria-current="page" href="./11-graphql-connector.html"><span>GraphQL Connector</span><span class="hint">11</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        GraphQL bridge maps PAN CRUD topics to a public GraphQL API.
+      </div>
+    </aside>
+
+    <main class="main-region">
+      <header class="main-header">
+        <h1>GraphQL Connector · GraphQLZero</h1>
+        <p>
+          Uses <code>pan-graphql-connector</code> against <code>https://graphqlzero.almansi.me/api</code>.
+          Demonstrates read + update + delete flows.
+        </p>
+        <div class="badge-row">
+          <span class="badge">resource: <code>users</code></span>
+          <span class="badge">topics: <code>users.*</code></span>
+          <span class="badge">request / reply</span>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <div class="split-vertical">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Users</h2>
+                <div class="subtitle">List + select with live updates.</div>
+              </div>
+              <div class="toolbar">
+                <button id="refresh" class="button-link" type="button">Refresh</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="toolbar" style="display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem;">
+                <input id="q" placeholder="Search name/email…" style="flex:1;min-width:200px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid rgba(15,23,42,.12)">
+                <input id="limit" type="number" value="10" min="1" step="1" style="width:90px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid rgba(15,23,42,.12)">
+                <button id="apply" class="button-link" type="button">Apply</button>
+              </div>
+              <pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Details &amp; Traffic</h2>
+                <div class="subtitle">Form updates via GraphQL mutation; inspector shows traffic.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="detail-grid">
+                <pan-form resource="users" fields="name,email"></pan-form>
+                <pan-inspector></pan-inspector>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <pan-graphql-connector resource="users" endpoint="https://graphqlzero.almansi.me/api" key="id">
+    <script type="application/graphql" data-op="list">
+      query ($options: PageQueryOptions) {
+        users(options: $options) {
+          data { id name email }
+          meta { totalCount }
+        }
+      }
+    </script>
+    <script type="application/graphql" data-op="item">
+      query ($id: ID!) { user(id: $id) { id name email } }
+    </script>
+    <script type="application/graphql" data-op="save">
+      mutation ($id: ID!, $item: UpdateUserInput!) {
+        updateUser(id: $id, input: $item) { id name email }
+      }
+    </script>
+    <script type="application/graphql" data-op="delete">
+      mutation ($id: ID!) { deleteUser(id: $id) }
+    </script>
+    <script type="application/json" data-paths>{
+      "list": "data.users.data",
+      "item": "data.user",
+      "save": "data.updateUser",
+      "delete": "data.deleteUser"
+    }</script>
+  </pan-graphql-connector>
+
+  <script type="module">
+    import '../dist/pan-bus.js';
+    import '../dist/pan-client.js';
+    import '../dist/pan-inspector.js';
+    import '../dist/pan-data-table.js';
+    import '../dist/pan-form.js';
+    import '../dist/pan-graphql-connector.js';
+    import { PanClient } from '../dist/pan-client.js';
+
+    const pc = new PanClient();
+    const $ = (s)=> document.querySelector(s);
+    function load(){
+      const q = ($('#q')?.value || '').trim();
+      const limit = Number($('#limit')?.value) || 10;
+      const options = { paginate: { page: 1, limit } };
+      if (q) options.search = { q };
+      pc.publish({ topic: 'users.list.get', data: { options } });
+    }
+    $('#apply')?.addEventListener('click', load);
+    $('#refresh')?.addEventListener('click', load);
+    $('#q')?.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') load(); });
+    // initial
+    setTimeout(load, 0);
+  </script>
+</body>
+\n</html>
+

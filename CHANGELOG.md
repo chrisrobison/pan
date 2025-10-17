@@ -6,7 +6,11 @@ This project adheres to Keep a Changelog, and aims to follow Semantic Versioning
 
 ## [Unreleased]
 
-- No changes yet.
+- Added: Demo Browser SPA (`index.html`) using `pan-demo-nav` and `pan-demo-viewer` over PAN `nav.*` topics.
+- Added: `pan-schema` and `pan-schema-form` for JSON Schema–driven UIs.
+- Added: `pan-php-connector` (api.php bridge) and `pan-graphql-connector` (GraphQL CRUD bridge).
+- Added: Examples `09-schema-form.html`, `11-graphql-connector.html`, `12-php-connector.html`, and `pan-grid.html`.
+- Fixed: `pan-form` retained subscription loop causing freeze on row click; subscribe once per selected id.
 
 ## [0.1.0] - 2025-10-17
 
@@ -28,4 +32,3 @@ This project adheres to Keep a Changelog, and aims to follow Semantic Versioning
 ---
 
 Past history (pre-0.1.0) included the initial CRUD suite, examples, and foundational PAN bus/client helpers.
-

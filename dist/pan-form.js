@@ -6,7 +6,7 @@ import { PanClient } from './pan-client.js';
 
 export class PanForm extends HTMLElement {
   static get observedAttributes(){ return ['resource','fields','key','live']; }
-  constructor(){ super(); this.attachShadow({mode:'open'}); this.pc = new PanClient(this); this.value = {}; this._offSel=null; this._offLive=null; this._selectedId=null; }
+  constructor(){ super(); this.attachShadow({mode:'open'}); this.pc = new PanClient(this); this.value = {}; this._offSel=null; this._offLive=null; this._selectedId=null; this._liveTopic=null; }
   connectedCallback(){ this.render(); this.#wire(); }
   disconnectedCallback(){ this._unsubAll(); }
   attributeChangedCallback(){ this.render(); this.#wire(); }
@@ -32,14 +32,14 @@ export class PanForm extends HTMLElement {
     if (del) del.onclick = (e)=>{ e.preventDefault(); this.#delete(); };
   }
 
-  _unsubAll(){ try { this._offSel && this._offSel(); } catch {} this._offSel=null; try { this._offLive && this._offLive(); } catch {} this._offLive=null; }
+  _unsubAll(){ try { this._offSel && this._offSel(); } catch {} this._offSel=null; try { this._offLive && this._offLive(); } catch {} this._offLive=null; this._liveTopic=null; }
 
   #subscribeLive(){
-    // Subscribe to live updates for the currently selected id
-    try { this._offLive && this._offLive(); } catch {} this._offLive = null;
     if (!this.live) return;
     const id = this._selectedId || this.value?.[this.key] || this.value?.id; if (!id) return;
     const topic = `${this.resource}.item.state.${id}`;
+    if (this._liveTopic === topic && this._offLive) return; // already subscribed for this id
+    try { this._offLive && this._offLive(); } catch {} this._offLive = null; this._liveTopic = topic;
     this._offLive = this.pc.subscribe(topic, (m)=>{
       const d = m?.data || {};
       if (d.deleted) {

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PAN DB Grid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #fff; --fg: #111; --muted: #666; --card: #fafafa; --border: #e6e6e6; --accent: #5b8cff;
+    }
+    @media (prefers-color-scheme: dark){ :root{ --bg:#0f1115; --fg:#e8e8e8; --muted:#a8a8a8; --card:#151823; --border:#262a36; --accent:#7da2ff; } }
+    html,body{ margin:0; height:100%; background:var(--bg); color:var(--fg); font-family: "Lexend", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial }
+    .page{ min-height:100dvh; display:grid; grid-template-rows:auto 1fr; gap:16px; padding: clamp(12px, 3vw, 24px); }
+    .header{ display:flex; align-items:baseline; gap:12px; }
+    .title{ font-weight:600; font-size: clamp(18px, 2.2vw, 24px); }
+    .sub{ color:var(--muted); font-size:13px; }
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; box-shadow:0 1px 0 rgba(0,0,0,.04); display:flex; flex-direction:column; gap:12px }
+    .controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center }
+    .controls label{ font-size:12px; color:var(--muted) }
+    .controls input{ background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:6px 10px; font:inherit; min-width:120px }
+    .controls button{ background:var(--accent); color:#fff; border:none; border-radius:10px; padding:8px 12px; font-weight:600; cursor:pointer }
+    .controls button.secondary{ background:transparent; color:var(--fg); border:1px solid var(--border) }
+  </style>
+  <script type="module">
+    import './dist/pan-bus.js';
+    import './dist/pan-client.js';
+    import './dist/pan-data-table.js';
+    import './dist/pan-php-connector.js';
+    import './dist/pan-inspector.js';
+    import { PanClient } from './dist/pan-client.js';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const pc = new PanClient();
+      const conn = document.getElementById('conn');
+      const table = document.getElementById('grid');
+      const apiEl = document.getElementById('api');
+      const rscEl = document.getElementById('rsc');
+      const fieldsEl = document.getElementById('fields');
+      const psEl = document.getElementById('ps');
+      const paramsEl = document.getElementById('params');
+
+      function load(){
+        const api = (apiEl.value||'').trim() || 'api.php';
+        const rsc = (rscEl.value||'').trim() || 'Business';
+        const fields = (fieldsEl.value||'').trim();
+        const ps = Number(psEl.value)||20;
+        // update connector + table
+        conn.setAttribute('api-url', api);
+        conn.setAttribute('resource', rsc);
+        conn.setAttribute('page-size', String(ps));
+        if (fields) conn.setAttribute('fields', fields); else conn.removeAttribute('fields');
+        table.setAttribute('resource', rsc);
+
+        // derive filters from Params input, if present
+        let filters = null;
+        const p = (paramsEl.value||'').trim();
+        if (p) {
+          try {
+            const qp = new URLSearchParams(p);
+            if (qp.has('filters')) filters = qp.get('filters');
+          } catch {}
+        }
+        // reset + fetch
+        pc.publish({ topic: `${rsc}.list.reset`, data: {} });
+        pc.publish({ topic: `${rsc}.list.get`, data: filters!=null ? { filters } : {} });
+      }
+
+      document.getElementById('load').addEventListener('click', load);
+      document.getElementById('more').addEventListener('click', () => {
+        const rsc = (rscEl.value||'').trim() || 'Business';
+        pc.publish({ topic: `${rsc}.list.more`, data: {} });
+      });
+
+      // Populate resource datalist from the API
+      async function populateResourceDatalist(){
+        try {
+          const api = (apiEl.value||'').trim() || 'api.php';
+          const res = await fetch(`${api}?x=list_resources`);
+          const body = await res.json();
+          const list = Array.isArray(body?.Resources) ? body.Resources : [];
+          const dl = document.getElementById('rsc-list');
+          if (dl) dl.innerHTML = list.map(name=>`<option value="${name}"></option>`).join('');
+        } catch {}
+      }
+      populateResourceDatalist();
+      apiEl.addEventListener('change', populateResourceDatalist);
+
+      // Auto-load on first paint
+      setTimeout(load, 0);
+    });
+  </script>
+  </head>
+<body>
+  <pan-bus></pan-bus>
+  <main class="page">
+    <section class="header">
+      <div class="title">PAN DB Grid</div>
+      <div class="sub">PAN bus + PHP connector + data table</div>
+    </section>
+
+    <section class="card">
+      <div class="controls">
+        <label>API URL <input id="api" value="api.php"></label>
+        <label>Resource <input id="rsc" value="Business" list="rsc-list"></label>
+        <datalist id="rsc-list"></datalist>
+        <label>Fields <input id="fields" placeholder="BusinessID,Business,Contact,Email,Phone,Created"></label>
+        <label>Params <input id="params" placeholder="filters=[{\"key\":\"Business\",\"value\":\"acme\"}]"/></label>
+        <label>Page size <input id="ps" type="number" min="1" step="1" value="20"></label>
+        <button id="load">Load</button>
+        <button id="more" class="secondary">Load more</button>
+      </div>
+
+      <pan-php-connector id="conn" api-url="api.php" resource="Business" page-size="20"></pan-php-connector>
+      <pan-data-table id="grid" resource="Business"></pan-data-table>
+    </section>
+
+    <section class="card">
+      <div class="controls"><span class="sub">Live PAN traffic</span></div>
+      <pan-inspector></pan-inspector>
+    </section>
+  </main>
+</body>
+</html>
+

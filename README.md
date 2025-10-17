@@ -461,6 +461,16 @@ Offload filter/sort of 10k records to a Web Worker via `<pan-worker>`; publishes
 - `pan-data-connector`: REST bridge. Maps PAN CRUD topics to HTTP endpoints. Publishes `${resource}.list.state` (retained).
 - `pan-query`: query orchestrator; retains `${resource}.query.state` and triggers `${resource}.list.get`. Supports URL sync via `sync-url="search|hash"`.
 
+### Schema-driven Components
+
+- `pan-schema`: publishes retained `${resource}.schema.state` from a `src` URL or inline JSON.
+- `pan-schema-form`: renders a form from JSON Schema, validates locally, and performs `${resource}.item.get`/`.save`/`.delete`. Listens to `${resource}.item.state.*` for live updates.
+
+### Additional Connectors
+
+- `pan-php-connector`: bridges `${resource}.list.*` topics to a PHP endpoint shaped like `api.php` (supports paging, filters). Publishes aggregated `${resource}.list.state`.
+- `pan-graphql-connector`: maps CRUD topics to GraphQL queries/mutations provided as child `<script type="application/graphql" data-op="...">` and extracts results via a JSON `data-paths` map.
+
 Realtime bridges and stores:
 
 - `pan-sse`: bridges Server-Sent Events into PAN topics. Attributes: `src`, optional `topics` (space-separated), `persist-last-event`, and `backoff` (e.g., `1000,15000`). Emits events where either `event:` is the topic or JSON payload contains `{ topic, data }`.
@@ -557,6 +567,32 @@ Then open: `examples/10-sse-store.html`
 `pan-table`
 
 - `dist/pan-table.js` defines `<pan-table>` as an alias for `<pan-data-table>`.
+
+---
+
+## Demo Browser (SPA)
+
+`index.html` hosts a SPA-style browser powered by PAN topics:
+
+- `<pan-demo-nav>`: renders the example list from inline JSON, publishes retained `nav.state` and `nav.goto` topics on selection (hash-synced).
+- `<pan-demo-viewer>`: subscribes to `nav.state` and loads the selected example in an iframe (or inline HTML in `mode="inline"`).
+
+Navigation topics:
+
+- `nav.state` (retained): `{ href, id }` current selection
+- `nav.goto`: `{ href, id }` imperative navigation
+
+Open `index.html` to browse all examples in a single page.
+
+---
+
+## More Examples
+
+- `examples/08-workers.html`: Workers + Query orchestrator (10k synthetic records).
+- `examples/09-schema-form.html`: Schema-driven form + mock provider.
+- `examples/11-graphql-connector.html`: GraphQL connector (GraphQLZero) with list/get/save/delete.
+- `examples/12-php-connector.html`: PHP connector against local `api.php`; list + paging.
+- `pan-grid.html`: DB grid wired to `api.php` using PAN.
 
 Topic patterns in use
 

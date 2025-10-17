@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 12 PHP Connector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+        <a class="nav-item" href="./09-schema-form.html"><span>Schema Form</span><span class="hint">09</span></a>
+        <a class="nav-item" href="./11-graphql-connector.html"><span>GraphQL Connector</span><span class="hint">11</span></a>
+        <a class="nav-item active" aria-current="page" href="./12-php-connector.html"><span>PHP Connector</span><span class="hint">12</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        Read‑only table backed by your local <code>api.php</code> with list + paging.
+      </div>
+    </aside>
+
+    <main class="main-region">
+      <header class="main-header">
+        <h1>PHP Connector · api.php</h1>
+        <p>
+          The <code>pan-php-connector</code> proxies <code>${resource}.list.*</code> topics to <code>../api.php</code> and aggregates pages.
+          Use the controls to select a table/resource and optional fields/filters.
+        </p>
+        <div class="badge-row">
+          <span class="badge">resource: <code>Business</code> (editable)</span>
+          <span class="badge">topics: <code>*.list.*</code></span>
+          <span class="badge">read‑only</span>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <div class="split-vertical" style="grid-template-rows: auto 1fr;">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Browse</h2>
+                <div class="subtitle">Load from <code>../api.php</code> and paginate.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="toolbar" style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.75rem;">
+                <input id="api" value="../api.php" style="min-width:220px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid rgba(15,23,42,.12)" />
+                <input id="rsc" value="Business" list="rsc-list" style="min-width:160px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid rgba(15,23,42,.12)" />
+                <datalist id="rsc-list"></datalist>
+                <input id="fields" placeholder="BusinessID,Business,Contact,Email,Phone,Created" style="flex:1;min-width:220px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid rgba(15,23,42,.12)"/>
+                <input id="params" placeholder='filters=[{"key":"Business","value":"acme"}]' style="flex:1;min-width:220px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid rgba(15,23,42,.12)"/>
+                <input id="ps" type="number" value="20" min="1" step="1" style="width:90px;padding:.55rem .7rem;border-radius:.6rem;border:1px solid rgba(15,23,42,.12)"/>
+                <button id="load" class="button-link" type="button">Load</button>
+                <button id="more" class="button-link" type="button">Load more</button>
+              </div>
+              <pan-data-table id="grid" resource="Business"></pan-data-table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Traffic</h2>
+                <div class="subtitle">Observe list state and meta updates.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <pan-inspector></pan-inspector>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <pan-php-connector id="conn" api-url="../api.php" resource="Business" page-size="20"></pan-php-connector>
+
+  <script type="module">
+    import '../dist/pan-bus.js';
+    import '../dist/pan-client.js';
+    import '../dist/pan-inspector.js';
+    import '../dist/pan-data-table.js';
+    import '../dist/pan-php-connector.js';
+    import { PanClient } from '../dist/pan-client.js';
+
+    const pc = new PanClient();
+    const $ = (s)=> document.querySelector(s);
+    function load(){
+      const api = ($('#api').value||'').trim() || '../api.php';
+      const rsc = ($('#rsc').value||'').trim() || 'Business';
+      const fields = ($('#fields').value||'').trim();
+      const ps = Number($('#ps').value)||20;
+      $('#conn').setAttribute('api-url', api);
+      $('#conn').setAttribute('resource', rsc);
+      $('#conn').setAttribute('page-size', String(ps));
+      if (fields) $('#conn').setAttribute('fields', fields); else $('#conn').removeAttribute('fields');
+      $('#grid').setAttribute('resource', rsc);
+      let filters = null; const p = ($('#params').value||'').trim();
+      if (p) { try { const qp = new URLSearchParams(p); if (qp.has('filters')) filters = qp.get('filters'); } catch {} }
+      pc.publish({ topic: `${rsc}.list.reset`, data: {} });
+      pc.publish({ topic: `${rsc}.list.get`, data: filters!=null ? { filters } : {} });
+    }
+    $('#load')?.addEventListener('click', load);
+    $('#more')?.addEventListener('click', ()=>{ const rsc = ($('#rsc').value||'').trim() || 'Business'; pc.publish({ topic: `${rsc}.list.more`, data: {} }); });
+
+    async function populateResourceDatalist(){
+      try {
+        const api = ($('#api').value||'').trim() || '../api.php';
+        const res = await fetch(`${api}?x=list_resources`);
+        const body = await res.json();
+        const list = Array.isArray(body?.Resources) ? body.Resources : [];
+        $('#rsc-list').innerHTML = list.map(name=>`<option value="${name}"></option>`).join('');
+      } catch {}
+    }
+    populateResourceDatalist();
+    $('#api')?.addEventListener('change', populateResourceDatalist);
+    setTimeout(load, 0);
+  </script>
+</body>
+</html>
+

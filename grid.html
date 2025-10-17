@@ -1,0 +1,799 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>DB Browser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #fff;
+      --fg: #111;
+      --muted: #666;
+      --card: #fafafa;
+      --border: #e6e6e6;
+      --accent: #5b8cff;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0f1115;
+        --fg: #e8e8e8;
+        --muted: #a8a8a8;
+        --card: #151823;
+        --border: #262a36;
+        --accent: #7da2ff;
+      }
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Lexend", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .page {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+	  grid-template-rows: auto 1fr;
+      gap: 16px;
+      padding: clamp(12px, 3vw, 24px);
+    }
+    .header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .title { font-weight: 600; font-size: clamp(18px, 2.2vw, 24px); }
+    .sub   { color: var(--muted); font-size: 13px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 1px 0 rgba(0,0,0,.04);
+      display: flex;
+	  flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .controls label { font-size: 12px; color: var(--muted); }
+    .controls input, .controls select {
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font: inherit;
+      min-width: 120px;
+    }
+    .controls button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .controls button:disabled { opacity: .6; cursor: not-allowed; }
+    /* Modal dialog for row details */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: none; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--card); color: var(--fg); border-radius: 12px; padding: 18px;
+      width: min(920px, calc(100vw - 48px)); max-height: calc(100vh - 80px); overflow: auto;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      border: 1px solid var(--border);
+    }
+    .modal h3 { margin: 0 0 8px 0; font-size: 18px; }
+    .modal .form { display: grid; gap: 8px; margin-top: 12px; }
+    .modal .form-row { display: flex; gap: 8px; align-items: center; }
+    .modal label { width: 180px; color: var(--muted); font-size: 13px; }
+    .modal input[type="text"], .modal textarea { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); }
+    .modal textarea { min-height: 80px; resize: vertical; }
+    .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+    .modal .btn { padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+    .modal .btn.cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .modal .btn.save { background: var(--accent); color: white; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="header">
+      <div class="title">Database Table</div>
+      <div class="sub">Sticky sortable headers • H/V scroll • Infinite paging</div>
+    </section>
+
+    <section class="card">
+      <div class="controls">
+        <label>API URL <input id="api" value="api.php"> </label>
+        <label>Resource <input id="rsc" value="Business" list="rsc-list"> </label>
+        <datalist id="rsc-list"></datalist>
+        <label>ID <input id="id" value=""> </label>
+        <label>Params
+          <input id="params" placeholder="status=active&page_size=20">
+        </label>
+        <label>Page size
+          <input id="ps" type="number" min="1" step="1" value="20">
+        </label>
+        <label>Start param
+          <input id="sp" value="start">
+        </label>
+        <label>Fields (CSV)
+          <input id="fields" placeholder="BusinessID,Business,Contact,Email,Phone,Created">
+        </label>
+        <label>Initial sort
+          <input id="sort" placeholder="Business:asc">
+        </label>
+        <button id="load">Load</button>
+      </div>
+
+      <!-- Set desired height with the CSS var; component scrolls internally -->
+      <db-table id="grid"
+        style="--max-height: 70vh;"
+        data-url="api.php"
+        page-size="100"
+        start-param="start"
+        params=""
+      ></db-table>
+    </section>
+  </main>
+
+  <!-- Detail modal -->
+  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <h3 id="modal-title">Details</h3>
+      <div id="modal-form" class="form" ></div>
+      <div class="actions">
+        <button id="modal-cancel" class="btn cancel">Close</button>
+        <button id="modal-save" class="btn save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    class DbTable extends HTMLElement {
+      static get observedAttributes() {
+        return ["data-url","page-size","params","start-param","fields","sort"];
+      }
+      constructor() {
+        super();
+        this.attachShadow({ mode: "open" });
+        this._data = [];
+        this._loading = false;
+        this._done = false;
+        this._start = 0;
+        this._pageSize = 100;
+        this._fields = null;
+        this._sort = { key: null, dir: 1 };
+        this._startParam = "start";
+        this._params = "";
+        this._container = null;
+        this._thead = null;
+        this._tbody = null;
+        this._resetTimer = null;
+        this._lastResetAt = 0;
+        this._replaceNext = false;
+
+        const style = document.createElement("style");
+        style.textContent = `
+          :host {
+            --max-height: 75vh;
+            --header-bg: #555;
+            --header-fg: #fff;
+            --row-hover: color-mix(in oklab, var(--card, #f6f6f6) 96%, black 4%);
+            display: block;
+            /* never exceed the viewport width */
+            max-width: 95vw;
+            box-sizing: border-box;
+          }
+          .wrap {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--bg);
+            /* fill the host width so horizontal overflow is contained */
+            width: 100%;
+            box-sizing: border-box;
+          }
+          .scroll {
+            /* horizontal scrolling happens here only */
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: var(--max-height);
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+          }
+          table {
+            border-collapse: separate;
+            border-spacing: 0;
+            /* let the table size to its contents so the scroll container
+               handles horizontal scrolling instead of expanding the page */
+            width: max-content;
+            min-width: 720px;
+            font-size: 14px;
+          }
+          /* Sticky header: first row is the field titles, second (filter-row)
+             sits just below and is also sticky so inputs remain visible. */
+          thead tr:first-child th {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            background: var(--header-bg);
+            color: var(--header-fg);
+            text-align: left;
+            padding: 10px 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+          }
+          thead tr.filter-row th {
+            position: sticky;
+            /* pinned directly under the header row; approximate height */
+            top: 44px;
+            z-index: 2;
+            background: color-mix(in oklab, var(--header-bg) 92%, transparent 8%);
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+          }
+          thead tr.filter-row th input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--fg);
+            font: inherit;
+          }
+          thead th .sort {
+            margin-left: 6px;
+            font-size: 12px;
+            opacity: .9;
+          }
+          tbody td {
+            padding: 8px 12px;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--border);
+          }
+          tbody tr:hover { background: var(--row-hover); }
+          .status {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+          }
+          .spinner {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: 2px solid #bbb; border-top-color: #666;
+            animation: spin .9s linear infinite;
+          }
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `;
+        this.shadowRoot.append(style, this._tpl());
+      }
+
+      _tpl() {
+        const wrap = document.createElement("div");
+        wrap.className = "wrap";
+
+        const scroll = document.createElement("div");
+        scroll.className = "scroll";
+        scroll.addEventListener("scroll", () => this._onScroll());
+        this._container = scroll;
+
+        const table = document.createElement("table");
+        this._thead = document.createElement("thead");
+        this._tbody = document.createElement("tbody");
+        table.append(this._thead, this._tbody);
+        scroll.append(table);
+
+        const status = document.createElement("div");
+        status.className = "status";
+        status.innerHTML = `<span class="spinner" style="display:none"></span><span class="msg"></span><span class="counts" style="margin-left:auto"></span>`;
+        this._statusSpinner = status.querySelector(".spinner");
+        this._statusMsg = status.querySelector(".msg");
+        this._countsEl = status.querySelector('.counts');
+
+        wrap.append(scroll, status);
+        return wrap;
+      }
+
+      connectedCallback() {
+        this._pageSize   = this._attrInt("page-size", 100);
+        this._startParam = this.getAttribute("start-param") || "start";
+        this._params     = (this.getAttribute("params") || "").replace(/^\?/, "");
+        this._fields     = this._attrList("fields");
+        const sortAttr   = (this.getAttribute("sort") || "").trim();
+        if (sortAttr) {
+          const [key, dir] = sortAttr.split(":");
+          this._sort = { key, dir: (dir && dir.toLowerCase() === "desc") ? -1 : 1 };
+        }
+        this.reset();
+      }
+
+      attributeChangedCallback(name) {
+        if (!this.isConnected) return;
+        if (["data-url","page-size","params","start-param","fields","sort"].includes(name)) {
+          // debounce attribute-changes into a single reset to avoid multiple
+          // back-to-back fetches when many attributes are set at once.
+          if (this._resetTimer) clearTimeout(this._resetTimer);
+          this._resetTimer = setTimeout(() => {
+            this._resetTimer = null;
+            const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+            // if a reset just happened (e.g. manual refresh), skip this scheduled one
+            if (this._lastResetAt && (now - this._lastResetAt) < 50) return;
+            this.reset();
+          }, 0);
+        }
+      }
+
+      _attrInt(name, def){ const v = parseInt(this.getAttribute(name), 10); return Number.isFinite(v) ? v : def; }
+      _attrList(name){ const v = (this.getAttribute(name) || "").trim(); return v ? v.split(",").map(s=>s.trim()).filter(Boolean) : null; }
+      get dataUrl(){ return this.getAttribute("data-url"); }
+
+      reset() {
+        this._data = [];
+        this._done = false;
+        this._loading = false;
+        this._start = 0;
+        // Re-evaluate fields from the current `fields` attribute. If not present,
+        // set to null so columns are inferred from the next fetch result.
+        this._fields = this._attrList("fields");
+        this._thead.innerHTML = "";
+        this._tbody.innerHTML = "";
+        this._meta = null;
+        if (this._countsEl) this._countsEl.textContent = '';
+        this._lastResetAt = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+        if (this.dataUrl) this._fetchNext();
+      }
+      refresh(){ this.reset(); }
+      setParams(params){
+        if (typeof params === "string") this._params = params.replace(/^\?/, "");
+        else if (params && typeof params === "object") this._params = new URLSearchParams(params).toString();
+        this.refresh();
+      }
+
+      // Apply filters / params but preserve the header (don't re-render it).
+      // This clears only the tbody and fetches from the first page so the
+      // user's header and filter inputs remain intact.
+      applyFilters(params){
+        if (typeof params === "string") this._params = params.replace(/^\?/, "");
+        else if (params && typeof params === "object") this._params = new URLSearchParams(params).toString();
+        // Reset pagination and data but keep thead as-is. Mark next fetch
+        // to replace/update existing rows in-place (less DOM churn).
+        this._data = [];
+        this._done = false;
+        this._loading = false;
+        this._start = 0;
+        this._replaceNext = true;
+        // Fetch first page with new filters
+        if (this.dataUrl) this._fetchNext();
+      }
+
+      async _fetchNext() {
+        if (this._loading || this._done || !this.dataUrl) return;
+        this._loading = true;
+        this._setStatus("Loading…", true);
+        try {
+          const url = this._buildUrl();
+          const res = await fetch(url, { credentials: "same-origin" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const body = await res.json();
+
+          // Support legacy: a top-level array response, or new format { results: [...], total: N, page: X }
+          let rows = [];
+          let total = null;
+          if (Array.isArray(body)) {
+            rows = body;
+          } else if (body && Array.isArray(body.results)) {
+            rows = body.results;
+            total = (typeof body.total === 'number') ? body.total : (body.total ? Number(body.total) : null);
+            // other metadata (page/count) available on body.page/body.count if needed
+            this._meta = { page: body.page ?? null, count: body.count ?? null, total };
+          } else {
+            rows = [];
+          }
+
+          // Determine end-of-results using total metadata when available.
+          if (!Array.isArray(rows) || rows.length === 0) {
+            this._done = true;
+            // update counts even when there are no rows (e.g., total=0)
+            this._updateCounts();
+            this._setStatus("End of results.", false);
+          } else {
+            if (!this._fields) {
+              this._fields = Object.keys(rows[0] || {});
+              this._renderHeader();
+            }
+            const replace = !!this._replaceNext;
+            if (replace) this._replaceNext = false;
+            if (replace) {
+              this._data = rows.slice();
+              this._start = rows.length;
+              this._renderRows(rows, { replace: true });
+            } else {
+              this._data.push(...rows);
+              this._start += rows.length;
+              this._renderRows(rows, { replace: false });
+            }
+            // If total metadata present and we've fetched all, mark done
+            if (total != null && (this._start >= total)) this._done = true;
+            // Update counts display if available
+            this._updateCounts();
+            this._applySort();
+            this._setStatus("", false);
+          }
+        } catch (e) {
+          this._setStatus(`Error: ${e.message}`, false);
+        } finally {
+          this._loading = false;
+        }
+      }
+
+      _buildUrl() {
+        const qp = new URLSearchParams(this._params);
+        qp.set(this._startParam, String(this._start));
+        if (this.hasAttribute("page-size")) qp.append("page_size", String(this._pageSize));
+        // Include demo page inputs `#rsc` and `#id` when present and non-empty.
+        try {
+          const rscEl = document.getElementById("rsc");
+          if (rscEl && String(rscEl.value || "").trim()) qp.set("rsc", String(rscEl.value).trim());
+          const idEl = document.getElementById("id");
+          if (idEl && String(idEl.value || "").trim()) qp.set("id", String(idEl.value).trim());
+        } catch (e) {
+          // ignore if DOM not available
+        }
+
+        return `${this.dataUrl}?${qp.toString()}`;
+      }
+
+      _renderHeader() {
+        const tr = document.createElement("tr");
+        for (const key of this._fields) {
+          const th = document.createElement("th");
+          th.textContent = key;
+          th.dataset.key = key;
+          th.title = "Click to sort";
+
+          const icon = document.createElement("span");
+          icon.className = "sort";
+          icon.textContent = this._sort.key === key ? (this._sort.dir === 1 ? "▲" : "▼") : "↕";
+          th.appendChild(icon);
+
+          th.addEventListener("click", () => this._onSortClick(key));
+          tr.appendChild(th);
+        }
+        // Primary header row with field titles
+        this._thead.innerHTML = "";
+        this._thead.appendChild(tr);
+
+        // Second header row: static filter inputs (calls global `filter()` on input)
+        const ftr = document.createElement("tr");
+        ftr.className = 'filter-row';
+        for (const key of this._fields) {
+          const th = document.createElement("th");
+          // create a compact text input for filtering this column
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.dataset.key = key;
+          inp.name = key;
+          inp.placeholder = '';
+          // Prefer attaching an input listener (safer than inline handlers).
+          inp.addEventListener('input', () => { try { filter(); } catch (e) { console.error(e); } });
+          th.appendChild(inp);
+          ftr.appendChild(th);
+        }
+        this._thead.appendChild(ftr);
+      }
+
+      _renderRows(rows, opts = {}) {
+        const replace = !!opts.replace;
+        if (!replace) {
+          const frag = document.createDocumentFragment();
+          for (const row of rows) {
+            const tr = document.createElement("tr");
+            tr.tabIndex = 0;
+            tr.addEventListener("click", () => this.dispatchEvent(new CustomEvent("rowclick", { detail: row, bubbles: true })));
+            for (const key of this._fields) {
+              const td = document.createElement("td");
+              const val = row?.[key];
+              td.textContent = val == null ? "" : String(val);
+              tr.appendChild(td);
+            }
+            frag.appendChild(tr);
+          }
+          this._tbody.appendChild(frag);
+        } else {
+          // Update existing rows in-place to avoid re-creating header and inputs.
+          const existing = Array.from(this._tbody.querySelectorAll('tr'));
+          const fieldList = this._fields || [];
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const ex = existing[i];
+            if (ex) {
+              // Build a replacement row (cloning event listeners is avoided by
+              // creating a fresh tr) and swap it into place to update handlers
+              // and contents atomically.
+              const tr = document.createElement('tr');
+              tr.tabIndex = 0;
+              tr.addEventListener('click', () => this.dispatchEvent(new CustomEvent('rowclick', { detail: row, bubbles: true })));
+              for (const key of fieldList) {
+                const td = document.createElement('td');
+                const val = row?.[key];
+                td.textContent = val == null ? '' : String(val);
+                tr.appendChild(td);
+              }
+              ex.parentNode.replaceChild(tr, ex);
+            } else {
+              // create new row and append
+              const tr = document.createElement('tr');
+              tr.tabIndex = 0;
+              tr.addEventListener('click', () => this.dispatchEvent(new CustomEvent('rowclick', { detail: row, bubbles: true })));
+              for (const key of fieldList) {
+                const td = document.createElement('td');
+                const val = row?.[key];
+                td.textContent = val == null ? '' : String(val);
+                tr.appendChild(td);
+              }
+              this._tbody.appendChild(tr);
+            }
+          }
+          // remove any extra existing rows beyond the new length
+          for (let k = rows.length; k < existing.length; k++) {
+            const node = existing[k]; if (node && node.parentNode) node.parentNode.removeChild(node);
+          }
+        }
+
+        if (!this._thead.children.length) this._renderHeader();
+      }
+
+      _onScroll() {
+        const el = this._container;
+        if (!el) return;
+        const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+        if (nearBottom) this._fetchNext();
+      }
+
+      _onSortClick(key) {
+        if (this._sort.key === key) this._sort.dir = -this._sort.dir;
+        else { this._sort.key = key; this._sort.dir = 1; }
+        this._applySort();
+        this._thead.querySelectorAll("th").forEach(th => {
+          const icon = th.querySelector(".sort");
+          if (!icon) return;
+          const k = th.dataset.key;
+          icon.textContent = (k === this._sort.key) ? (this._sort.dir === 1 ? "▲" : "▼") : "↕";
+        });
+      }
+
+      _applySort() {
+        if (!this._sort.key) return;
+        const { key, dir } = this._sort;
+        const idx = this._fields.indexOf(key);
+        const rows = Array.from(this._tbody.querySelectorAll("tr"));
+        const getVal = (tr) => tr.children[idx]?.textContent ?? "";
+        rows.sort((a, b) => {
+          const va = getVal(a), vb = getVal(b);
+          const na = Number(va), nb = Number(vb);
+          const bothNum = Number.isFinite(na) && Number.isFinite(nb);
+          return bothNum ? dir * (na - nb)
+                         : dir * String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: "base" });
+        }).forEach(tr => this._tbody.appendChild(tr));
+      }
+
+      _setStatus(msg, loading) {
+        this._statusMsg.textContent = msg;
+        this._statusSpinner.style.display = loading ? "inline-block" : "none";
+      }
+
+      _updateCounts() {
+        try {
+          if (!this._countsEl) return;
+          const meta = this._meta || {};
+          const total = (typeof meta.total === 'number') ? meta.total : (meta.total ? Number(meta.total) : null);
+          const count = (typeof meta.count === 'number') ? meta.count : (meta.count ? Number(meta.count) : null);
+          const page = meta.page ?? null;
+          const shown = this._start || 0;
+          let text = '';
+          if (total != null) {
+            const end = shown;
+            const start = Math.max(1, shown - (count || shown) + 1);
+            text = `Showing ${start}–${end} of ${total}`;
+            if (page != null || count != null) {
+              text += ` (page ${page ?? '?'} • ${count ?? shown} items)`;
+            }
+          } else {
+            text = `Showing ${shown} items`;
+            if (count != null) text += ` (page ${page ?? '?'} • ${count} items)`;
+          }
+          this._countsEl.textContent = text;
+        } catch (e) { /* ignore */ }
+      }
+    }
+    customElements.define("db-table", DbTable);
+
+    // Demo controls
+    const grid = document.getElementById("grid");
+    document.getElementById("load").addEventListener("click", () => {
+      grid.setAttribute("data-url", document.getElementById("api").value.trim() || "api.php");
+      grid.setAttribute("params", document.getElementById("params").value.trim());
+      grid.setAttribute("page-size", document.getElementById("ps").value.trim() || "100");
+      grid.setAttribute("start-param", document.getElementById("sp").value.trim() || "start");
+      const fields = document.getElementById("fields").value.trim();
+      if (fields) grid.setAttribute("fields", fields); else grid.removeAttribute("fields");
+      const sort = document.getElementById("sort").value.trim();
+      if (sort) grid.setAttribute("sort", sort); else grid.removeAttribute("sort");
+      grid.refresh?.();
+    });
+
+    // Populate the datalist for the Resource input from the API endpoint
+    async function populateResourceDatalist() {
+      try {
+        const apiEl = document.getElementById('api');
+        const listEl = document.getElementById('rsc-list');
+        if (!listEl || !apiEl) return;
+        const base = (apiEl.value || 'api.php').trim();
+        const sep = base.includes('?') ? '&' : '?';
+        const url = `${base}${sep}x=list_resources`;
+        const res = await fetch(url, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const body = await res.json();
+        // API returns an object like { Resources: [...] }
+        const data = Array.isArray(body?.Resources) ? body.Resources : (Array.isArray(body) ? body : []);
+        if (!Array.isArray(data)) return;
+        listEl.innerHTML = '';
+        for (const item of data) {
+          const opt = document.createElement('option');
+          if (item && typeof item === 'object') {
+            // common shapes: { name: 'Business' } or { Resource: 'Business' }
+            opt.value = item.name ?? item.Resource ?? item.resource ?? String(item);
+          } else {
+            opt.value = String(item);
+          }
+          listEl.appendChild(opt);
+        }
+      } catch (e) {
+        console.error('populateResourceDatalist error', e);
+      }
+    }
+
+    // Populate on initial load and when the API URL / Load button is used
+    populateResourceDatalist();
+    document.getElementById('api').addEventListener('change', populateResourceDatalist);
+
+    // When the selected resource changes, clear any explicit `fields` attr so
+    // the grid will infer columns from the fetched rows for that resource.
+    (function attachResourceChangeHandler(){
+      const rsc = document.getElementById('rsc');
+      if (!rsc) return;
+      let _t = null;
+      rsc.addEventListener('input', () => {
+        if (_t) clearTimeout(_t);
+        _t = setTimeout(() => {
+          try { grid.removeAttribute('fields'); grid.reset(); } catch (e) { }
+          _t = null;
+        }, 250);
+      });
+      rsc.addEventListener('change', () => { try { grid.removeAttribute('fields'); grid.reset(); } catch (e) { } });
+    })();
+
+    // Build and send filters to the API. Collects values from the filter inputs
+    // in the grid's shadow DOM and sets the grid params with a `filters` query
+    // parameter containing a JSON-encoded array of {key,value} objects.
+    function filter() {
+      try {
+        const grid = document.getElementById('grid');
+        if (!grid) return;
+        const sr = grid.shadowRoot;
+        if (!sr) return;
+
+        const inputs = Array.from(sr.querySelectorAll('thead tr.filter-row input[data-key]'));
+        const filters = [];
+        for (const inp of inputs) {
+          const v = String(inp.value || '').trim();
+          if (v) {
+            // Include both key/value (for api.php) and field/text for clarity
+            filters.push({ key: inp.dataset.key, value: v, field: inp.dataset.key, text: v });
+          }
+        }
+
+        // Merge with demo `#params` input so other parameters are preserved.
+        const paramsStr = (document.getElementById('params')?.value || '').trim();
+        const params = {};
+        if (paramsStr) {
+          const qp = new URLSearchParams(paramsStr);
+          for (const [k, val] of qp.entries()) params[k] = val;
+        }
+        if (filters.length) params.filters = JSON.stringify(filters);
+        else delete params.filters;
+
+        // Apply filters but preserve the header and filter inputs
+        if (typeof grid.applyFilters === 'function') grid.applyFilters(params);
+        else grid.setParams(params);
+      } catch (e) {
+        console.error('filter error', e);
+      }
+    }
+
+    // Modal controls: show a generated form for a clicked row
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const modalForm = document.getElementById('modal-form');
+    const modalTitle = document.getElementById('modal-title');
+    const modalSave = document.getElementById('modal-save');
+    const modalCancel = document.getElementById('modal-cancel');
+
+    function openModalForRow(row) {
+      modalForm.innerHTML = '';
+      modalTitle.textContent = (row && (row.id || row.ID || row.Name || row.Business)) ? `Details — ${row.id ?? row.ID ?? row.Name ?? row.Business}` : 'Details';
+
+      const keys = Object.keys(row || {});
+      for (const k of keys) {
+        const v = row[k];
+        const div = document.createElement('div');
+        div.className = 'form-row';
+
+        const label = document.createElement('label');
+        label.textContent = k;
+        label.htmlFor = `field-${k}`;
+
+        let input;
+        const isLong = String(v ?? '').length > 120 || String(v ?? '').includes('\n');
+        if (isLong) {
+          input = document.createElement('textarea');
+        } else {
+          input = document.createElement('input');
+          input.type = 'text';
+        }
+        input.id = `field-${k}`;
+        input.name = k;
+        input.value = v == null ? '' : String(v);
+
+        div.appendChild(label);
+        div.appendChild(input);
+        modalForm.appendChild(div);
+      }
+
+      modalBackdrop.classList.add('open');
+      modalBackdrop.setAttribute('aria-hidden', 'false');
+      const first = modalForm.querySelector('input,textarea'); if (first) first.focus();
+
+      modalSave.onclick = () => {
+        const formData = {};
+        for (const el of modalForm.querySelectorAll('[name]')) formData[el.name] = el.value;
+        console.log('Detail dialog save:', formData);
+        closeModal();
+      };
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove('open');
+      modalBackdrop.setAttribute('aria-hidden', 'true');
+      modalSave.onclick = null;
+    }
+
+    modalCancel.addEventListener('click', closeModal);
+    modalBackdrop.addEventListener('click', (ev) => { if (ev.target === modalBackdrop) closeModal(); });
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeModal(); });
+
+    grid.addEventListener('rowclick', (ev) => { try { openModalForRow(ev.detail || {}); } catch (e) { console.error(e); } });
+  </script>
+</body>
+</html>

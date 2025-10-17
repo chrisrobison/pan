@@ -3,3 +3,5 @@ playwright-report/
 test-results/
 playwright/.cache/
 
+# Local environment (not for version control)
+.env
