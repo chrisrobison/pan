@@ -1,51 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LARC demo: PAN bus + client helper + <todo-list></title>
-  <style>
-    :root { font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-    body { margin: 0; padding: 24px; background: #0b0c0f; color: #e7e9ee; }
-    header { display:flex; align-items:center; gap: 12px; margin-bottom: 16px; }
-    header h1 { font-size: 20px; margin: 0; font-weight: 600; }
-    .row { display:flex; gap:16px; flex-wrap: wrap; }
-    card { display:block; background:#141621; border:1px solid #1e2230; border-radius:16px; padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
-    .muted { color:#9aa4b2; font-size: 12px; }
-    .pill { padding:2px 8px; border-radius:999px; background:#1e2230; font-size:12px; }
-    a { color:#90c2ff; }
-    button, input[type="text"] { background:#0f1220; color:#e7e9ee; border:1px solid #2a2f42; border-radius:10px; padding:10px 12px; }
-    button { cursor:pointer; }
-    button:hover { background:#12162a; }
-    ul { list-style:none; padding:0; margin:8px 0 0; }
-    li { display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px dashed #23283a; }
-    li:last-child { border-bottom:none; }
-    li.done .title { text-decoration: line-through; color:#9aa4b2; }
-    .spacer { flex:1; }
-    .small { font-size:12px; }
-    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; padding:2px 6px; border-radius:6px; background:#1a1f2f; border:1px solid #2a2f42; }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LARC Demo · PAN Bus + Todo Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./examples/assets/grail.css">
 </head>
 <body>
   <pan-bus id="bus" version="0.1"></pan-bus>
 
-  <header>
-    <h1>LARC — Page Area Network (PAN) Demo</h1>
-    <span class="pill" id="status">starting…</span>
-    <span class="spacer"></span>
-    <span class="muted small">Tip: open DevTools → Elements → listen for <span class="kbd">pan:*</span> events.</span>
-  </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item active" aria-current="page" href="./demo.html"><span>Overview Demo</span><span class="hint">00</span></a>
+        <a class="nav-item" href="./examples/01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./examples/02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./examples/03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./examples/04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./examples/05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./examples/06-crud.html"><span>CRUD (Mock Provider)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./examples/07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./examples/08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <strong>PAN</strong> is the Page Area Network: a DOM-native message bus for web components and micro-frontends.
+      </div>
+    </aside>
 
-  <div class="row">
-    <card style="min-width:320px; max-width:560px;">
-      <h3 style="margin:0 0 8px 0">&lt;todo-list&gt;</h3>
-      <todo-list></todo-list>
-    </card>
+    <main class="main-region">
+      <header class="main-header">
+        <h1>LARC · PAN Reference Demo</h1>
+        <p>
+          A lightweight PAN bus powers a todo stack, retained state, and a mini inspector. Watch components publish
+          <code>todos.*</code> topics while the bus logs deliveries and request/reply traffic.
+        </p>
+        <div class="badge-row">
+          <span class="badge" id="status">starting…</span>
+          <span class="badge">topics: <code>todos.*</code></span>
+          <span class="badge">retained snapshots</span>
+          <span class="badge">request / reply</span>
+        </div>
+        <div class="meta-label" style="margin-top:0.6rem;">
+          Tip: open DevTools → Elements and listen for <span class="badge">pan:*</span> events to inspect traffic.
+        </div>
+      </header>
 
-    <card style="min-width:320px; max-width:560px;">
-      <h3 style="margin:0 0 8px 0">Bus Inspector (mini)</h3>
-      <div id="log" class="small" style="max-height:320px; overflow:auto; white-space:pre-wrap; line-height:1.35"></div>
-    </card>
+      <section class="content-area">
+        <div class="split-vertical" style="grid-template-rows: minmax(280px, 1fr) minmax(260px, 1fr);">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>&lt;todo-list&gt; Component</h2>
+                <div class="subtitle">Publishes <code>todos.change</code>, <code>todos.toggle</code>, <code>todos.remove</code> and listens to <code>todos.state</code>.</div>
+              </div>
+              <div class="toolbar">
+                <a class="button-link" href="./README.md">Docs</a>
+              </div>
+            </div>
+            <div class="panel-body">
+              <todo-list></todo-list>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Bus Inspector</h2>
+                <div class="subtitle">Live stream of <code>pan:publish</code>, <code>pan:subscribe</code>, and retained deliveries.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="log" class="small" style="height:100%;overflow:auto;white-space:pre-wrap;line-height:1.4;background:rgba(15,23,42,0.08);padding:1rem;border-radius:1rem;"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
   </div>
 
   <!-- PAN Client helper (minimal) -->
@@ -100,28 +137,33 @@
           this.publish({ topic, data, replyTo, correlationId });
         });
       }
+      /** topic pattern matcher */
       static matches(topic, pattern){
         if (pattern === '*' || topic === pattern) return true;
-        if (pattern.includes('*')){
-          // support trailing or segment wildcards: foo.*, *.bar, foo.*.baz
-          const esc = s=> s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+');
-          const rx = new RegExp(`^${esc(pattern)}$`);
-          return rx.test(topic);
-        }
-        return false;
+        if (!pattern || !pattern.includes('*')) return false;
+        const esc = (s)=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );
+        return new RegExp(`^${esc(pattern)}$`).test(topic);
       }
     }
-    window.PanClient = PanClient;
-  </script>
 
-  <!-- PAN Bus (reference, minimal) -->
-  <script type="module" id="pan-bus">
+    window.PanClient = PanClient;
+
+    // Minimal PAN bus with logging
     class PanBus extends HTMLElement {
-      constructor(){ super(); this.subs = []; this.retained = new Map(); }
+      constructor(){
+        super();
+        this.subs = [];
+        this.retained = new Map();
+        this.clients = new Map();
+        this.onPublish = this.onPublish.bind(this);
+        this.onReply = this.onReply.bind(this);
+        this.onSubscribe = this.onSubscribe.bind(this);
+        this.onUnsubscribe = this.onUnsubscribe.bind(this);
+        this.onHello = this.onHello.bind(this);
+      }
       connectedCallback(){
-        // capture to intercept before other listeners
         document.addEventListener('pan:publish', this.onPublish, true);
-        document.addEventListener('pan:request', this.onPublish, true); // same path, but expects reply
+        document.addEventListener('pan:request', this.onPublish, true);
         document.addEventListener('pan:reply', this.onReply, true);
         document.addEventListener('pan:subscribe', this.onSubscribe, true);
         document.addEventListener('pan:unsubscribe', this.onUnsubscribe, true);
@@ -194,16 +236,23 @@
         const html = String.raw;
         this.shadowRoot.innerHTML = html`
           <style>
-            :host{ display:block; }
-            form{ display:flex; gap:8px; }
-            input[type=text]{ flex:1; }
-            .empty{ color:#9aa4b2; margin-top:8px; font-size: 13px; }
+            :host{ display:block; font:15px/1.5 var(--font,"Lexend",system-ui,sans-serif); }
+            form{ display:flex; gap:0.65rem; margin-bottom:1rem; }
+            input[type=text]{ flex:1; padding:0.65rem 0.75rem; border-radius:0.9rem; border:1px solid rgba(15,23,42,0.12); }
+            button{ padding:0.65rem 1.1rem; border-radius:0.9rem; border:none; background:var(--color-accent,#2563eb); color:#fff; font-weight:600; cursor:pointer; }
+            button:hover{ background:#1d4ed8; }
+            ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.55rem; }
+            li{ display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0.75rem; border:1px solid rgba(15,23,42,0.1); border-radius:1rem; background:rgba(255,255,255,0.94); }
+            li.done .title{ text-decoration:line-through; color:var(--color-muted,#5f6b84); }
+            .muted{ color:var(--color-muted,#5f6b84); }
+            .spacer{ flex:1; }
+            .del{ border:none; background:transparent; color:#ef4444; font-size:1.1rem; cursor:pointer; }
           </style>
           <form id="f">
-            <input id="title" type="text" placeholder="Add a task… (Enter)" autocomplete="off" />
+            <input id="title" type="text" placeholder="Add a task…" autocomplete="off" />
             <button type="submit">Add</button>
           </form>
-          ${this.todos.length? '' : '<div class="empty">No tasks yet.</div>'}
+          ${this.todos.length? '' : '<div class="muted">No tasks yet.</div>'}
           <ul>
             ${this.todos.map(t=>`
               <li class="${t.done?'done':''}" data-id="${t.id}">
@@ -232,8 +281,7 @@
     customElements.define('todo-list', TodoList);
   </script>
 
-  <!-- Minimal provider that retains state on the bus (optional). 
-       This simulates a data service; could be replaced by an IndexedDB-backed provider. -->
+  <!-- Minimal provider that retains state on the bus -->
   <script type="module" id="todo-provider">
     class TodoProvider extends HTMLElement{
       constructor(){ super(); this.pc = new window.PanClient(this); this.items = []; }
@@ -243,7 +291,6 @@
           if (m.topic === 'todos.change') this.items.push(m.data.item);
           if (m.topic === 'todos.remove') this.items = this.items.filter(t=> t.id!==m.data.id);
           if (m.topic === 'todos.toggle') { const t=this.items.find(x=>x.id===m.data.id); if (t) t.done = !!m.data.done; }
-          if (m.topic === 'todos:get') { /* just fall through to publish state */ }
           this.pc.publish({ topic:'todos.state', data:{ items:this.items }, retain:true });
         }, { retained:false });
       }

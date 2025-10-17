@@ -1,22 +1,154 @@
-<!doctype html><meta charset="utf-8"><title>PAN – 03 BroadcastChannel</title>
-<pan-bus mirror="settings.*"></pan-bus>
-<script type="module">
-  class PanClient{constructor(h=document){this.h=h}
-    pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
-    sub(t,fn){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail); this.h.addEventListener('pan:deliver',on);
-      this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t]},bubbles:true,composed:true}));}
-    static matches(topic, pattern){ if(pattern==='*'||topic===pattern) return true; if(pattern.includes('*')){const esc=s=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
-  }
-  customElements.define('pan-bus', class extends HTMLElement{ subs=[]; bc=null; connectedCallback(){ const allow=(this.getAttribute('mirror')||'').split(/\s+/).filter(Boolean);
-    this.bc = new BroadcastChannel('pan'); this.bc.onmessage = (ev)=> this.#deliver(ev.data);
-    document.addEventListener('pan:publish', e=>{const m=e.detail; this.#deliver(m); if(allow.some(p=>PanClient.matches(m.topic,p))) this.bc.postMessage(m);}, true);
-    document.addEventListener('pan:subscribe', e=>{const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=>this.subs.push({p,el}));}, true);
-  }
-  #deliver(m){ this.subs.forEach(s=> PanClient.matches(m.topic,s.p) && s.el.dispatchEvent(new CustomEvent('pan:deliver',{detail:m}))); }
-  });
-  // Demo usage
-  const pc = new PanClient();
-  setInterval(()=> pc.pub({ topic:'settings.clock', data: Date.now(), retain:true }), 1000);
-  pc.sub('settings.clock', m=> console.log('tick', m.data));
-</script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 03 BroadcastChannel Mirror</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+</head>
+<body>
+  <pan-bus mirror="settings.*"></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item active" aria-current="page" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock Provider)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        Topics that match <code>settings.*</code> are mirrored across tabs via BroadcastChannel <strong>pan</strong>.
+      </div>
+    </aside>
 
+    <main class="main-region">
+      <header class="main-header">
+        <h1>Cross-tab Sync with BroadcastChannel</h1>
+        <p>
+          The PAN bus mirrors a subset of topics to <code>BroadcastChannel('pan')</code> so every tab receives the same retained state.
+          Publish from one tab, observe instantly in another.
+        </p>
+        <div class="badge-row">
+          <span class="badge">mirror: <code>settings.*</code></span>
+          <span class="badge">retained snapshots</span>
+          <span class="badge">multi-tab sync</span>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <section class="panel" style="max-width:640px;">
+          <div class="panel-header">
+            <div>
+              <h2>Mirrored Clock</h2>
+              <div class="subtitle">Last message on <code>settings.clock</code> is retained and replayed to new tabs.</div>
+            </div>
+            <div class="toolbar">
+              <span class="meta-label">status:</span>
+              <span class="meta-value" id="mirrorStatus">waiting…</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:1.1rem;">
+              <div style="font-size:3rem;font-weight:600;letter-spacing:-0.04em;" id="clock">--:--:--</div>
+              <div class="meta-label">
+                Open <a class="button-link" href="./03-broadcastchannel.html" target="_blank" rel="noopener">this demo in a new tab</a> to watch the clock stay in sync.
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>How it works</h2>
+            </div>
+          </div>
+          <div class="panel-body">
+            <ol style="margin:0;padding-left:1.2rem;display:flex;flex-direction:column;gap:0.6rem;font-size:0.95rem;color:var(--color-muted);">
+              <li>The bus declares <code>mirror="settings.*"</code>, forwarding matching messages to the <em>pan</em> BroadcastChannel.</li>
+              <li>Each tab publishes <code>settings.clock</code> every second with <code>retain: true</code>.</li>
+              <li>New tabs subscribe and receive the retained value immediately, then stay in sync via mirror posts.</li>
+            </ol>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    class PanClient {
+      constructor(host = document) { this.host = host; }
+      pub(msg) { this.host.dispatchEvent(new CustomEvent('pan:publish', { detail: msg, bubbles: true, composed: true })); }
+      sub(pattern, fn) {
+        const onDeliver = (e) => {
+          const detail = e.detail;
+          if (detail?.topic && PanClient.matches(detail.topic, pattern)) fn(detail);
+        };
+        this.host.addEventListener('pan:deliver', onDeliver);
+        this.host.dispatchEvent(new CustomEvent('pan:subscribe', { detail: { topics: [pattern] }, bubbles: true, composed: true }));
+        return () => this.host.removeEventListener('pan:deliver', onDeliver);
+      }
+      static matches(topic, pattern) {
+        if (pattern === '*' || topic === pattern) return true;
+        if (pattern.includes('*')) {
+          const esc = (s) => s.replace(/[|\\{}()\[\]^$+?.]/g, '\\$&').replace(/\*/g, '[^.]+');
+          return new RegExp(`^${esc(pattern)}$`).test(topic);
+        }
+        return false;
+      }
+    }
+
+    customElements.define('pan-bus', class extends HTMLElement {
+      subs = [];
+      mirrorTopics = [];
+      channel = null;
+      connectedCallback() {
+        this.mirrorTopics = (this.getAttribute('mirror') || '').split(/\s+/).filter(Boolean);
+        this.channel = new BroadcastChannel('pan');
+        this.channel.onmessage = (event) => this.#deliver(event.data);
+        document.addEventListener('pan:publish', (e) => this.#handlePublish(e), true);
+        document.addEventListener('pan:subscribe', (e) => this.#handleSubscribe(e), true);
+        const status = document.getElementById('mirrorStatus');
+        if (status) status.textContent = `mirroring ${this.mirrorTopics.join(', ') || 'nothing'}`;
+      }
+      #handlePublish(e) {
+        const msg = e.detail;
+        this.#deliver(msg);
+        if (this.mirrorTopics.some((p) => PanClient.matches(msg.topic, p))) this.channel?.postMessage(msg);
+      }
+      #handleSubscribe(e) {
+        const { topics = [] } = e.detail || {};
+        const el = e.composedPath?.()[0] ?? document;
+        topics.forEach((pattern) => this.subs.push({ pattern, el }));
+      }
+      #deliver(msg) {
+        this.subs.forEach((s) => {
+          if (PanClient.matches(msg.topic, s.pattern)) s.el.dispatchEvent(new CustomEvent('pan:deliver', { detail: msg }));
+        });
+      }
+    });
+
+    const pc = new PanClient();
+    const clockEl = document.getElementById('clock');
+    const format = (ts) => new Date(ts).toLocaleTimeString();
+
+    pc.sub('settings.clock', (m) => { if (clockEl) clockEl.textContent = format(m.data); });
+
+    setInterval(() => {
+      const now = Date.now();
+      pc.pub({ topic: 'settings.clock', data: now, retain: true });
+      if (clockEl) clockEl.textContent = format(now);
+    }, 1000);
+  </script>
+</body>
+</html>

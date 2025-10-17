@@ -1,28 +1,156 @@
-<!doctype html><meta charset="utf-8"><title>PAN – 04 React</title>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<pan-bus></pan-bus>
-<div id="app"></div>
-<script type="module">
-  class PanClient{constructor(h=document){this.h=h}
-    pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
-    sub(t,fn){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail); this.h.addEventListener('pan:deliver',on);
-      this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t]},bubbles:true,composed:true})); return ()=>this.h.removeEventListener('pan:deliver',on);}
-    static matches(topic, pattern){ if(pattern==='*'||topic===pattern) return true; if(pattern.includes('*')){const esc=s=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
-  }
-  const pc = new PanClient();
-  function usePan(topic){ const [msg,setMsg]=React.useState(null);
-    React.useEffect(()=>{ const off=pc.sub(topic, setMsg); return ()=>off&&off(); },[topic]);
-    return [msg, (m)=>pc.pub(m)]; }
-  function App(){ const [msg, send] = usePan('chat.message');
-    const [text,setText] = React.useState('');
-    return React.createElement('div',{},
-      React.createElement('h3',{},'React ↔ PAN'),
-      msg && React.createElement('pre',{}, JSON.stringify(msg.data,null,2)),
-      React.createElement('input',{value:text,onChange:e=>setText(e.target.value)}),
-      React.createElement('button',{onClick:()=>{send({topic:'chat.message', data:{text}}); setText('');}},'Send')
-    );
-  }
-  ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(App));
-</script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 04 React Wrapper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item active" aria-current="page" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock Provider)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        Hooks wrap <strong>PanClient</strong> so React keeps its own state tree while talking over topics.
+      </div>
+    </aside>
 
+    <main class="main-region">
+      <header class="main-header">
+        <h1>React + PAN</h1>
+        <p>
+          A tiny hook bridges the PAN message bus with React state. Components dispatch CustomEvents and stay framework-agnostic.
+        </p>
+        <div class="badge-row">
+          <span class="badge">framework interop</span>
+          <span class="badge">hooks friendly</span>
+          <span class="badge">no build tooling</span>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <section class="panel" style="max-width:720px;">
+          <div class="panel-header">
+            <div>
+              <h2>Chat Hook Demo</h2>
+              <div class="subtitle">Subscribes to <code>chat.message</code>, publishes on button click.</div>
+            </div>
+            <div class="toolbar">
+              <a class="button-link" href="https://unpkg.com/react@18/" target="_blank" rel="noopener">React CDN</a>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="app"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import '../dist/pan-bus.js';
+    class PanClient {
+      constructor(host = document) { this.host = host; }
+      pub(msg) { this.host.dispatchEvent(new CustomEvent('pan:publish', { detail: msg, bubbles: true, composed: true })); }
+      sub(pattern, fn) {
+        const onDeliver = (e) => {
+          const detail = e.detail;
+          if (detail?.topic && PanClient.matches(detail.topic, pattern)) fn(detail);
+        };
+        this.host.addEventListener('pan:deliver', onDeliver);
+        this.host.dispatchEvent(new CustomEvent('pan:subscribe', { detail: { topics: [pattern] }, bubbles: true, composed: true }));
+        return () => this.host.removeEventListener('pan:deliver', onDeliver);
+      }
+      static matches(topic, pattern) {
+        if (pattern === '*' || topic === pattern) return true;
+        if (pattern.includes('*')) {
+          const esc = (s) => s.replace(/[|\\{}()\[\]^$+?.]/g, '\\$&').replace(/\*/g, '[^.]+');
+          return new RegExp(`^${esc(pattern)}$`).test(topic);
+        }
+        return false;
+      }
+    }
+
+    const pc = new PanClient();
+
+    function usePan(topic) {
+      const [msg, setMsg] = React.useState(null);
+      React.useEffect(() => {
+        const off = pc.sub(topic, setMsg);
+        return () => off && off();
+      }, [topic]);
+      return [msg, (message) => pc.pub(message)];
+    }
+
+    function App() {
+      const [msg, send] = usePan('chat.message');
+      const [text, setText] = React.useState('');
+      const onSubmit = () => {
+        if (!text.trim()) return;
+        send({ topic: 'chat.message', data: { text } });
+        setText('');
+      };
+      return React.createElement('div', { style: { display: 'grid', gap: '0.9rem' } },
+        React.createElement('h3', { style: { margin: 0 } }, 'React ↔ PAN'),
+        msg
+          ? React.createElement('pre', {
+              style: {
+                margin: 0,
+                background: 'rgba(37,99,235,0.08)',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo'
+              }
+            }, JSON.stringify(msg.data, null, 2))
+          : React.createElement('div', { style: { color: 'var(--color-muted)' } }, 'Send a message to populate the feed.'),
+        React.createElement('div', { style: { display: 'flex', gap: '0.6rem' } },
+          React.createElement('input', {
+            style: {
+              flex: 1,
+              padding: '0.65rem 0.75rem',
+              borderRadius: '0.8rem',
+              border: '1px solid rgba(15,23,42,0.15)'
+            },
+            value: text,
+            onChange: (e) => setText(e.target.value),
+            placeholder: 'Say hello…'
+          }),
+          React.createElement('button', {
+            style: {
+              padding: '0.65rem 1rem',
+              borderRadius: '0.8rem',
+              border: 'none',
+              fontWeight: 600,
+              background: 'var(--color-accent)',
+              color: '#fff',
+              cursor: 'pointer'
+            },
+            onClick: onSubmit
+          }, 'Send')
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(App));
+  </script>
+</body>
+</html>

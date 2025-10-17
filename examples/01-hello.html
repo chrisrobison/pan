@@ -1,18 +1,87 @@
-<!DOCTYPE html>
-<meta charset="utf-8" />
-<title>PAN – 01 Hello</title>
-<pan-bus></pan-bus>
-<x-counter></x-counter>
-<script type="module">
-  import { PanClient } from '../dist/pan-client.js';
-  import '../dist/pan-bus.js';
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 01 Hello Counter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item active" aria-current="page" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock Provider)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <strong>PAN</strong> gives every component a shared message bus without imports or build steps.
+      </div>
+    </aside>
 
-  customElements.define('x-counter', class extends HTMLElement{
-    pc = new PanClient(this); n = 0;
-    connectedCallback(){
-      this.innerHTML = `<button>Clicked 0</button>`;
-      this.querySelector('button').onclick = () => this.pc.publish({ topic:'demo:click', data:{ n: ++this.n }, retain:true });
-      this.pc.subscribe('demo:click', (m) => { this.querySelector('button').textContent = `Clicked ${m.data.n}`; });
-    }
-  });
-</script>
+    <main class="main-region">
+      <header class="main-header">
+        <h1>Hello Counter</h1>
+        <p>
+          The smallest possible PAN demo: a single custom element publishes a retained counter topic and receives its own updates through the bus.
+        </p>
+        <div class="badge-row">
+          <span class="badge">single topic</span>
+          <span class="badge">retained delivery</span>
+          <span class="badge">zero build</span>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <section class="panel" style="max-width: 520px;">
+          <div class="panel-header">
+            <div>
+              <h2>Counter Component</h2>
+              <div class="subtitle">Publish <code>demo:click</code>, replay retained state on subscribe.</div>
+            </div>
+            <div class="toolbar">
+              <a class="button-link" href="../dist/pan-client.js">PanClient API</a>
+            </div>
+          </div>
+          <div class="panel-body">
+            <x-counter></x-counter>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { PanClient } from '../dist/pan-client.js';
+    import '../dist/pan-bus.js';
+
+    customElements.define('x-counter', class extends HTMLElement {
+      pc = new PanClient(this);
+      n = 0;
+      connectedCallback() {
+        this.innerHTML = `<button class="button-link" style="font-size:1.1rem;padding:0.75rem 1.2rem;">Clicked 0</button>`;
+        this.querySelector('button')?.addEventListener('click', () => {
+          this.pc.publish({ topic: 'demo:click', data: { n: ++this.n }, retain: true });
+        });
+        this.pc.subscribe('demo:click', (m) => {
+          const btn = this.querySelector('button');
+          if (btn) btn.textContent = `Clicked ${m.data.n}`;
+        }, { retained: true });
+      }
+    });
+  </script>
+</body>
+</html>

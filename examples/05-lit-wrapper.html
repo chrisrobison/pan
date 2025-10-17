@@ -1,33 +1,153 @@
-<!doctype html><meta charset="utf-8"><title>PAN – 05 Lit</title>
-<script type="module">
-  import { LitElement, html, css } from 'https://unpkg.com/lit?module';
-  class PanClient{constructor(h=document){this.h=h}
-    pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
-    sub(t,fn){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail); this.h.addEventListener('pan:deliver',on);
-      this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t]},bubbles:true,composed:true})); return ()=>this.h.removeEventListener('pan:deliver',on);}
-    static matches(topic, pattern){ if(pattern==='*'||topic===pattern) return true; if(pattern.includes('*')){const esc=s=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
-  }
-  customElements.define('pan-bus', class extends HTMLElement{ subs=[]; connectedCallback(){
-    document.addEventListener('pan:publish', e=>this.#pub(e), true);
-    document.addEventListener('pan:subscribe', e=>this.#sub(e), true);
-  } #sub(e){const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=>this.subs.push({p,el}));}
-    #pub(e){const m=e.detail; this.subs.forEach(s=> PanClient.matches(m.topic,s.p) && s.el.dispatchEvent(new CustomEvent('pan:deliver',{detail:m}))); }
-  });
-  class LitChat extends LitElement{
-    static styles = css`:host{display:block;padding:12px;border:1px solid #ccc;border-radius:8px}`;
-    pc = new PanClient(this);
-    firstUpdated(){ this.off = this.pc.sub('chat.message', m=>{ this.last = m.data; this.requestUpdate(); }); }
-    disconnectedCallback(){ super.disconnectedCallback(); this.off && this.off(); }
-    render(){ return html`
-      <h3>Lit ↔ PAN</h3>
-      ${this.last ? html`<pre>${JSON.stringify(this.last,null,2)}</pre>` : html`<em>no messages yet</em>`}
-      <form @submit=${e=>{e.preventDefault(); const v=this.renderRoot.getElementById('t').value.trim(); if(!v) return; this.pc.pub({topic:'chat.message', data:{text:v}}); this.renderRoot.getElementById('t').value='';}}>
-        <input id="t" placeholder="Say hi" />
-        <button>Send</button>
-      </form>` }
-  }
-  customElements.define('lit-chat', LitChat);
-</script>
-<pan-bus></pan-bus>
-<lit-chat></lit-chat>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 05 Lit Wrapper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item active" aria-current="page" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock Provider)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        Lit elements subscribe in lifecycle hooks and keep declarative templates intact.
+      </div>
+    </aside>
 
+    <main class="main-region">
+      <header class="main-header">
+        <h1>Lit + PAN</h1>
+        <p>
+          A Lit component wires into the PAN bus by instantiating a <code>PanClient</code> and reacting to messages in <code>firstUpdated</code>.
+        </p>
+        <div class="badge-row">
+          <span class="badge">framework interop</span>
+          <span class="badge">shadow DOM safe</span>
+          <span class="badge">custom elements</span>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <section class="panel" style="max-width:720px;">
+          <div class="panel-header">
+            <div>
+              <h2>Lit Chat Card</h2>
+              <div class="subtitle">Subscribes to <code>chat.message</code> and publishes on submit.</div>
+            </div>
+            <div class="toolbar">
+              <a class="button-link" href="https://lit.dev" target="_blank" rel="noopener">Lit Docs</a>
+            </div>
+          </div>
+          <div class="panel-body">
+            <lit-chat></lit-chat>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { LitElement, html, css } from 'https://unpkg.com/lit?module';
+
+    class PanClient {
+      constructor(host = document) { this.host = host; }
+      pub(msg) { this.host.dispatchEvent(new CustomEvent('pan:publish', { detail: msg, bubbles: true, composed: true })); }
+      sub(pattern, fn) {
+        const onDeliver = (e) => {
+          const detail = e.detail;
+          if (detail?.topic && PanClient.matches(detail.topic, pattern)) fn(detail);
+        };
+        this.host.addEventListener('pan:deliver', onDeliver);
+        this.host.dispatchEvent(new CustomEvent('pan:subscribe', { detail: { topics: [pattern] }, bubbles: true, composed: true }));
+        return () => this.host.removeEventListener('pan:deliver', onDeliver);
+      }
+      static matches(topic, pattern) {
+        if (pattern === '*' || topic === pattern) return true;
+        if (pattern.includes('*')) {
+          const esc = (s) => s.replace(/[|\\{}()\[\]^$+?.]/g, '\\$&').replace(/\*/g, '[^.]+');
+          return new RegExp(`^${esc(pattern)}$`).test(topic);
+        }
+        return false;
+      }
+    }
+
+    customElements.define('pan-bus', class extends HTMLElement {
+      subs = [];
+      connectedCallback() {
+        document.addEventListener('pan:publish', (e) => this.#pub(e), true);
+        document.addEventListener('pan:subscribe', (e) => this.#sub(e), true);
+      }
+      #sub(e) {
+        const { topics = [] } = e.detail || {};
+        const el = e.composedPath?.()[0] ?? document;
+        topics.forEach((pattern) => this.subs.push({ pattern, el }));
+      }
+      #pub(e) {
+        const msg = e.detail;
+        this.subs.forEach((s) => PanClient.matches(msg.topic, s.pattern) && s.el.dispatchEvent(new CustomEvent('pan:deliver', { detail: msg })));
+      }
+    });
+
+    class LitChat extends LitElement {
+      static styles = css`
+        :host{display:block;padding:1.2rem;border-radius:1rem;border:1px solid rgba(15,23,42,0.12);background:rgba(255,255,255,0.88);}
+        h3{margin:0 0 .6rem 0;font-size:1.2rem;}
+        form{display:flex;gap:.6rem;margin-top:.8rem;}
+        input{flex:1;padding:.65rem .75rem;border-radius:.8rem;border:1px solid rgba(15,23,42,0.15);}
+        button{padding:.65rem 1rem;border-radius:.8rem;border:none;background:var(--color-accent,#2563eb);color:#fff;font-weight:600;cursor:pointer;}
+        button:hover{background:#1d4ed8;}
+        pre{margin:0;background:rgba(37,99,235,0.08);padding:12px 16px;border-radius:12px;font-family:ui-monospace, SFMono-Regular, Menlo;}
+        em{color:var(--color-muted,#5f6b84);}
+      `;
+      pc = new PanClient(this);
+      last = null;
+      firstUpdated() {
+        this.off = this.pc.sub('chat.message', (m) => { this.last = m.data; this.requestUpdate(); });
+      }
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        this.off && this.off();
+      }
+      render() {
+        return html`
+          <h3>Lit ↔ PAN</h3>
+          ${this.last
+            ? html`<pre>${JSON.stringify(this.last, null, 2)}</pre>`
+            : html`<em>No messages yet.</em>`}
+          <form @submit=${this.#onSubmit}>
+            <input id="t" placeholder="Say hi" />
+            <button>Send</button>
+          </form>
+        `;
+      }
+      #onSubmit(e) {
+        e.preventDefault();
+        const input = this.renderRoot.getElementById('t');
+        const value = input.value.trim();
+        if (!value) return;
+        this.pc.pub({ topic: 'chat.message', data: { text: value } });
+        input.value = '';
+      }
+    }
+    customElements.define('lit-chat', LitChat);
+  </script>
+</body>
+</html>

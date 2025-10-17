@@ -1,61 +1,106 @@
-<!doctype html><meta charset="utf-8">
-<title>PAN – 07 REST Connector (JSONPlaceholder)</title>
-<style>
-  :root{ font-family: system-ui, sans-serif }
-  body{ margin:16px }
-  .row{ display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap }
-  card{ display:block; border:1px solid #ddd; border-radius:12px; padding:12px; min-width:320px }
-  h3{ margin:0 0 8px 0 }
-  .muted{ color:#888 }
-  .note{ font-size:12px; color:#666; margin-bottom:8px }
-  pan-inspector{ height:340px }
-  pan-form, pan-data-table{ display:block }
-  .actions{ display:flex; gap:8px; margin-bottom:8px }
-  button{ padding:6px 10px }
-  .spacer{ flex:1 }
-  .small{ font-size:12px }
-</style>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 07 REST Connector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock Provider)</span><span class="hint">06</span></a>
+        <a class="nav-item active" aria-current="page" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <strong>pan-data-connector</strong> maps CRUD topics to REST endpoints and keeps table/form flows intact.
+      </div>
+    </aside>
 
-<!-- Bus -->
-<pan-bus></pan-bus>
+    <main class="main-region">
+      <header class="main-header">
+        <h1>REST Connector · JSONPlaceholder</h1>
+        <p>
+          The same table + form stack connects to <code>https://jsonplaceholder.typicode.com</code>.
+          GET requests return live data, while write operations echo responses for demonstration.
+        </p>
+        <div class="badge-row">
+          <span class="badge">resource: <code>users</code></span>
+          <span class="badge">topics: <code>users.list.*</code></span>
+          <span class="badge">fetch bridge</span>
+        </div>
+      </header>
 
-<div class="row">
-  <card style="flex:1">
-    <h3>Users (Remote)</h3>
-    <div class="note">Backed by JSONPlaceholder <code>/users</code> (GET works; POST/PUT/DELETE are faked).</div>
-    <div class="actions small">
-      <button id="refresh">Refresh</button>
-      <span class="spacer"></span>
-      <span class="muted">Tip: select a row to load details.</span>
-    </div>
-    <pan-data-table id="table" resource="users" columns="id,name,email"></pan-data-table>
-  </card>
-  <card style="flex:1">
-    <h3>User Details</h3>
-    <pan-form id="form" resource="users" fields="name,email"></pan-form>
-  </card>
-  <card style="flex:1">
-    <h3>Traffic</h3>
-    <pan-inspector></pan-inspector>
-  </card>
+      <section class="content-area">
+        <div class="split-vertical">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Remote Users</h2>
+                <div class="subtitle">Powered by JSONPlaceholder <code>/users</code> endpoint.</div>
+              </div>
+              <div class="toolbar">
+                <button type="button" class="button-link" id="refresh">Refresh</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+            </div>
+          </section>
 
-  <!-- REST connector: maps PAN topics to HTTP endpoints -->
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Details &amp; Traffic</h2>
+                <div class="subtitle">Form publishes <code>users.item.*</code>; inspector shows round-trips.</div>
+              </div>
+              <div class="toolbar">
+                <span class="meta-label">Base URL</span>
+                <span class="meta-value">jsonplaceholder.typicode.com</span>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="detail-grid">
+                <pan-form resource="users" fields="name,email"></pan-form>
+                <pan-inspector></pan-inspector>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
   <pan-data-connector resource="users" base-url="https://jsonplaceholder.typicode.com"></pan-data-connector>
-</div>
 
-<script type="module">
-  import '../dist/pan-bus.js';
-  import '../dist/pan-client.js';
-  import '../dist/pan-inspector.js';
-  import '../dist/pan-data-table.js';
-  import '../dist/pan-form.js';
-  import '../dist/pan-data-connector.js';
+  <script type="module">
+    import '../dist/pan-bus.js';
+    import '../dist/pan-client.js';
+    import '../dist/pan-inspector.js';
+    import '../dist/pan-data-table.js';
+    import '../dist/pan-form.js';
+    import '../dist/pan-data-connector.js';
 
-  // Simple refresh button to re-request list
-  import { PanClient } from '../dist/pan-client.js';
-  const pc = new PanClient();
-  document.getElementById('refresh')?.addEventListener('click', ()=>{
-    pc.publish({ topic: 'users.list.get', data: {} });
-  });
-</script>
-
+    import { PanClient } from '../dist/pan-client.js';
+    const pc = new PanClient();
+    document.getElementById('refresh')?.addEventListener('click', () => {
+      pc.publish({ topic: 'users.list.get', data: {} });
+    });
+  </script>
+</body>
+</html>

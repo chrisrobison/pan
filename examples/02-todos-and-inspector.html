@@ -1,60 +1,266 @@
-<!DOCTYPE html><meta charset="utf-8" />
-<title>PAN – 02 Todos & Inspector</title>
-<pan-bus></pan-bus>
-<todo-provider></todo-provider>
-<todo-list></todo-list>
-<pan-inspector style="height:420px"></pan-inspector>
-<script type="module">
-  // Helpers: UUID fallback and safe event target
-  const uid = () => (globalThis.crypto && typeof crypto.randomUUID === 'function')
-    ? crypto.randomUUID()
-    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;
-  const eventTarget = (e)=> (e && typeof e.composedPath === 'function') ? e.composedPath()[0] : (e?.target || document);
-  // --- PanClient (minimal) & bus (same as above, with retained storage) ---
-  class PanClient{constructor(h=document){this.h=h}
-    pub(m){this.h.dispatchEvent(new CustomEvent('pan:publish',{detail:m,bubbles:true,composed:true}))}
-    sub(t,fn,o={}){const on=e=>e.detail?.topic&&PanClient.matches(e.detail.topic,t)&&fn(e.detail); this.h.addEventListener('pan:deliver',on);
-      this.h.dispatchEvent(new CustomEvent('pan:subscribe',{detail:{topics:[t],options:o},bubbles:true,composed:true})); return ()=>this.h.removeEventListener('pan:deliver',on);}
-    static matches(topic, pattern){ if(pattern==='*'||topic===pattern) return true; if(pattern.includes('*')){const esc=s=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
-  }
-  customElements.define('pan-bus', class extends HTMLElement{ subs=[]; retained=new Map(); connectedCallback(){
-    document.addEventListener('pan:publish', e=>this.#pub(e), true);
-    document.addEventListener('pan:subscribe', e=>this.#sub(e), true);
-    // mark ready to avoid race for late listeners
-    window.__panReady = true;
-    document.dispatchEvent(new CustomEvent('pan:sys.ready',{bubbles:true,composed:true})); }
-    #sub(e){const {topics=[],options={}}=e.detail||{}; const el=eventTarget(e); topics.forEach(p=>{this.subs.push({p,el}); if(options.retained){ for(const [t,msg] of this.retained){ if(PanClient.matches(t,p)) el.dispatchEvent(new CustomEvent('pan:deliver',{detail:msg})); } }});}
-    #pub(e){const m={id:uid(),ts:Date.now(),...e.detail}; if(m.retain) this.retained.set(m.topic,m); this.subs.forEach(s=>{ if(PanClient.matches(m.topic,s.p)) s.el.dispatchEvent(new CustomEvent('pan:deliver',{detail:m})); });}
-  });
-  // --- Todo provider (stateful, publishes retained snapshot) ---
-  customElements.define('todo-provider', class extends HTMLElement{ pc=new PanClient(this); items=[]; connectedCallback(){
-    const init = ()=>{
-      this.pc.sub('todos.change', m=>{this.items.push(m.data.item); this.broadcast();});
-      this.pc.sub('todos.remove', m=>{this.items=this.items.filter(t=>t.id!==m.data.id); this.broadcast();});
-      this.pc.sub('todos.toggle', m=>{const t=this.items.find(x=>x.id===m.data.id); if(t) t.done=!!m.data.done; this.broadcast();});
-      this.pc.pub({topic:'todos.state', data:{items:this.items}, retain:true});
-    };
-    if (window.__panReady) init(); else document.addEventListener('pan:sys.ready', init, {once:true});
-  }
-  broadcast(){ this.pc.pub({topic:'todos.state', data:{items:this.items}, retain:true}); }
-  });
-  // --- Todo list UI ---
-  customElements.define('todo-list', class extends HTMLElement{ pc=new PanClient(this); items=[]; connectedCallback(){
-    this.attachShadow({mode:'open'}); this.render();
-    this.pc.sub('todos.state', m=>{this.items=m.data.items; this.render();}, {retained:true});
-  }
-  render(){ const h=String.raw; this.shadowRoot.innerHTML=h`
-    <style> .muted{color:#888} ul{list-style:none;padding:0} li{display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed #ddd} li.done .t{ text-decoration:line-through; color:#888 } </style>
-    <form id=f><input id=title placeholder="Add a task…"/><button>Add</button></form>
-    ${this.items.length? '' : '<div class=muted>No tasks yet.</div>'}
-    <ul>${this.items.map(t=>`<li class="${t.done?'done':''}" data-id="${t.id}"><input type=checkbox ${t.done?'checked':''}><span class=t>${t.title}</span><span style="flex:1"></span><button class=del>✕</button></li>`).join('')}</ul>`;
-    const $=s=>this.shadowRoot.querySelector(s);
-    $('#f').onsubmit=(e)=>{e.preventDefault(); const v=$('#title').value.trim(); if(!v) return; $('#title').value=''; this.pc.pub({topic:'todos.change', data:{item:{id:uid(), title:v, done:false}}, retain:true}); };
-    this.shadowRoot.querySelectorAll('li input[type=checkbox]').forEach(cb=>cb.addEventListener('change',e=>{const id=e.target.closest('li').dataset.id; this.pc.pub({topic:'todos.toggle', data:{id, done:e.target.checked}, retain:true});}));
-    this.shadowRoot.querySelectorAll('li .del').forEach(b=>b.addEventListener('click',e=>{const id=e.target.closest('li').dataset.id; this.pc.pub({topic:'todos.remove', data:{id}, retain:true});}));
-  }
-  });
-  // --- Minimal Inspector (table view) ---
-  customElements.define('pan-inspector', class extends HTMLElement{ pc=new PanClient(this); events=[]; connectedCallback(){ this.attachShadow({mode:'open'}); this.render(); this.pc.sub('*', m=>{this.events.push({ts:Date.now(),topic:m.topic,size:JSON.stringify(m).length}); this.render();}); }
-    render(){ const h=String.raw; this.shadowRoot.innerHTML=h`<style>table{width:100%;font:12px/1.4 monospace}th{ text-align:left; position:sticky; top:0; background:#f6f6f6 }</style><table><thead><tr><th>time</th><th>topic</th><th>size</th></tr></thead><tbody>${this.events.slice(-300).map(r=>`<tr><td>${new Date(r.ts).toLocaleTimeString()}</td><td>${r.topic}</td><td>${r.size}</td></tr>`).join('')}</tbody></table>`; }
-  });
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Suite · 02 Todos & Inspector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>PAN Demo Suite</span>
+      </div>
+      <nav class="nav-content">
+        <a class="nav-item" href="./01-hello.html"><span>Hello Counter</span><span class="hint">01</span></a>
+        <a class="nav-item active" aria-current="page" href="./02-todos-and-inspector.html"><span>Todos + Inspector</span><span class="hint">02</span></a>
+        <a class="nav-item" href="./03-broadcastchannel.html"><span>Cross-tab Sync</span><span class="hint">03</span></a>
+        <a class="nav-item" href="./04-react-wrapper.html"><span>React Wrapper</span><span class="hint">04</span></a>
+        <a class="nav-item" href="./05-lit-wrapper.html"><span>Lit Wrapper</span><span class="hint">05</span></a>
+        <a class="nav-item" href="./06-crud.html"><span>CRUD (Mock Provider)</span><span class="hint">06</span></a>
+        <a class="nav-item" href="./07-rest-connector.html"><span>REST Connector</span><span class="hint">07</span></a>
+        <a class="nav-item" href="./08-workers.html"><span>Workers</span><span class="hint">08</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <strong>Inspector</strong> replays retained traffic so late joiners can reconstruct state instantly.
+      </div>
+    </aside>
+
+    <main class="main-region">
+      <header class="main-header">
+        <h1>Todos &amp; Inspector</h1>
+        <p>
+          A minimal PAN stack: provider retains <code>todos.state</code>, the list subscribes with replay,
+          and the inspector captures every event for debugging.
+        </p>
+        <div class="badge-row">
+          <span class="badge">topics: <code>todos.*</code></span>
+          <span class="badge">retained state</span>
+          <span class="badge">inspect + replay</span>
+        </div>
+      </header>
+
+      <section class="content-area">
+        <div class="split-vertical">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Todo List</h2>
+                <div class="subtitle">Publishes intent topics (<code>todos.change</code>, <code>todos.toggle</code>, <code>todos.remove</code>).</div>
+              </div>
+              <div class="toolbar">
+                <span class="meta-label">Messages retained:</span>
+                <span class="meta-value">true</span>
+              </div>
+            </div>
+            <div class="panel-body">
+              <todo-list></todo-list>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Traffic Console</h2>
+                <div class="subtitle">Watch retained snapshots and live events in a rolling buffer.</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <pan-inspector></pan-inspector>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <todo-provider hidden></todo-provider>
+
+  <script type="module">
+    // Helpers: UUID fallback and safe event target
+    const uid = () => (globalThis.crypto && typeof crypto.randomUUID === 'function')
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+    const eventTarget = (e) => (e && typeof e.composedPath === 'function') ? e.composedPath()[0] : (e?.target || document);
+
+    // --- PanClient (minimal) & bus (with retained storage) ---
+    class PanClient {
+      constructor(host = document) { this.host = host; }
+      pub(msg) { this.host.dispatchEvent(new CustomEvent('pan:publish', { detail: msg, bubbles: true, composed: true })); }
+      sub(pattern, fn, opts = {}) {
+        const onDeliver = (e) => {
+          const detail = e.detail;
+          if (detail?.topic && PanClient.matches(detail.topic, pattern)) fn(detail);
+        };
+        this.host.addEventListener('pan:deliver', onDeliver);
+        this.host.dispatchEvent(new CustomEvent('pan:subscribe', { detail: { topics: [pattern], options: opts }, bubbles: true, composed: true }));
+        return () => { this.host.removeEventListener('pan:deliver', onDeliver); };
+      }
+      static matches(topic, pattern) {
+        if (pattern === '*' || topic === pattern) return true;
+        if (pattern.includes('*')) {
+          const esc = (s) => s.replace(/[|\\{}()\[\]^$+?.]/g, '\\$&').replace(/\*/g, '[^.]+');
+          return new RegExp(`^${esc(pattern)}$`).test(topic);
+        }
+        return false;
+      }
+    }
+
+    customElements.define('pan-bus', class extends HTMLElement {
+      subs = [];
+      retained = new Map();
+      connectedCallback() {
+        document.addEventListener('pan:publish', (e) => this.#publish(e), true);
+        document.addEventListener('pan:subscribe', (e) => this.#subscribe(e), true);
+        window.__panReady = true;
+        document.dispatchEvent(new CustomEvent('pan:sys.ready', { bubbles: true, composed: true }));
+      }
+      #subscribe(e) {
+        const { topics = [], options = {} } = e.detail || {};
+        const el = eventTarget(e);
+        topics.forEach((pattern) => {
+          this.subs.push({ pattern, el });
+          if (options.retained) {
+            for (const [topic, msg] of this.retained) {
+              if (PanClient.matches(topic, pattern)) el.dispatchEvent(new CustomEvent('pan:deliver', { detail: msg }));
+            }
+          }
+        });
+      }
+      #publish(e) {
+        const msg = { id: uid(), ts: Date.now(), ...e.detail };
+        if (msg.retain) this.retained.set(msg.topic, msg);
+        this.subs.forEach((s) => {
+          if (PanClient.matches(msg.topic, s.pattern)) s.el.dispatchEvent(new CustomEvent('pan:deliver', { detail: msg }));
+        });
+      }
+    });
+
+    customElements.define('todo-provider', class extends HTMLElement {
+      pc = new PanClient(this);
+      items = [];
+      connectedCallback() {
+        const boot = () => {
+          this.pc.sub('todos.change', (m) => { this.items.push(m.data.item); this.#broadcast(); });
+          this.pc.sub('todos.remove', (m) => { this.items = this.items.filter((t) => t.id !== m.data.id); this.#broadcast(); });
+          this.pc.sub('todos.toggle', (m) => { const t = this.items.find((x) => x.id === m.data.id); if (t) t.done = !!m.data.done; this.#broadcast(); });
+          this.#broadcast();
+        };
+        if (window.__panReady) boot(); else document.addEventListener('pan:sys.ready', boot, { once: true });
+      }
+      #broadcast() { this.pc.pub({ topic: 'todos.state', data: { items: this.items }, retain: true }); }
+    });
+
+    customElements.define('todo-list', class extends HTMLElement {
+      pc = new PanClient(this);
+      items = [];
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+        this.#render();
+        this.pc.sub('todos.state', (m) => { this.items = m.data.items; this.#render(); }, { retained: true });
+      }
+      #render() {
+        const h = String.raw;
+        this.shadowRoot.innerHTML = h`
+          <style>
+            :host{display:block;font:15px/1.5 var(--font, "Lexend", sans-serif);}
+            form{display:flex;gap:0.65rem;margin-bottom:0.9rem;}
+            input{flex:1;padding:0.65rem 0.75rem;border-radius:0.8rem;border:1px solid rgba(15,23,42,0.12);}
+            button{padding:0.65rem 1rem;border-radius:0.8rem;border:none;background:var(--color-accent,#2563eb);color:white;font-weight:600;cursor:pointer;}
+            button:hover{background:#1d4ed8;}
+            ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.4rem;}
+            li{display:flex;align-items:center;gap:0.75rem;padding:0.55rem 0.75rem;border:1px solid rgba(15,23,42,0.1);border-radius:0.9rem;background:rgba(255,255,255,0.9);}
+            li.done .t{text-decoration:line-through;color:var(--color-muted,#5f6b84);}
+            .muted{color:var(--color-muted,#5f6b84);}
+            .spacer{flex:1;}
+            .del{border:none;background:transparent;color:#ef4444;font-size:1.1rem;cursor:pointer;}
+          </style>
+          <form id="f">
+            <input id="title" placeholder="Add a task…" />
+            <button type="submit">Add</button>
+          </form>
+          ${this.items.length ? '' : '<div class="muted">No tasks yet.</div>'}
+          <ul>
+            ${this.items.map((t) => `
+              <li class="${t.done ? 'done' : ''}" data-id="${t.id}">
+                <input type="checkbox" ${t.done ? 'checked' : ''} aria-label="toggle" />
+                <span class="t">${this.#escape(t.title)}</span>
+                <span class="spacer"></span>
+                <button class="del" title="Remove">✕</button>
+              </li>
+            `).join('')}
+          </ul>
+        `;
+        const form = this.shadowRoot.querySelector('#f');
+        const title = this.shadowRoot.querySelector('#title');
+        form?.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const value = title.value.trim();
+          if (!value) return;
+          title.value = '';
+          this.pc.pub({ topic: 'todos.change', data: { item: { id: uid(), title: value, done: false } }, retain: true });
+        });
+        this.shadowRoot.querySelectorAll('li input[type=checkbox]').forEach((cb) => {
+          cb.addEventListener('change', (e) => {
+            const li = e.target.closest('li');
+            const id = li?.dataset.id;
+            this.pc.pub({ topic: 'todos.toggle', data: { id, done: e.target.checked }, retain: true });
+          });
+        });
+        this.shadowRoot.querySelectorAll('li .del').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            const id = li?.dataset.id;
+            this.pc.pub({ topic: 'todos.remove', data: { id }, retain: true });
+          });
+        });
+      }
+      #escape(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    });
+
+    customElements.define('pan-inspector', class extends HTMLElement {
+      pc = new PanClient(this);
+      events = [];
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+        this.#render();
+        this.pc.sub('*', (m) => {
+          this.events.push({ ts: Date.now(), topic: m.topic, size: JSON.stringify(m).length });
+          this.events = this.events.slice(-500);
+          this.#render();
+        }, { retained: true });
+      }
+      #render() {
+        const h = String.raw;
+        this.shadowRoot.innerHTML = h`
+          <style>
+            :host{display:block;height:100%;}
+            table{width:100%;border-collapse:collapse;font:12px/1.4 ui-monospace, SFMono-Regular, Menlo;}
+            thead th{position:sticky;top:0;background:rgba(15,23,42,0.85);color:#fff;padding:0.5rem;}
+            tbody td{padding:0.4rem 0.5rem;border-bottom:1px solid rgba(148,163,184,0.2);color:#e2e8f0;}
+            tbody tr:nth-child(even){background:rgba(15,23,42,0.6);}
+          </style>
+          <table>
+            <thead><tr><th>time</th><th>topic</th><th>size</th></tr></thead>
+            <tbody>
+              ${this.events.map((r) => `
+                <tr>
+                  <td>${new Date(r.ts).toLocaleTimeString()}</td>
+                  <td>${r.topic}</td>
+                  <td>${r.size}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
