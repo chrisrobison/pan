@@ -5,19 +5,24 @@
 import { PanClient } from './pan-client.js';
 
 export class PanForm extends HTMLElement {
-  static get observedAttributes(){ return ['resource','fields']; }
-  constructor(){ super(); this.attachShadow({mode:'open'}); this.pc = new PanClient(this); this.value = {}; }
+  static get observedAttributes(){ return ['resource','fields','key','live']; }
+  constructor(){ super(); this.attachShadow({mode:'open'}); this.pc = new PanClient(this); this.value = {}; this._offSel=null; this._offLive=null; this._selectedId=null; }
   connectedCallback(){ this.render(); this.#wire(); }
-  disconnectedCallback(){ this.off && this.off(); }
+  disconnectedCallback(){ this._unsubAll(); }
   attributeChangedCallback(){ this.render(); this.#wire(); }
 
   get resource(){ return (this.getAttribute('resource')||'items').trim(); }
   get fields(){ const f=(this.getAttribute('fields')||'').trim(); return f? f.split(/\s*,\s*/): []; }
+  get key(){ return (this.getAttribute('key')||'id').trim(); }
+  get live(){ const v=(this.getAttribute('live')||'true').toLowerCase(); return v!== 'false' && v!== '0'; }
 
   #wire(){
-    this.off && this.off();
-    this.off = this.pc.subscribe(`${this.resource}.item.select`, async (m)=>{
+    this._unsubAll();
+    // Listen for selection events
+    this._offSel = this.pc.subscribe(`${this.resource}.item.select`, async (m)=>{
       const id = m?.data?.id; if (!id) return;
+      this._selectedId = id;
+      this.#subscribeLive();
       try { const { data } = await this.pc.request(`${this.resource}.item.get`, { id }); this.#setValue(data?.item || {}); }
       catch { /* ignore */ }
     });
@@ -27,16 +32,39 @@ export class PanForm extends HTMLElement {
     if (del) del.onclick = (e)=>{ e.preventDefault(); this.#delete(); };
   }
 
+  _unsubAll(){ try { this._offSel && this._offSel(); } catch {} this._offSel=null; try { this._offLive && this._offLive(); } catch {} this._offLive=null; }
+
+  #subscribeLive(){
+    // Subscribe to live updates for the currently selected id
+    try { this._offLive && this._offLive(); } catch {} this._offLive = null;
+    if (!this.live) return;
+    const id = this._selectedId || this.value?.[this.key] || this.value?.id; if (!id) return;
+    const topic = `${this.resource}.item.state.${id}`;
+    this._offLive = this.pc.subscribe(topic, (m)=>{
+      const d = m?.data || {};
+      if (d.deleted) {
+        // If this item was deleted elsewhere, clear the form
+        const cur = this.value?.[this.key] || this.value?.id; if (String(cur) === String(id)) this.#setValue({});
+        return;
+      }
+      if (d.item && typeof d.item === 'object') { this.#setValue(d.item); return; }
+      if (d.patch && typeof d.patch === 'object') { this.#setValue(Object.assign({}, this.value||{}, d.patch)); return; }
+      // Fallback: accept top-level fields as patch
+      if (d && typeof d === 'object') { this.#setValue(Object.assign({}, this.value||{}, d)); }
+    }, { retained:true });
+  }
+
   async #save(){
     const item = this.#collect();
     try {
       const { data } = await this.pc.request(`${this.resource}.item.save`, { item });
-      this.#setValue(data?.item || item);
+      const saved = data?.item || item; this.#setValue(saved);
+      this._selectedId = saved?.[this.key] || saved?.id || this._selectedId; this.#subscribeLive();
     } catch {}
   }
 
   async #delete(){
-    const id = this.value?.id || this.value?.[this.getAttribute('key')||'id'];
+    const id = this.value?.id || this.value?.[this.key];
     if (!id) return;
     try {
       await this.pc.request(`${this.resource}.item.delete`, { id });
@@ -81,6 +109,8 @@ export class PanForm extends HTMLElement {
         </div>
       </form>
     `;
+    // If a value is already present, ensure live subscription is set
+    this.#subscribeLive();
   }
 
   #escape(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
@@ -88,4 +118,3 @@ export class PanForm extends HTMLElement {
 
 customElements.define('pan-form', PanForm);
 export default PanForm;
-

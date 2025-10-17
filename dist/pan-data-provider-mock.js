@@ -61,6 +61,18 @@ export class PanDataProvider extends HTMLElement {
     this.pc.publish({ topic: `${this.resource}.list.state`, data: { items: this.items }, retain: true });
   }
 
+  #publishItemState(item, opts={}){
+    try {
+      const id = (item && typeof item==='object') ? (item[this.key] ?? item.id) : item;
+      if (id==null) return;
+      if (opts && opts.deleted) {
+        this.pc.publish({ topic: `${this.resource}.item.state.${id}`, data: { id, deleted: true } });
+      } else {
+        this.pc.publish({ topic: `${this.resource}.item.state.${id}`, data: { item }, retain: true });
+      }
+    } catch {}
+  }
+
   #onListGet(m){
     const { replyTo } = m;
     if (replyTo) this.pc.publish({ topic: replyTo, correlationId: m.correlationId, data: { items: this.items } });
@@ -71,6 +83,7 @@ export class PanDataProvider extends HTMLElement {
     const id = m?.data?.[this.key] ?? m?.data?.id ?? m?.data;
     const item = this.items.find(x => String(x[this.key]) === String(id));
     const res = item ? { ok: true, item } : { ok: false, error: 'NOT_FOUND', id };
+    if (item) this.#publishItemState(item);
     if (m.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: res });
   }
 
@@ -84,6 +97,7 @@ export class PanDataProvider extends HTMLElement {
     else this.items.push(item);
     this.#savePersist();
     this.#publishListState();
+    this.#publishItemState(item);
     if (m.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: true, item } });
   }
 
@@ -94,10 +108,10 @@ export class PanDataProvider extends HTMLElement {
     const ok = this.items.length !== before;
     this.#savePersist();
     this.#publishListState();
+    this.#publishItemState(id, { deleted:true });
     if (m.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok, id } });
   }
 }
 
 customElements.define('pan-data-provider', PanDataProvider);
 export default PanDataProvider;
-

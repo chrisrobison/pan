@@ -97,6 +97,18 @@ export class PanDataConnector extends HTMLElement {
     this.pc.publish({ topic: `${this.resource}.list.state`, data: { items: Array.isArray(items) ? items : [] }, retain: true });
   }
 
+  #publishItemState(item, opts={}){
+    try {
+      const id = (item && typeof item==='object') ? (item[this.key] ?? item.id) : item;
+      if (id==null) return;
+      if (opts && opts.deleted) {
+        this.pc.publish({ topic: `${this.resource}.item.state.${id}`, data: { id, deleted: true } });
+      } else {
+        this.pc.publish({ topic: `${this.resource}.item.state.${id}`, data: { item }, retain: true });
+      }
+    } catch {}
+  }
+
   async #refreshList(params){
     try {
       const url = this.#url(this.listPath) + this.#qs(params);
@@ -120,6 +132,8 @@ export class PanDataConnector extends HTMLElement {
     const url = this.#url(this.itemPath.replace(':id', encodeURIComponent(String(id))));
     try {
       const item = await this.#fetchJson(url, { method: 'GET' });
+      // Publish retained per-item snapshot for live consumers
+      this.#publishItemState(item);
       if (m?.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: true, item } });
     } catch (err) {
       if (m?.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: false, error: err } });
@@ -139,6 +153,8 @@ export class PanDataConnector extends HTMLElement {
       // Ensure the id is present in the returned item
       const out = Object.assign({}, item, saved || {});
       if (!out[this.key] && item[this.key]) out[this.key] = item[this.key];
+      // Publish retained per-item snapshot for live consumers
+      this.#publishItemState(out);
       if (m?.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: true, item: out } });
     } catch (err) {
       if (m?.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: false, error: err } });
@@ -156,10 +172,11 @@ export class PanDataConnector extends HTMLElement {
     } catch (err) {
       if (m?.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: false, error: err, id } });
     }
+    // Publish a non-retained deletion notification for live consumers
+    this.#publishItemState(id, { deleted: true });
     await this.#refreshList();
   }
 }
 
 customElements.define('pan-data-connector', PanDataConnector);
 export default PanDataConnector;
-
