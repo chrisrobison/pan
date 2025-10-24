@@ -101,6 +101,30 @@ No bundler required. Works from `file://`.
 
 ---
 
+## Autoloading Custom Elements
+
+Drop a single module on the page to progressively load Web Components from a
+`components/` folder. Tags with a dash (`<my-widget>`) are auto-detected; the
+loader imports `../components/<tag>.mjs` relative to `dist/pan-autoload.js` by
+default. Override the path per element with `data-module` or globally via
+`window.panAutoload` before loading the script.
+
+```html
+<script>
+  window.panAutoload = { componentsPath: '../components/' };
+</script>
+<script type="module" src="./dist/pan-autoload.js"></script>
+```
+
+```html
+<my-card data-module="/components/cards/my-card.mjs"></my-card>
+```
+
+Modules that do not self-register are defined automatically when they export a
+default class matching the tag.
+
+---
+
 ## Core Concepts
 
 * **Topics**: strings like `todos.change`, `nav.goto`, `user.update@2`.
