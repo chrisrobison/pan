@@ -1,0 +1,176 @@
+<!doctype html><meta charset="utf-8" />
+<title>PAN + SSE (Local PHP) – Broadcast Demo</title>
+<style>
+  :root{ color-scheme: light dark }
+  body{font:14px/1.4 system-ui;margin:20px}
+  .grid{display:grid;grid-template-columns:1fr 400px;gap:16px;align-items:start}
+  .card{border:1px solid #ddd;border-radius:12px;padding:16px;background:#fff}
+  label{display:block;margin:.5rem 0 .25rem;color:#555}
+  input,textarea{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
+  .row{display:flex;gap:8px;align-items:center}
+  .muted{color:#777}
+  pre{background:#f7f7f7;border:1px solid #eee;border-radius:8px;padding:8px}
+  pan-inspector{height:320px;display:block}
+  button{padding:.5rem .8rem;border-radius:8px;border:1px solid #bbb;background:#fafafa;cursor:pointer}
+  button:hover{background:#f3f3f3}
+  .spacer{flex:1}
+  small code{background: #f3f3f3; padding: 0 4px; border-radius: 4px}
+  .ok{color:#0a0}
+  .err{color:#a00}
+  .status{min-width: 120px; text-align:right}
+  .pill{background:#eef;border:1px solid #ccd;padding:.1rem .4rem;border-radius:12px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  .nowrap{white-space:nowrap}
+  .hint{color:#666}
+  .topic{font-weight:600}
+  .msgs{display:grid;gap:8px}
+  .msg{padding:8px;border:1px dashed #ddd;border-radius:8px}
+  .msg .topic{font-weight:600}
+  .msg .ts{color:#888}
+  .footer{margin-top:8px;color:#777}
+  .footer a{color:#36c;text-decoration:none}
+  .footer a:hover{text-decoration:underline}
+  .inline{display:inline-flex;gap:8px;align-items:center}
+  .center{display:flex;gap:8px;align-items:center}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:6px}
+  .kv label{margin:0;color:#333}
+  .kv .value{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;white-space:pre-wrap}
+  .examples{font-size:12px;color:#555;margin-top:6px}
+  .examples code{background:#f3f3f3;border:1px solid #e7e7e7;padding:0 .25rem;border-radius:4px}
+  .hr{border-top:1px solid #eee;margin:12px 0}
+  .tight{margin:.25rem 0}
+  .subtle{color:#666;font-size:13px}
+  .header{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+  .header .tag{font-size:12px;border:1px solid #ddd;border-radius:999px;padding:.1rem .5rem;background:#fafafa}
+  .desc{color:#555}
+  .note{font-size:12px;color:#666}
+  .checkbox{display:flex;gap:6px;align-items:center}
+  .checkbox input{width:auto}
+  .mt8{margin-top:8px}
+  .mt12{margin-top:12px}
+  .mt16{margin-top:16px}
+  .mt20{margin-top:20px}
+  .w100{width:100%}
+  .code{background:#fbfbfb;border:1px solid #eee;border-radius:6px;padding:8px;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
+  .chip{display:inline-block;padding:.1rem .5rem;background:#f5f5ff;border:1px solid #e0e0ff;border-radius:999px;font-size:12px}
+  .sep{color:#aaa}
+  .list{list-style:none;margin:0;padding:0}
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1115; color:#e8e8e8 }
+    .muted,.hint,.desc,.note{ color:#a8a8a8 }
+    .card{ border-color:#262a36; background:#151823 }
+    label,.kv label{ color:#a8a8a8 }
+    input,textarea{ background:#0f1115; color:#e8e8e8; border-color:#262a36 }
+    pre,.code{ background:#0d1220; border-color:#242b3b; color:#cfd8ff }
+    .msg{ border-color:#3a4054 }
+    .msg .ts{ color:#9aa5bd }
+    .footer{ color:#a8a8a8 }
+    .footer a{ color:#9bb7ff }
+    .header .tag{ border-color:#2d3343; background:#151823 }
+    .pill{ border-color:#3a4054; background:rgba(125,162,255,.15) }
+    .chip{ background:#1a2030; border-color:#3a4054 }
+    button{ background:#1a2030; color:#e8e8e8; border-color:#3a4054 }
+    button:hover{ background:#222a3a }
+    .hr{ border-top-color:#242b3b }
+  }
+</style>
+
+<pan-bus></pan-bus>
+<div class="grid">
+  <div class="card">
+    <div class="header">
+      <h3 class="tight">Local SSE Hub</h3>
+      <span class="tag">sse.php</span>
+    </div>
+    <div class="desc">Broadcast messages to this page over SSE; they appear on the PAN bus.</div>
+    <div class="hr"></div>
+    <div class="kv">
+      <label>Endpoint</label>
+      <div class="value">/pan/sse.php</div>
+      <label>Subscribed</label>
+      <div class="value"><span class="topic">chat.message</span> <span class="sep">·</span> <span class="topic">demo.*</span> <span class="sep">·</span> <span class="topic">*</span></div>
+    </div>
+    <div class="mt12 checkbox"><input id="withCreds" type="checkbox" checked><label for="withCreds">with-credentials</label></div>
+    <div class="mt8 checkbox"><input id="persistLast" type="checkbox" checked><label for="persistLast">persist last event</label></div>
+    <div class="hr"></div>
+    <div class="center">
+      <span>Send:</span>
+      <input id="topic" placeholder="topic (e.g. chat.message)" value="chat.message" class="w100"/>
+      <input id="text" placeholder="text (payload)" value="Hello from server!" class="w100"/>
+      <label class="checkbox"><input id="retain" type="checkbox"> retain</label>
+      <button id="send">POST</button>
+      <span id="status" class="status muted">Idle</span>
+    </div>
+    <div class="examples">POST example: <code>{"topic":"chat.message","data":{"text":"hi"}}</code></div>
+    <div class="hr"></div>
+    <div class="msgs" id="msgs"></div>
+    <div class="footer">Tip: open <span class="chip">pan-inspector</span> to watch traffic.</div>
+  </div>
+
+  <div class="card">
+    <h3 class="tight">PAN Inspector</h3>
+    <pan-inspector></pan-inspector>
+  </div>
+</div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-inspector.js';
+  import '../dist/pan-sse.js';
+  import { PanClient } from '../dist/pan-client.js';
+
+  const pc = new PanClient();
+
+  // Add SSE bridge element dynamically so we can toggle attributes
+  const sse = document.createElement('pan-sse');
+  sse.setAttribute('src', '/pan/sse.php');
+  sse.setAttribute('topics', 'chat.message demo.* *');
+  sse.setAttribute('persist-last-event', 'demo');
+  document.body.appendChild(sse);
+
+  const withCreds = document.getElementById('withCreds');
+  const persist = document.getElementById('persistLast');
+  const refreshAttrs = () => {
+    if (withCreds.checked) sse.setAttribute('with-credentials','true');
+    else sse.setAttribute('with-credentials','false');
+    if (persist.checked) sse.setAttribute('persist-last-event','demo');
+    else sse.removeAttribute('persist-last-event');
+  };
+  withCreds.onchange = persist.onchange = refreshAttrs;
+  refreshAttrs();
+
+  // Simple message list on the page to show broadcasts
+  const msgs = document.getElementById('msgs');
+  const renderMsg = (m)=>{
+    const div = document.createElement('div');
+    div.className = 'msg';
+    const ts = new Date().toLocaleTimeString();
+    div.innerHTML = `<div><span class="ts">${ts}</span> <span class="topic">${m.topic}</span></div><pre>${JSON.stringify(m.data, null, 2)}</pre>`;
+    msgs.prepend(div);
+  };
+  pc.subscribe(['chat.message','demo.*','*'], m => renderMsg(m), { retained:true });
+
+  // Sender form
+  const topicEl = document.getElementById('topic');
+  const textEl  = document.getElementById('text');
+  const retainEl= document.getElementById('retain');
+  const statusEl= document.getElementById('status');
+  async function send(){
+    const topic = topicEl.value.trim() || 'chat.message';
+    const text  = textEl.value.trim() || 'Hello from server!';
+    statusEl.textContent = 'Sending…'; statusEl.className='status muted';
+    try{
+      const res = await fetch('/pan/sse.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ topic, data:{ text }, retain: retainEl.checked }) });
+      const j = await res.json();
+      if (!res.ok || !j.ok) throw new Error(j.error||('HTTP '+res.status));
+      statusEl.textContent = 'Sent (#'+j.id+')'; statusEl.className='status ok';
+    }catch(err){ statusEl.textContent = 'Error'; statusEl.className='status err'; console.error(err); }
+  }
+  document.getElementById('send').onclick = send;
+
+  // Kick off with a server ping so there is some traffic
+  setTimeout(()=>{
+    fetch('/pan/sse.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ topic:'demo.ping', data:{ ts: Date.now() } }) }).catch(()=>{});
+  }, 300);
+</script>

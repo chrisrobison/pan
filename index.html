@@ -21,6 +21,7 @@
       <div class="nav-content">
         <pan-demo-nav sync-url="hash">
           <script type="application/json">[
+            { "id": "intro", "title": "Welcome / Intro", "hint": "00", "href": "examples/00-intro.html" },
             { "id": "ex-01", "title": "Hello Counter", "hint": "01", "href": "examples/01-hello.html" },
             { "id": "ex-02", "title": "Todos + Inspector", "hint": "02", "href": "examples/02-todos-and-inspector.html" },
             { "id": "ex-03", "title": "Cross-tab Sync", "hint": "03", "href": "examples/03-broadcastchannel.html" },
@@ -33,7 +34,12 @@
             { "id": "ex-10", "title": "SSE + Store", "hint": "10", "href": "examples/10-sse-store.html" },
             { "id": "ex-11", "title": "GraphQL Connector", "hint": "11", "href": "examples/11-graphql-connector.html" },
             { "id": "ex-12", "title": "PHP Connector", "hint": "12", "href": "examples/12-php-connector.html" },
-            { "id": "grid", "title": "DB Grid (PHP)", "hint": "G", "href": "pan-grid.html" }
+            { "id": "ex-13", "title": "SSE (Local PHP)", "hint": "13", "href": "examples/13-sse-pan.html" },
+            { "id": "registry", "title": "Registry (Components)", "hint": "R", "href": "registry/index.html" },
+            { "id": "conformance", "title": "Conformance (PAN v1)", "hint": "C", "href": "conformance/index.html" },
+            { "id": "ex-14", "title": "Forwarder → SSE", "hint": "14", "href": "examples/14-forwarder.html" },
+            { "id": "grid", "title": "DB Grid (PHP)", "hint": "G", "href": "pan-grid.html" },
+            { "id": "tpl-provider", "title": "Template: Provider Kit", "hint": "T", "href": "templates/provider-kit/index.html" }
           ]</script>
         </pan-demo-nav>
       </div>
@@ -43,18 +49,6 @@
     </aside>
 
     <main class="main-region">
-      <header class="main-header">
-        <h1>PAN Demo Browser</h1>
-        <p>
-          Use the sidebar to navigate demos. The viewer loads each example in an iframe. Navigation and state are powered by the PAN bus.
-        </p>
-        <div class="badge-row">
-          <span class="badge">topics: <code>nav.*</code></span>
-          <span class="badge">retained: <code>nav.state</code></span>
-          <span class="badge">SPA-style</span>
-        </div>
-      </header>
-
       <section class="content-area">
         <section class="panel">
           <div class="panel-header">
@@ -80,4 +74,3 @@
   </script>
 </body>
 </html>
-

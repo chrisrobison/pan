@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light dark;
   --color-bg: #f6f7fb;
   --color-surface: #ffffff;
   --color-border: #e0e5f0;
@@ -13,6 +14,20 @@
   font-size: 16px;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f1115;
+    --color-surface: #151823;
+    --color-border: #262a36;
+    --color-border-strong: #3a4054;
+    --color-text: #e8e8e8;
+    --color-muted: #a8a8a8;
+    --color-accent: #7da2ff;
+    --color-accent-soft: rgba(125, 162, 255, 0.18);
+    --color-inspector-bg: #0b1220;
+  }
 }
 
 *,
@@ -151,6 +166,40 @@ code {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+}
+
+/* index header: collapsible banner (details/summary) */
+.main-header details {
+  margin: 0;
+}
+
+.main-header summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  list-style: none;
+  cursor: pointer;
+}
+
+/* hide default marker */
+.main-header summary::-webkit-details-marker { display: none; }
+.main-header summary::marker { content: ""; }
+
+.main-header .chevron {
+  font-size: 1rem;
+  line-height: 1;
+  transform: rotate(0deg);
+  transition: transform 0.18s ease;
+  opacity: 0.7;
+}
+
+.main-header details:not([open]) .chevron {
+  transform: rotate(-90deg);
+}
+
+.main-header .banner-content {
+  margin-top: 0.25rem;
 }
 
 .main-header h1 {

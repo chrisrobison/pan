@@ -1,0 +1,65 @@
+<!doctype html><meta charset="utf-8" />
+<title>PAN Forwarder → SSE Hub</title>
+<style>
+  :root{ color-scheme: light dark }
+  body{font:14px/1.4 system-ui;margin:20px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{border:1px solid #ddd;border-radius:12px;padding:16px;background:#fff}
+  .row{display:flex;gap:8px;align-items:center}
+  input,button{padding:.5rem;border:1px solid #ccc;border-radius:8px}
+  button{cursor:pointer}
+  pre{background:#f7f7f7;border:1px solid #eee;border-radius:8px;padding:8px}
+  pan-inspector{height:320px;display:block}
+  .muted{color:#777}
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1115; color:#e8e8e8 }
+    .muted{ color:#a8a8a8 }
+    .card{ border-color:#262a36; background:#151823 }
+    input,button{ background:#0f1115; color:#e8e8e8; border-color:#262a36 }
+    pre{ background:#0d1220; border-color:#242b3b; color:#cfd8ff }
+  }
+</style>
+
+<pan-bus></pan-bus>
+<!-- Receive from server -->
+<pan-sse src="/pan/sse.php" topics="chat.message" persist-last-event="forwarder"></pan-sse>
+<!-- Forward local topics to server (beware of loops if also publishing locally) -->
+<pan-forwarder dest="/pan/sse.php" topics="chat.message"></pan-forwarder>
+
+<div class="grid">
+  <div class="card">
+    <h3>Send chat.message via server</h3>
+    <div class="row">
+      <input id="text" placeholder="Say something" value="Hello via forwarder" class="w100"/>
+      <button id="send">Send</button>
+    </div>
+    <p class="muted">This demo triggers a local publish, which the forwarder POSTS to <code>sse.php</code>. The hub broadcasts back over SSE into PAN.</p>
+    <div id="msgs"></div>
+  </div>
+  <div class="card">
+    <h3>PAN Inspector</h3>
+    <pan-inspector></pan-inspector>
+  </div>
+  
+</div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+  import '../dist/pan-client.js';
+  import '../dist/pan-inspector.js';
+  import '../dist/pan-sse.js';
+  import '../dist/pan-forwarder.js';
+  import { PanClient } from '../dist/pan-client.js';
+
+  const pc = new PanClient();
+  const msgs = document.getElementById('msgs');
+  const render = (m)=>{ const pre=document.createElement('pre'); pre.textContent = JSON.stringify(m, null, 2); msgs.prepend(pre); };
+  pc.subscribe('chat.message', m=> render(m), { retained:true });
+
+  document.getElementById('send').onclick = ()=>{
+    const text = document.getElementById('text').value.trim();
+    if (!text) return;
+    // Local publish — forwarded to server by <pan-forwarder>, then rebroadcast to page by <pan-sse>
+    pc.publish({ topic:'chat.message', data:{ text } });
+  };
+</script>

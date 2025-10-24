@@ -16,6 +16,9 @@ if (isset($in['x'])) {
 		case "get":
 			$out = get();
 			break;
+		case "list_fields":
+			$out = listFields();
+			break;
 		default:
 			$out = get();
 	}
@@ -95,6 +98,40 @@ function listResources() {
 	$out = ["Resources"=>$tbls];
 
 	return $out;
+}
+
+function listFields() {
+	global $in;
+	global $link;
+
+	if (!isset($in['rsc']) || $in['rsc'] === '') {
+		return [ 'status' => 'error', 'msg' => 'Missing rsc' ];
+	}
+
+	$table = $link->real_escape_string($in['rsc']);
+	$fields = [];
+	$pk = null;
+
+	// Describe columns
+	$sql = "SHOW COLUMNS FROM `{$table}`";
+	if ($res = $link->query($sql)) {
+		while ($col = $res->fetch_assoc()) {
+			$fields[] = [
+				'Field' => $col['Field'],
+				'Type' => $col['Type'],
+				'Null' => $col['Null'],
+				'Key' => $col['Key'],
+				'Default' => $col['Default'],
+				'Extra' => $col['Extra']
+			];
+			if ($col['Key'] === 'PRI' && $pk === null) { $pk = $col['Field']; }
+		}
+	}
+
+	// Fallback to conventional <Table>ID if no explicit PK found
+	if ($pk === null) { $pk = $table . 'ID'; }
+
+	return [ 'Resource' => $table, 'PrimaryKey' => $pk, 'Fields' => $fields ];
 }
 
 function sendJSON($obj) {

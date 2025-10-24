@@ -1,0 +1,2 @@
+{"id":1,"ts":1761189298,"topic":"chat.message","data":{"text":"Hello from server!"}}
+{"id":2,"ts":1761189314,"topic":"chat.message","data":{"text":"Hello from server! 2"}}

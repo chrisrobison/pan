@@ -1,0 +1,36 @@
+{
+  "name": "@pan/client",
+  "version": "0.1.0",
+  "description": "PanClient — tiny helper for PAN publish/subscribe and request/reply",
+  "type": "module",
+  "main": "index.js",
+  "module": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://example.com/pan.git"
+  },
+  "pan": {
+    "title": "PanClient",
+    "type": "helper",
+    "dist": "dist/pan-client.js",
+    "topics": { "publishes": ["<app-topics>"], "subscribes": ["<app-topics>"] },
+    "retained": "subscribe option",
+    "demo": "examples/01-hello.html",
+    "tags": ["helper"]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "node ../../scripts/sync-dist.js"
+  }
+}

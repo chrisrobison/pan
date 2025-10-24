@@ -1,0 +1,36 @@
+{
+  "name": "@pan/bus",
+  "version": "0.1.0",
+  "description": "PAN Bus — DOM-native publish/subscribe with retained messages",
+  "type": "module",
+  "main": "index.js",
+  "module": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://example.com/pan.git"
+  },
+  "pan": {
+    "title": "PAN Bus",
+    "type": "tool",
+    "dist": "dist/pan-bus.js",
+    "topics": { "publishes": ["pan:deliver"], "subscribes": ["pan:publish","pan:subscribe","pan:unsubscribe","pan:hello"] },
+    "retained": true,
+    "demo": "examples/01-hello.html",
+    "tags": ["bus","dom","custom-element"]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "node ../../scripts/sync-dist.js"
+  }
+}

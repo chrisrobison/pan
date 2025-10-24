@@ -1,0 +1,115 @@
+<!doctype html><meta charset="utf-8" />
+<title>PAN v1 Conformance</title>
+<style>
+  :root{ color-scheme: light dark }
+  body{font:14px/1.5 system-ui; margin:20px}
+  h1{margin:.2rem 0 1rem}
+  .row{display:flex;gap:10px;align-items:center}
+  .ok{color:#080}
+  .err{color:#b00}
+  .card{border:1px solid #e5e5e5;border-radius:12px;padding:12px;margin:10px 0;background:#fff}
+  code{background:#f7f7f7;border:1px solid #eee;border-radius:4px;padding:0 .3rem}
+  .muted{color:#666}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace}
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1115; color:#e8e8e8 }
+    .muted{ color:#a8a8a8 }
+    .card{ border-color:#262a36; background:#151823 }
+    code{ background:#0d1220; border-color:#242b3b; color:#a3c0ff }
+  }
+</style>
+
+<pan-bus></pan-bus>
+<h1>PAN v1 Conformance</h1>
+<div class="muted">Runs a small suite against the reference bus and client.</div>
+<div id="summary" class="row"></div>
+<div id="results"></div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+  import { PanClient } from '../dist/pan-client.js';
+
+  const results = document.getElementById('results');
+  const summary = document.getElementById('summary');
+  const pc = new PanClient();
+
+  const t = [];
+  const sleep = (ms)=> new Promise(r=>setTimeout(r,ms));
+  const assert = (cond, msg='assertion failed') => { if(!cond) throw new Error(msg); };
+
+  t.push({ name:'pan:sys.ready fires', run: async ()=>{
+    let ready = false; const p = new Promise(res=>{
+      const on = ()=>{ ready = true; document.removeEventListener('pan:sys.ready', on, true); res(); };
+      document.addEventListener('pan:sys.ready', on, true);
+    });
+    // If already ready, resolve quickly
+    setTimeout(()=>{ if (window.__panReady && !ready) p.then(()=>{}); }, 0);
+    await Promise.race([p, sleep(200)]);
+    assert(window.__panReady === true, 'expected __panReady flag');
+  }});
+
+  t.push({ name:'publish/subscribe delivers', run: async ()=>{
+    const topic = 'conf.echo';
+    const payload = { x: 42 };
+    const got = new Promise(res=> pc.subscribe(topic, m=>res(m)));
+    pc.publish({ topic, data: payload });
+    const m = await Promise.race([got, sleep(500)]);
+    assert(!!m, 'no message');
+    assert(m.topic === topic, 'topic mismatch');
+    assert(m.data && m.data.x === 42, 'payload mismatch');
+  }});
+
+  t.push({ name:'wildcard matching', run: async ()=>{
+    const hits = [];
+    const off = pc.subscribe('foo.*', m=>hits.push(m.topic));
+    pc.publish({topic:'foo.bar', data:1});
+    pc.publish({topic:'foo.baz', data:1});
+    pc.publish({topic:'foo.bar.baz', data:1}); // should NOT match
+    pc.publish({topic:'bar.foo', data:1});     // should NOT match
+    await sleep(50); off();
+    assert(hits.includes('foo.bar') && hits.includes('foo.baz'), 'missing expected matches');
+    assert(!hits.includes('foo.bar.baz') && !hits.includes('bar.foo'), 'unexpected matches');
+  }});
+
+  t.push({ name:'retained snapshot on subscribe', run: async ()=>{
+    const topic = 'conf.retained';
+    pc.publish({ topic, data:{ n:1 }, retain:true });
+    let got = null; const off = pc.subscribe(topic, m=>{ got = m; }, { retained:true });
+    await sleep(50); off();
+    assert(got && got.data && got.data.n === 1, 'did not receive retained snapshot');
+  }});
+
+  t.push({ name:'request/reply over ephemeral topic', run: async ()=>{
+    const REQ = 'conf.req';
+    // Provider: on request, reply to given topic
+    const off = pc.subscribe(REQ, (m)=>{
+      const { replyTo, correlationId } = m;
+      if (replyTo) pc.publish({ topic: replyTo, data:{ ok:true, echo:m.data }, correlationId });
+    });
+    const { data } = await pc.request(REQ, { ping:true }, { timeoutMs: 1000 });
+    off();
+    assert(data && data.ok && data.echo && data.echo.ping===true, 'invalid reply payload');
+  }});
+
+  async function run(){
+    let pass=0, fail=0; results.innerHTML='';
+    for (const test of t) {
+      const card = document.createElement('div'); card.className='card';
+      const h = document.createElement('div'); h.textContent = test.name; card.appendChild(h);
+      const out = document.createElement('div'); out.className='muted mono'; card.appendChild(out);
+      results.appendChild(card);
+      const t0 = performance.now();
+      try {
+        await test.run();
+        const dt = Math.round(performance.now()-t0);
+        out.innerHTML = `<span class=ok>PASS</span> (${dt}ms)`; pass++;
+      } catch (e) {
+        const dt = Math.round(performance.now()-t0);
+        out.innerHTML = `<span class=err>FAIL</span> (${dt}ms) — ${e.message||e}`; fail++;
+      }
+    }
+    summary.innerHTML = `<strong>${pass} passed</strong>, <span class=${fail? 'err':'muted'}>${fail} failed</span>`;
+  }
+  run();
+  
+</script>

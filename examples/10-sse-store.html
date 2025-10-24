@@ -1,16 +1,25 @@
 <!doctype html><meta charset="utf-8" />
 <title>PAN + SSE + Store (Auto‑save)</title>
 <style>
+  :root{ color-scheme: light dark }
   body{font:14px/1.4 system-ui;margin:20px}
   .grid{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
   pan-data-table, .card{border:1px solid #ddd;border-radius:12px}
-  .card{padding:16px}
+  .card{padding:16px;background:#fff}
   label{display:block;margin:.5rem 0 .25rem;color:#555}
   input,select,textarea{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:8px}
   .muted{color:#777;font-size:12px}
   .row{display:flex;gap:8px;align-items:center}
   .spacer{flex:1}
-</style>
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1115; color:#e8e8e8 }
+    .muted{ color:#a8a8a8 }
+    pan-data-table, .card{ border-color:#262a36 }
+    .card{ background:#151823 }
+    label{ color:#a8a8a8 }
+    input,select,textarea{ background:#0f1115; color:#e8e8e8; border-color:#262a36 }
+  }
+  </style>
 
 <pan-bus></pan-bus>
 <pan-sse id="sse" src="http://localhost:3000/events" topics="users.list.state users.item.state.*" persist-last-event="users"></pan-sse>

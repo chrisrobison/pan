@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PAN Data Browser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #fff; --fg: #111; --muted: #666; --card: #fafafa; --border: #e6e6e6; --accent: #5b8cff;
+      --sidebar: #f4f6fb; --shadow: 0 1px 0 rgba(0,0,0,.04);
+    }
+    @media (prefers-color-scheme: dark){ :root{ --bg:#0f1115; --fg:#e8e8e8; --muted:#a8a8a8; --card:#151823; --border:#262a36; --accent:#7da2ff; --sidebar:#131827; } }
+    html,body{ margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--fg); font-family: "Lexend", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial }
+
+    /* App shell: no page scroll; inner areas scroll */
+    .app{ height:100dvh; display:grid; grid-template-columns: 280px 1fr; grid-template-rows: 56px 1fr; grid-template-areas:
+      "top top"
+      "nav main";
+    }
+    .topbar{ grid-area: top; display:flex; align-items:center; gap:12px; padding:0 14px; border-bottom:1px solid var(--border); background:var(--card); box-shadow: var(--shadow) }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:600 }
+    .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--accent) }
+    .grow{ flex:1 }
+    .toolbar{ display:flex; gap:8px; align-items:center }
+    .toolbar input{ background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:8px; padding:6px 10px; font:inherit; min-width:160px }
+    .toolbar button{ background:var(--accent); color:#fff; border:none; border-radius:10px; padding:8px 12px; font-weight:600; cursor:pointer }
+    .toolbar .ghost{ background:transparent; color:var(--fg); border:1px solid var(--border) }
+
+    .nav{ grid-area: nav; display:flex; flex-direction:column; border-right:1px solid var(--border); background:var(--sidebar); min-width:0; overflow:auto }
+    .nav .section{ padding:10px }
+    .nav details{ border-radius:12px; border:1px solid var(--border); overflow:hidden; background:var(--bg) }
+    .nav summary{ cursor:pointer; padding:10px 12px; list-style:none; user-select:none; font-weight:600 }
+    .nav summary::-webkit-details-marker{ display:none }
+    .nav .list{ padding:6px }
+    .nav a.item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:10px; text-decoration:none; color:inherit; }
+    .nav a.item:hover{ background: rgba(15,23,42,0.06) }
+    .nav a.item.active{ background: rgba(15,23,42,0.12) }
+    .nav .hint{ opacity:.6; font-size:.85em }
+
+    .main{ grid-area: main; display:grid; grid-template-rows: auto 1fr; overflow:hidden }
+    .main .header{ display:flex; align-items:baseline; gap:12px; padding:12px 14px }
+    .title{ font-weight:600; font-size: clamp(18px, 2.2vw, 22px); }
+    .sub{ color:var(--muted); font-size:13px }
+    .content{ display:grid; grid-template-rows: auto 1fr; gap:10px; padding:0 12px 12px; overflow:hidden }
+
+    /* Tabs */
+    .tabs{ display:flex; gap:6px; align-items:center; padding:0 2px; overflow:auto; scrollbar-width:thin }
+    .tab{ display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--border); border-radius:12px; background:var(--bg); cursor:pointer; white-space:nowrap }
+    .tab.active{ background:var(--card); box-shadow: var(--shadow) }
+    .tab .close{ border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:14px }
+    .panel{ position:relative; border:1px solid var(--border); border-radius:12px; background:var(--card); overflow:hidden; display:none }
+    .panel.active{ display:grid; grid-template-rows: auto 1fr }
+    .panel .panel-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border-bottom:1px solid var(--border); background:var(--bg) }
+    .panel .panel-body{ overflow:auto; padding:10px }
+    .panel .panel-body pan-data-table{ display:block; height:100%; }
+
+    /* Modal */
+    dialog.modal{ border:1px solid var(--border); border-radius:14px; padding:0; background:var(--bg); color:var(--fg); width:min(720px, 92vw) }
+    dialog::backdrop{ backdrop-filter: blur(3px); background: rgba(0,0,0,0.35) }
+    .modal header{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-bottom:1px solid var(--border); background:var(--card) }
+    .modal .body{ padding:12px; max-height:70vh; overflow:auto }
+    .modal .close{ border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:20px }
+
+    /* Responsive: collapse sidebar */
+    .menu-btn{ display:none; border:1px solid var(--border); background:transparent; color:inherit; border-radius:10px; padding:8px 10px; font-weight:600; cursor:pointer }
+    @media (max-width: 900px){
+      .app{ grid-template-columns: 1fr; grid-template-rows: 56px 1fr; grid-template-areas: "top" "main"; }
+      .nav{ position: fixed; top:56px; bottom:0; left:0; width: min(82vw, 340px); transform: translateX(-100%); transition: transform .2s ease; z-index: 20; box-shadow: 2px 0 16px rgba(0,0,0,0.25) }
+      .nav.open{ transform: translateX(0); }
+      .overlay{ position: fixed; top:56px; bottom:0; left:0; right:0; background: rgba(0,0,0,0.35); backdrop-filter: blur(2px); display:none; z-index: 15 }
+      .overlay.show{ display:block }
+      .menu-btn{ display:inline-flex }
+    }
+  </style>
+  <script type="module">
+    import '../dist/pan-bus.js';
+    import '../dist/pan-client.js';
+    import '../dist/pan-data-table.js';
+    import '../dist/pan-php-connector.js';
+    import '../dist/pan-form.js';
+
+    import { PanClient } from '../dist/pan-client.js';
+
+    // Simple helper to fetch resources from api.php
+    async function listResources(api){
+      try { const r = await fetch(`${api}?x=list_resources`, { credentials:'same-origin' }); const j = await r.json(); return Array.isArray(j?.Resources) ? j.Resources : []; } catch { return []; }
+    }
+    async function fetchFields(api, rsc){
+      try { const r = await fetch(`${api}?x=list_fields&rsc=${encodeURIComponent(rsc)}`, { credentials:'same-origin' }); const j = await r.json(); return j; } catch { return null; }
+    }
+
+    // Heuristic categorization: tables (default), buckets (prefix "bucket:"), folders (contain "/"), top-level (no separators)
+    function categorize(name){
+      if (/\//.test(name)) return 'folders';
+      if (/^bucket:/i.test(name)) return 'buckets';
+      if (!/[\/:]/.test(name)) return 'top';
+      return 'tables';
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const pc = new PanClient();
+      // API endpoint relative to this demo page
+      const api = '../api.php';
+      const nav = document.getElementById('nav');
+      const tabs = document.getElementById('tabs');
+      const panels = document.getElementById('panels');
+      const title = document.getElementById('title');
+      const btnMore = document.getElementById('more');
+      const search = document.getElementById('search');
+      const sidebar = document.getElementById('sidebar');
+      const menuBtn = document.getElementById('menu');
+      const overlay = document.getElementById('overlay');
+      // Track last list snapshots per resource for heuristics (e.g., fields)
+      const lastList = new Map();
+      const schemas = new Map(); // rsc -> { columns: string[], pk: string }
+
+      // Build nav
+      const resources = await listResources(api);
+      const groups = { tables: [], buckets: [], folders: [], top: [] };
+      for (const r of resources){ groups[categorize(String(r))].push(String(r)); }
+      const addGroup = (id, label) => {
+        const det = document.createElement('details'); det.className = 'group'; det.open = id === 'tables' || id === 'top';
+        det.innerHTML = `<summary>${label}</summary><div class="list"></div>`; nav.appendChild(det); return det.querySelector('.list');
+      };
+      const map = { tables: 'Tables', buckets: 'Buckets', folders: 'Folders', top: 'Top-level' };
+      const lists = {};
+      for (const k of Object.keys(groups)){
+        lists[k] = addGroup(k, map[k]);
+        for (const name of groups[k]){
+          const a = document.createElement('a'); a.href = '#'; a.dataset.rsc = name; a.className = 'item'; a.innerHTML = `<span>${name}</span><span class="hint">${k}</span>`; lists[k].appendChild(a);
+        }
+      }
+
+      // Select a resource from nav
+      nav.addEventListener('click', (e)=>{
+        const a = e.target?.closest?.('a.item'); if (!a) return; e.preventDefault();
+        const rsc = a.dataset.rsc; pc.publish({ topic:'resource.select', data:{ resource:rsc } });
+        setNavOpen(false);
+      });
+
+      // Maintain tabs per selected resource
+      const state = { active: null, tabs: new Map() };
+
+      function activate(rsc){
+        state.active = rsc; title.textContent = rsc || 'Data Browser';
+        tabs.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.rsc===rsc));
+        panels.querySelectorAll('.panel').forEach(el => el.classList.toggle('active', el.dataset.rsc===rsc));
+      }
+
+      function ensureTab(rsc){
+        if (state.tabs.has(rsc)) return;
+        const key = /^(\w+)$/.test(rsc) ? `${rsc}ID` : 'id';
+        // Tab header
+        const t = document.createElement('div'); t.className = 'tab'; t.dataset.rsc = rsc; t.innerHTML = `<span>${rsc}</span><button class="close" title="Close">×</button>`; tabs.appendChild(t);
+        t.addEventListener('click', (e)=>{ if ((e.target)?.closest('.close')) return; activate(rsc); });
+        t.querySelector('.close').addEventListener('click', (e)=>{ e.stopPropagation(); closeTab(rsc); });
+        // Panel body with connector + grid
+        const p = document.createElement('section'); p.className = 'panel'; p.dataset.rsc = rsc; p.innerHTML = `
+          <div class="panel-bar">
+            <div class="sub">Resource: <strong>${rsc}</strong></div>
+            <div class="toolbar"><button class="ghost more">Load more</button></div>
+          </div>
+          <div class="panel-body">
+            <pan-php-connector api-url="${api}" resource="${rsc}" page-size="20"></pan-php-connector>
+            <pan-data-table resource="${rsc}" key="${key}"></pan-data-table>
+          </div>`;
+        panels.appendChild(p);
+        // Wire panel-local More button
+        p.querySelector('.more')?.addEventListener('click', ()=> pc.publish({ topic:`${rsc}.list.more`, data:{} }));
+        state.tabs.set(rsc, { tabEl: t, panelEl: p });
+      }
+
+      function closeTab(rsc){
+        const ent = state.tabs.get(rsc); if (!ent) return;
+        ent.tabEl.remove(); ent.panelEl.remove(); state.tabs.delete(rsc);
+        if (state.active === rsc){ const first = tabs.querySelector('.tab'); activate(first?.dataset.rsc || null); }
+      }
+
+      // Global More acts on active tab
+      btnMore.addEventListener('click', ()=>{ if (!state.active) return; pc.publish({ topic:`${state.active}.list.more`, data:{} }); });
+
+      // Search filters current resource (build filters from schema columns when available)
+      let searchTimer = 0;
+      search.addEventListener('input', ()=>{
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(()=>{
+          const q = search.value.trim(); const rsc = state.active; if (!rsc) return;
+          let filters = null;
+          if (q) {
+            const sch = schemas.get(rsc);
+            const cols = sch?.columns?.slice(0,3) || [];
+            if (cols.length) filters = cols.map(k=>({ key:k, value:q }));
+          }
+          pc.publish({ topic: `${rsc}.list.reset`, data:{} });
+          pc.publish({ topic: `${rsc}.list.get`, data: filters ? { filters } : {} });
+        }, 250);
+      });
+
+      // Subscribe to resource selection
+      pc.subscribe('resource.select', async (m)=>{
+        const rsc = m?.data?.resource; if (!rsc) return;
+        ensureTab(rsc); activate(rsc);
+        // Load schema (columns + pk), then configure connector/table
+        if (!schemas.has(rsc)) {
+          const j = await fetchFields(api, rsc);
+          const cols = Array.isArray(j?.Fields) ? j.Fields.map(f=> f.Field) : [];
+          const pk = (j?.PrimaryKey) || (cols.find(c=>/id$/i.test(c)) || 'id');
+          schemas.set(rsc, { columns: cols, pk });
+        }
+        const sch = schemas.get(rsc);
+        const ent = state.tabs.get(rsc);
+        if (ent) {
+          const conn = ent.panelEl.querySelector('pan-php-connector');
+          const tbl = ent.panelEl.querySelector('pan-data-table');
+          if (conn && sch?.columns?.length) conn.setAttribute('fields', sch.columns.join(','));
+          if (tbl) {
+            if (sch?.columns?.length) tbl.setAttribute('columns', sch.columns.join(','));
+            if (sch?.pk) tbl.setAttribute('key', sch.pk);
+          }
+        }
+        // Reset + fetch list for this resource
+        pc.publish({ topic:`${rsc}.list.reset`, data:{} });
+        pc.publish({ topic:`${rsc}.list.get`, data:{} });
+      });
+
+      // Row click → open details modal
+      const modal = document.getElementById('modal'); const form = document.getElementById('form'); const fieldsEl = document.getElementById('fields');
+      pc.subscribe('*.list.state', (m)=>{ const rsc = m.topic.split('.')[0]; const items = m?.data?.items || []; lastList.set(rsc, items); }, { retained:true });
+      pc.subscribe('*.item.select', async (m)=>{
+        const rsc = m.topic.split('.')[0]; const id = m?.data?.id; if (!id) return;
+        // Prefer server schema columns; fallback to recent list item keys
+        const sch = schemas.get(rsc);
+        let cols = Array.isArray(sch?.columns) && sch.columns.length ? sch.columns : [];
+        if (!cols.length){ const items = lastList.get(rsc) || []; cols = items[0] ? Object.keys(items[0]) : []; }
+        fieldsEl.value = cols.join(',');
+        form.setAttribute('fields', fieldsEl.value || '');
+        form.setAttribute('resource', rsc);
+        const key = sch?.pk || (/^(\w+)$/.test(rsc) ? `${rsc}ID` : 'id');
+        form.setAttribute('key', key);
+        // Open modal and request item
+        try { modal.showModal(); } catch {}
+        await pc.request(`${rsc}.item.get`, { id });
+      });
+
+      // Bridge item.get/save/delete to the PHP API (get only) and local optimistic updates for save/delete
+      pc.subscribe('*.item.get', async (m)=>{
+        const rsc = m.topic.split('.')[0]; const id = m?.data?.id ?? m?.data?.Id ?? m?.data; if (!id) return;
+        const url = new URL(api, document.baseURI);
+        url.searchParams.set('x','get'); url.searchParams.set('rsc', rsc); url.searchParams.set('id', String(id));
+        try {
+          const res = await fetch(String(url), { credentials:'same-origin' }); const body = await res.json();
+          const item = Array.isArray(body) ? body[0] : (Array.isArray(body?.results) ? body.results[0] : body?.item || {});
+          // Publish retained item snapshot for live consumers
+          pc.publish({ topic: `${rsc}.item.state.${id}`, data: { item }, retain: true });
+          if (m.replyTo) pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok:true, item } });
+        } catch (e){ if (m.replyTo) pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok:false, error:String(e&&e.message||e) } }); }
+      });
+
+      pc.subscribe('*.item.save', (m)=>{
+        const rsc = m.topic.split('.')[0]; let item = m?.data?.item ?? m?.data; if (!item || typeof item!=='object') item={};
+        const id = item.id ?? item.Id ?? item[`${rsc}ID`] ?? item.ID ?? item.Id ?? 'id';
+        // Optimistic: publish item state so tables update; echo reply
+        pc.publish({ topic: `${rsc}.item.state.${id}`, data: { item }, retain: true });
+        if (m.replyTo) pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok:true, item } });
+      });
+
+      pc.subscribe('*.item.delete', (m)=>{
+        const rsc = m.topic.split('.')[0]; const id = m?.data?.id ?? m?.data?.Id ?? m?.data; if (!id) return;
+        pc.publish({ topic: `${rsc}.item.state.${id}`, data: { id, deleted:true } });
+        if (m.replyTo) pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok:true, id } });
+      });
+
+      // Menu toggle (mobile)
+      function setNavOpen(open){
+        sidebar.classList.toggle('open', open);
+        overlay.classList.toggle('show', open);
+        menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      menuBtn.addEventListener('click', ()=> setNavOpen(!sidebar.classList.contains('open')));
+      overlay.addEventListener('click', ()=> setNavOpen(false));
+      window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') setNavOpen(false); });
+
+      // Auto-open first resource
+      const first = resources[0]; if (first){ pc.publish({ topic:'resource.select', data:{ resource:String(first) } }); }
+    });
+  </script>
+</head>
+<body>
+  <pan-bus></pan-bus>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><span class="dot"></span><span>PAN Data Browser</span></div>
+      <button id="menu" class="menu-btn" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <div class="grow"></div>
+      <div class="toolbar">
+        <input id="search" placeholder="Search…" />
+        <button id="more" class="ghost">Load more</button>
+      </div>
+    </header>
+
+    <aside id="sidebar" class="nav" aria-label="Resource navigation">
+      <div class="section" id="nav"></div>
+    </aside>
+    <div id="overlay" class="overlay"></div>
+
+    <main class="main">
+      <section class="header">
+        <div class="title" id="title">Data Browser</div>
+        <div class="sub">Left: collapsible resources • Right: tabbed grids • Click a row to view details</div>
+      </section>
+      <section class="content">
+        <div class="tabs" id="tabs"></div>
+        <div class="panels" id="panels" style="min-height:0; overflow:hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Details Modal: drives item.get/save/delete via PAN -->
+  <dialog class="modal" id="modal">
+    <header><div class="title">Record Details</div><button class="close" onclick="document.getElementById('modal').close()">×</button></header>
+    <div class="body">
+      <!-- Fields populated dynamically on selection; falls back to basic echo if no columns are known -->
+      <pan-form id="form" resource="items">
+        <input id="fields" type="hidden" oninput="this.parentElement.setAttribute('fields', this.value)">
+      </pan-form>
+    </div>
+  </dialog>
+</body>
+</html>

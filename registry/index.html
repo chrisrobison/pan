@@ -1,0 +1,125 @@
+<!doctype html><meta charset="utf-8" />
+<title>PAN Registry</title>
+<style>
+  :root{ color-scheme: light dark }
+  body{font:14px/1.45 system-ui;margin:20px}
+  h1{margin:.2rem 0 1rem}
+  .muted{color:#666}
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+  input,select{padding:.45rem .6rem;border:1px solid #ccc;border-radius:8px;background:#fff;color:#111}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{border:1px solid #e5e5e5;border-radius:12px;padding:12px;background:#fff}
+  .title{display:flex;gap:8px;align-items:center}
+  .tag{font-size:12px;border:1px solid #ddd;padding:.05rem .5rem;border-radius:999px;background:#fafafa}
+  .dist{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;color:#334}
+  .topics{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;color:#333}
+  .row{display:flex;gap:8px;align-items:center}
+  .sep{color:#99a}
+  .pill{padding:.1rem .45rem;border:1px solid #ccd;background:#eef;border-radius:999px;font-size:12px}
+  .footer{margin-top:14px;color:#666}
+  .w100{flex:1}
+  a{color:#36c;text-decoration:none}
+  a:hover{text-decoration:underline}
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1115; color:#e8e8e8 }
+    .muted,.footer{ color:#a8a8a8 }
+    .card{ border-color:#262a36; background:#151823 }
+    .tag{ border-color:#2d3343; background:#151823 }
+    .pill{ border-color:#3a4054; background:rgba(125,162,255,.15) }
+    .dist,.topics{ color:#cfd8ff }
+    .sep{ color:#8792b0 }
+    input,select{ background:#0f1115; color:#e8e8e8; border-color:#262a36 }
+    a{ color:#9bb7ff }
+  }
+</style>
+
+<pan-bus></pan-bus>
+<h1>PAN Registry <span class="muted" id="count"></span></h1>
+<div class="toolbar">
+  <input id="q" placeholder="Search name/title/tags…" class="w100"/>
+  <input id="topic" placeholder="Filter by topic (wildcards ok)" class="w100"/>
+  <select id="type">
+    <option value="">All types</option>
+    <option>component</option>
+    <option>provider</option>
+    <option>connector</option>
+    <option>bridge</option>
+    <option>adapter</option>
+    <option>tool</option>
+    <option>helper</option>
+  </select>
+  <a href="../PAN_SPEC.v1.md" target="_blank" title="Spec">Spec</a>
+  <a href="../conformance/index.html" target="_blank" title="Conformance">Conformance</a>
+  <a href="../badges/pan-v1.svg" target="_blank" title="Badge">Badge</a>
+  <a href="../index.html#ex-13" title="SSE Demo">SSE</a>
+  <span class="muted">v0.1</span>
+  
+</div>
+<div class="grid" id="grid"></div>
+
+<script type="module">
+  import '../dist/pan-bus.js';
+
+  function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+  async function load(){
+    const res = await fetch('./index.json');
+    const items = await res.json();
+    const q = document.getElementById('q');
+    const topic = document.getElementById('topic');
+    const type = document.getElementById('type');
+    const grid = document.getElementById('grid');
+    const cnt = document.getElementById('count');
+
+    function matchesTopic(entry){
+      const pat = topic.value.trim(); if(!pat) return true;
+      const list = (entry.topics?.publishes||[]).concat(entry.topics?.subscribes||[]).map(String);
+      return list.some(t => panMatch(t, pat));
+    }
+    function matchesType(entry){ const v=type.value.trim(); return !v || entry.type===v; }
+    function matchesText(entry){
+      const s = (q.value||'').toLowerCase(); if(!s) return true;
+      const hay=[entry.name,entry.title,entry.description,(entry.tags||[]).join(' ')].join(' ').toLowerCase();
+      return hay.includes(s);
+    }
+    function panMatch(topic, pattern){
+      if(pattern==='*'||topic===pattern) return true;
+      if(pattern.includes('*')){
+        const esc=(s)=>s.replace(/[|\\{}()\[\]^$+?.]/g,'\\$&').replace(/\*/g,'[^.]+' );
+        return new RegExp(`^${esc(pattern)}$`).test(topic);
+      }
+      return false;
+    }
+    function render(){
+      grid.innerHTML='';
+      const filtered = items.filter(e=>matchesType(e)&&matchesText(e)&&matchesTopic(e));
+      cnt.textContent = `(${filtered.length}/${items.length})`;
+      for(const it of filtered){
+        const tags = (it.tags||[]).map(t=>`<span class=pill>${esc(t)}</span>`).join(' ');
+        const topics = `<span class=topics>${esc((it.topics?.subscribes||[]).join(' '))}</span> <span class=sep>→</span> <span class=topics>${esc((it.topics?.publishes||[]).join(' '))}</span>`;
+        const pkg = it.package ? ` · <span class=muted>${esc(it.package)}</span>` : '';
+        const dist = it.dist ? `<div class=dist>${esc(it.dist)}</div>` : '';
+        const demo = it.demo ? `<a href="../${encodeURI(it.demo)}" target="_blank">Demo</a>` : '';
+        const html = `
+          <div class=card>
+            <div class=title>
+              <strong>${esc(it.title||it.name)}</strong>
+              <span class=tag>${esc(it.type||'')}</span>
+              <span class=muted>${esc(it.version||'')}</span>
+              ${pkg}
+            </div>
+            <div class=muted>${esc(it.description||'')}</div>
+            ${dist}
+            <div class=row>${topics}</div>
+            <div class=row>${tags}</div>
+            <div class=footer>${demo}</div>
+          </div>`;
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        grid.appendChild(div.firstElementChild);
+      }
+    }
+    q.oninput = topic.oninput = type.onchange = render;
+    render();
+  }
+  load();
+</script>

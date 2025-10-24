@@ -1,0 +1,36 @@
+{
+  "name": "@pan/inspector",
+  "version": "0.1.0",
+  "description": "PAN Inspector — DevTools-style traffic inspector",
+  "type": "module",
+  "main": "index.js",
+  "module": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://example.com/pan.git"
+  },
+  "pan": {
+    "title": "Inspector",
+    "type": "tool",
+    "dist": "dist/pan-inspector.js",
+    "topics": { "publishes": [], "subscribes": ["*"] },
+    "retained": false,
+    "demo": "examples/02-todos-and-inspector.html",
+    "tags": ["inspector","devtools"]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "node ../../scripts/sync-dist.js"
+  }
+}

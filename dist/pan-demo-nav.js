@@ -14,7 +14,7 @@ import { PanClient } from './pan-client.js';
 export class PanDemoNav extends HTMLElement {
   static get observedAttributes(){ return ['sync-url']; }
   constructor(){ super(); this.attachShadow({mode:'open'}); this.pc = new PanClient(this); this.items=[]; this.activeHref=''; }
-  connectedCallback(){ this.#load(); this.render(); this.#wire(); this.#initFromUrl(); }
+  connectedCallback(){ this.#load(); this.render(); this.#wire(); this.#initFromUrl(); if (!this.activeHref && this.items.length) { this.#select(this.items[0].href, false); } }
   attributeChangedCallback(){ this.#initFromUrl(); }
 
   get syncUrl(){ const v=(this.getAttribute('sync-url')||'hash').toLowerCase(); return v==='hash' ? 'hash' : ''; }
@@ -65,4 +65,3 @@ export class PanDemoNav extends HTMLElement {
 
 customElements.define('pan-demo-nav', PanDemoNav);
 export default PanDemoNav;
-

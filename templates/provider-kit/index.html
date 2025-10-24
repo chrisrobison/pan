@@ -1,0 +1,63 @@
+<!doctype html><meta charset="utf-8" />
+<title>PAN Provider Kit</title>
+<style>
+  :root{ color-scheme: light dark }
+  body{font:14px/1.4 system-ui;margin:20px}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:16px}
+  .card{border:1px solid #ddd;border-radius:12px;padding:16px;background:#fff}
+  input,button{padding:.5rem;border:1px solid #ccc;border-radius:8px}
+  button{cursor:pointer}
+  pan-inspector{height:300px;display:block}
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1115; color:#e8e8e8 }
+    .card{ border-color:#262a36; background:#151823 }
+    input,button{ background:#0f1115; color:#e8e8e8; border-color:#262a36 }
+  }
+</style>
+
+<pan-bus></pan-bus>
+<div class="grid">
+  <div class="card">
+    <h3>Users</h3>
+    <div class="row">
+      <input id="name" placeholder="Name"/>
+      <input id="email" placeholder="Email"/>
+      <button id="add">Add</button>
+    </div>
+    <ul id="list"></ul>
+  </div>
+  <div class="card">
+    <h3>Inspector</h3>
+    <pan-inspector></pan-inspector>
+  </div>
+</div>
+
+<script type="module">
+  import '../../dist/pan-bus.js';
+  import '../../dist/pan-client.js';
+  import '../../dist/pan-inspector.js';
+  import './pan-provider.js';
+  import { PanClient } from '../../dist/pan-client.js';
+  const pc = new PanClient();
+
+  // Provider for 'users' resource
+  const provider = document.createElement('pan-provider');
+  provider.setAttribute('resource','users');
+  document.body.appendChild(provider);
+
+  const ul = document.getElementById('list');
+  const render = (items)=>{ ul.innerHTML = items.map(it=>`<li>${it.name} &lt;${it.email}&gt; <button data-id="${it.id}">✕</button></li>`).join('');
+    ul.querySelectorAll('button').forEach(b=>b.onclick=()=> pc.request('users.item.delete',{id:b.getAttribute('data-id')}) ); };
+  pc.subscribe('users.list.state', m=> render(m.data.items), { retained:true });
+
+  document.getElementById('add').onclick = async ()=>{
+    const name=document.getElementById('name').value.trim();
+    const email=document.getElementById('email').value.trim();
+    if (!name||!email) return;
+    document.getElementById('name').value=''; document.getElementById('email').value='';
+    await pc.request('users.item.save', { item:{ name, email } });
+  };
+
+  // Initial list
+  pc.publish({ topic:'users.list.get', data:{} });
+</script>

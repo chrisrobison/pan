@@ -1,0 +1,56 @@
+<!doctype html><meta charset="utf-8" />
+<title>Welcome — PAN Demo Browser</title>
+<style>
+  :root{ color-scheme: light dark }
+  body{ font: 14px/1.5 system-ui, sans-serif; margin: 0; padding: 24px; }
+  h1{ margin: 0 0 .5rem }
+  .muted{ color: #666 }
+  .badges{ display:flex; gap:8px; flex-wrap:wrap; margin:.5rem 0 1rem }
+  .badge{ display:inline-block; padding:.15rem .5rem; border:1px solid #ddd; border-radius:999px; background:#fafafa; font-size:12px }
+  code{ background:#f7f7f7; border:1px solid #eee; padding:0 .25rem; border-radius:4px }
+  .card{ border:1px solid #e5e5e5; border-radius:12px; padding:16px; background:#fff }
+  .grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px }
+  ul{ margin:.5rem 0 0; padding-left: 1.1rem }
+  a{ color:#36c; text-decoration:none }
+  a:hover{text-decoration:underline}
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1115; color:#e8e8e8 }
+    .muted{ color:#a8a8a8 }
+    .badge{ border-color:#2d3343; background:#151823 }
+    code{ background:#0d1220; border-color:#242b3b; color:#a3c0ff }
+    .card{ border-color:#262a36; background:#151823 }
+    a{ color:#9bb7ff }
+  }
+  </style>
+
+<div class="card">
+  <h1>PAN Demo Browser</h1>
+  <div class="muted">Welcome. Use the sidebar to open demos in the viewer.</div>
+  <div class="badges">
+    <span class="badge">topics: <code>nav.*</code></span>
+    <span class="badge">retained: <code>nav.state</code></span>
+    <span class="badge">iframe viewer</span>
+  </div>
+  <div class="grid">
+    <div>
+      <h3>What is PAN?</h3>
+      <p>PAN (Page Area Network) is a DOM‑native message bus and topic convention for UI components. It enables framework‑agnostic interop via CustomEvents.</p>
+      <ul>
+        <li>Zero build: drop a <code>&lt;pan-bus&gt;</code> on the page</li>
+        <li>Loose coupling with topic contracts</li>
+        <li>Works with vanilla, Web Components, React/Lit/Vue, iframes</li>
+        <li>Retained snapshots and request/reply</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Try Next</h3>
+      <ul>
+        <li>Hello Counter — the minimal pub/sub example</li>
+        <li>Todos + Inspector — watch traffic live</li>
+        <li>CRUD + Connectors — REST/GraphQL providers</li>
+        <li>SSE + Forwarder — bridge server events</li>
+      </ul>
+      <p>Explore the <a href="../registry/index.html" target="_blank">Registry</a> and <a href="../PAN_SPEC.v1.md" target="_blank">Spec</a>.</p>
+    </div>
+  </div>
+</div>

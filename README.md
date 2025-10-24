@@ -474,6 +474,7 @@ Offload filter/sort of 10k records to a Web Worker via `<pan-worker>`; publishes
 Realtime bridges and stores:
 
 - `pan-sse`: bridges Server-Sent Events into PAN topics. Attributes: `src`, optional `topics` (space-separated), `persist-last-event`, and `backoff` (e.g., `1000,15000`). Emits events where either `event:` is the topic or JSON payload contains `{ topic, data }`.
+- `pan-forwarder`: forwards selected topics to an HTTP endpoint (e.g., `sse.php` POST). Attributes: `dest`, `topics`, optional `headers`, `with-credentials`.
 - `pan-store`: tiny reactive store and `bind()` helper for wiring form fields ↔ state.
 - `pan-store-pan`: helpers `syncItem()` and `syncList()` to connect stores to PAN topics (auto-save, live updates).
 
@@ -592,6 +593,10 @@ Open `index.html` to browse all examples in a single page.
 - `examples/09-schema-form.html`: Schema-driven form + mock provider.
 - `examples/11-graphql-connector.html`: GraphQL connector (GraphQLZero) with list/get/save/delete.
 - `examples/12-php-connector.html`: PHP connector against local `api.php`; list + paging.
+- `registry/index.html`: Component registry viewer (loads `registry/index.json`).
+- `conformance/index.html`: PAN v1 conformance tests for the reference implementation.
+- `templates/provider-kit/`: Starter kit for a minimal CRUD provider component.
+- `examples/13-sse-pan.html`: Local PHP SSE hub (`sse.php`) broadcasting into PAN.
 - `pan-grid.html`: DB grid wired to `api.php` using PAN.
 
 Topic patterns in use
@@ -610,6 +615,13 @@ Operational notes (PHP)
 
 - For PHP (mod_php or PHP-FPM), prefer using the small sidecar for SSE/WebSocket rather than holding long-lived connections in PHP workers.
 - If serving SSE from PHP directly, disable output buffering, avoid locking sessions, send keep-alives regularly, and ensure reverse proxies don’t buffer.
+
+Local PHP SSE hub
+
+- `sse.php` implements a simple file-backed SSE stream and a `POST` endpoint:
+  - `GET /pan/sse.php?topics=users.*` streams events (with keepalives; respects `lastEventId`).
+  - `POST /pan/sse.php` with `{ "topic":"chat.message", "data":{...}, "retain":false }` appends and broadcasts.
+  - Use `<pan-sse src="/pan/sse.php" topics="chat.message demo.*">` to bridge into PAN.
 
 
 ---
@@ -656,3 +668,17 @@ Static JSON you can load in examples or serve via a simple static server:
 ## License
 
 MIT for core libraries. Pro/enterprise add‑ons under commercial license.
+
+---
+
+## PAN v1, Registry, and Packages
+
+- Spec: `PAN_SPEC.v1.md` (concise)
+- Conformance: open `conformance/index.html` — passing implementations may use `badges/pan-v1.svg`.
+- Registry: `registry/index.json` + `registry/index.html` to browse components by topic/type.
+- npm scaffold: `packages/` contains publishable entries for `@pan/bus`, `@pan/client`, `@pan/inspector`.
+  - Sync dist into packages: `npm run packages:sync`
+  - Then publish from each package folder (remove root `private:true` if you split repos).
+- Build registry from packages: `npm run registry:build` updates `registry/index.json` from `packages/*/package.json` `pan` metadata.
+- Conformance badge: `npm run conformance:badge` writes `conformance/badge.json` and `badges/pan-v1-status.svg` using Playwright.
+- RFCs: see `rfcs/README.md` and `.github/ISSUE_TEMPLATE/rfc.md`.
