@@ -36,15 +36,10 @@
   box-sizing: border-box;
 }
 
-html,
-body {
-  height: 100%;
-}
-
 body {
   margin: 0;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100vh;
+  min-height: 100vh;
   overflow: hidden;
   background: var(--color-bg);
   color: var(--color-text);
@@ -68,7 +63,7 @@ code {
 .app-shell {
   flex: 1;
   min-height: 0;
-  height: 100%;
+  height: 100vh;
   width: 100%;
   display: flex;
   overflow: hidden;
@@ -87,6 +82,7 @@ code {
   position: relative;
   z-index: 1;
   overflow: hidden;
+  height: 100%;
 }
 
 .sidebar .brand {
@@ -156,6 +152,7 @@ code {
   padding: 1.2rem 1.75rem;
   font-size: 0.82rem;
   color: var(--color-muted);
+  margin-top: auto;
 }
 
 .sidebar-footer strong {
@@ -169,6 +166,7 @@ code {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
 }
 
 .main-header {
@@ -402,10 +400,13 @@ pan-inspector {
 @media (max-width: 1100px) {
   body {
     overflow: auto;
+    height: auto;
+    min-height: 0;
   }
 
   .app-shell {
     flex-direction: column;
+    height: auto;
   }
 
   .sidebar {
