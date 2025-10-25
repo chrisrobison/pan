@@ -36,9 +36,16 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
+  height: 100dvh;
   min-height: 100dvh;
+  overflow: hidden;
   background: var(--color-bg);
   color: var(--color-text);
   display: flex;
@@ -60,9 +67,11 @@ code {
 
 .app-shell {
   flex: 1;
-  min-height: 100dvh;
+  min-height: 0;
+  height: 100%;
   width: 100%;
   display: flex;
+  overflow: hidden;
   background: radial-gradient(circle at top right, rgba(226, 232, 255, 0.5), transparent 45%), var(--color-bg);
 }
 
@@ -77,6 +86,7 @@ code {
   gap: 0;
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 
 .sidebar .brand {
@@ -106,6 +116,7 @@ code {
   flex-direction: column;
   gap: 0.3rem;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .nav-item {
@@ -157,6 +168,7 @@ code {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .main-header {
@@ -288,6 +300,7 @@ code {
   flex: 1;
   padding: 1.35rem 1.6rem 1.6rem;
   overflow: auto;
+  min-height: 0;
 }
 
 .panel-body::-webkit-scrollbar {
@@ -371,13 +384,33 @@ pan-inspector {
   overflow: hidden;
 }
 
+.viewer-panel {
+  height: 100%;
+  min-height: 0;
+}
+
+.viewer-body {
+  padding: 0;
+}
+
+.viewer-body pan-demo-viewer {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 @media (max-width: 1100px) {
+  body {
+    overflow: auto;
+  }
+
   .app-shell {
     flex-direction: column;
   }
 
   .sidebar {
     width: 100%;
+    height: auto;
     min-height: auto;
     max-width: none;
     border-right: none;
@@ -386,6 +419,7 @@ pan-inspector {
     align-items: center;
     padding: 0.75rem 1rem;
     gap: 1rem;
+    overflow: visible;
   }
 
   .sidebar .brand {
