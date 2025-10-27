@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>17 · IndexedDB Storage — LARC PAN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+  <style>
+    .form-section {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--color-text);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-muted);
+    }
+
+    .form-input {
+      padding: 0.625rem;
+      border: 1px solid var(--color-border);
+      border-radius: 0.375rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary {
+      background: var(--color-accent);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .records-section {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .records-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .records-count {
+      color: var(--color-muted);
+      font-size: 0.9rem;
+    }
+
+    .records-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .record-item {
+      padding: 1rem;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 0.375rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .record-id {
+      font-weight: 600;
+      color: var(--color-accent);
+      font-family: ui-monospace, monospace;
+      font-size: 0.875rem;
+    }
+
+    .record-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .record-name {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .record-email {
+      font-size: 0.875rem;
+      color: var(--color-muted);
+    }
+
+    .record-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--color-muted);
+      font-size: 1.125rem;
+      transition: color 0.2s;
+    }
+
+    .icon-btn:hover {
+      color: var(--color-accent);
+    }
+
+    .icon-btn.delete:hover {
+      color: #ef4444;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--color-muted);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      padding: 1rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--color-muted);
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <aside class="sidebar">
+      <div class="logo-area">
+        <div class="logo-text">
+          <div class="logo-title">LARC · PAN</div>
+          <div class="logo-subtitle">Example 17</div>
+        </div>
+      </div>
+      <div class="demo-info">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title-area">
+              <div class="title">IndexedDB Storage</div>
+              <div class="subtitle">Client-side storage with <code>pan-idb</code></div>
+            </div>
+            <div class="toolbar">
+              <a class="button-link" href="../components/pan-idb.mjs">View source</a>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p style="line-height:1.6;">
+              Demonstrates IndexedDB operations through PAN topics. Add, query, update,
+              and delete records using a declarative topic-based API.
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total Records</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-added">0</div>
+          <div class="stat-label">Added</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-deleted">0</div>
+          <div class="stat-label">Deleted</div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="form-title">Add Contact</h2>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-input" id="input-name" placeholder="John Doe">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="input-email" placeholder="john@example.com">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-input" id="input-phone" placeholder="+1 555-0123">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btn-add">Add Contact</button>
+          <button class="btn btn-secondary" id="btn-clear-form">Clear</button>
+        </div>
+      </div>
+
+      <div class="records-section">
+        <div class="records-header">
+          <h2 class="form-title">Contacts</h2>
+          <div class="records-count">
+            <span id="count-display">0</span> contacts
+          </div>
+          <button class="btn btn-danger" id="btn-clear-all">Clear All</button>
+        </div>
+        <div class="records-list" id="records-list">
+          <div class="empty-state">No contacts yet. Add one above!</div>
+        </div>
+      </div>
+
+      <div class="inspector-area">
+        <div class="inspector-header">
+          <span class="inspector-title">PAN Inspector</span>
+          <span class="inspector-subtitle">IndexedDB operations</span>
+        </div>
+        <pan-inspector style="height:100%;"></pan-inspector>
+      </div>
+    </main>
+  </div>
+
+  <!-- PAN Components -->
+  <pan-bus></pan-bus>
+  <pan-idb
+    database="contacts-demo"
+    version="1"
+    store="contacts"
+    key-path="id"
+    indexes='[{"name":"email","keyPath":"email","unique":true},{"name":"name","keyPath":"name"}]'>
+  </pan-idb>
+
+  <script type="module">
+    import { PanClient } from '../components/pan-client.mjs';
+
+    const pc = new PanClient();
+    const recordsList = document.getElementById('records-list');
+    let contacts = [];
+    let statsAdded = 0;
+    let statsDeleted = 0;
+
+    // Wait for IDB to be ready
+    pc.subscribe('contacts.idb.ready', () => {
+      console.log('IndexedDB ready!');
+      loadContacts();
+    }, { retained: true });
+
+    // Handle IDB results
+    pc.subscribe('contacts.idb.result', (msg) => {
+      const { operation, data } = msg.data;
+
+      switch (operation) {
+        case 'add':
+          statsAdded++;
+          updateStats();
+          loadContacts();
+          clearForm();
+          break;
+
+        case 'list':
+          contacts = data.items || [];
+          renderContacts();
+          updateStats();
+          break;
+
+        case 'delete':
+          statsDeleted++;
+          updateStats();
+          loadContacts();
+          break;
+
+        case 'clear':
+          statsDeleted += contacts.length;
+          contacts = [];
+          renderContacts();
+          updateStats();
+          break;
+      }
+    });
+
+    // Handle IDB errors
+    pc.subscribe('contacts.idb.error', (msg) => {
+      console.error('IDB Error:', msg.data.error);
+      alert(`Error: ${msg.data.error}`);
+    });
+
+    // Add contact
+    document.getElementById('btn-add').addEventListener('click', () => {
+      const name = document.getElementById('input-name').value.trim();
+      const email = document.getElementById('input-email').value.trim();
+      const phone = document.getElementById('input-phone').value.trim();
+
+      if (!name || !email) {
+        alert('Name and email are required');
+        return;
+      }
+
+      const contact = {
+        id: crypto.randomUUID(),
+        name,
+        email,
+        phone,
+        createdAt: new Date().toISOString()
+      };
+
+      pc.publish({
+        topic: 'contacts.idb.add',
+        data: { item: contact }
+      });
+    });
+
+    // Clear form
+    document.getElementById('btn-clear-form').addEventListener('click', clearForm);
+
+    // Clear all contacts
+    document.getElementById('btn-clear-all').addEventListener('click', () => {
+      if (confirm('Are you sure you want to delete all contacts?')) {
+        pc.publish({
+          topic: 'contacts.idb.clear',
+          data: {}
+        });
+      }
+    });
+
+    // Load contacts
+    function loadContacts() {
+      pc.publish({
+        topic: 'contacts.idb.list',
+        data: {}
+      });
+    }
+
+    // Render contacts
+    function renderContacts() {
+      if (contacts.length === 0) {
+        recordsList.innerHTML = '<div class="empty-state">No contacts yet. Add one above!</div>';
+        document.getElementById('count-display').textContent = '0';
+        return;
+      }
+
+      document.getElementById('count-display').textContent = contacts.length;
+
+      recordsList.innerHTML = contacts.map(contact => `
+        <div class="record-item">
+          <div class="record-id">#${contact.id.slice(0, 8)}</div>
+          <div class="record-content">
+            <div class="record-name">${escapeHtml(contact.name)}</div>
+            <div class="record-email">
+              ${escapeHtml(contact.email)}
+              ${contact.phone ? ` · ${escapeHtml(contact.phone)}` : ''}
+            </div>
+          </div>
+          <div class="record-actions">
+            <button class="icon-btn delete" onclick="deleteContact('${contact.id}')" title="Delete">
+              ✕
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Delete contact
+    window.deleteContact = (id) => {
+      if (confirm('Delete this contact?')) {
+        pc.publish({
+          topic: 'contacts.idb.delete',
+          data: { key: id }
+        });
+      }
+    };
+
+    // Clear form
+    function clearForm() {
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-email').value = '';
+      document.getElementById('input-phone').value = '';
+    }
+
+    // Update stats
+    function updateStats() {
+      document.getElementById('stat-total').textContent = contacts.length;
+      document.getElementById('stat-added').textContent = statsAdded;
+      document.getElementById('stat-deleted').textContent = statsDeleted;
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+
+  <!-- Autoload all components -->
+  <script type="module" src="../components/pan-autoload.mjs"></script>
+</body>
+</html>

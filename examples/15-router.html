@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>15 · Router & Navigation — LARC PAN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/grail.css">
+  <style>
+    .page-content {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--color-accent);
+    }
+
+    .page-text {
+      color: var(--color-text);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .nav-demo {
+      padding: 1rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .nav-demo nav {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    pan-link {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      color: var(--color-accent);
+      text-decoration: none;
+      border-radius: 0.375rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    pan-link:hover {
+      background: var(--color-accent-soft);
+    }
+
+    pan-link.active {
+      background: var(--color-accent);
+      color: white;
+      font-weight: 600;
+    }
+
+    .route-info {
+      padding: 1rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      font-family: ui-monospace, monospace;
+      font-size: 0.875rem;
+      margin-bottom: 2rem;
+    }
+
+    .route-info-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+    }
+
+    .route-info-item {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.25rem 0;
+    }
+
+    .route-info-label {
+      color: var(--color-muted);
+      min-width: 80px;
+    }
+
+    .route-info-value {
+      color: var(--color-accent);
+    }
+
+    .demo-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .demo-button {
+      padding: 0.5rem 1rem;
+      background: var(--color-accent);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .demo-button:hover {
+      opacity: 0.9;
+    }
+
+    .demo-button.secondary {
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <aside class="sidebar">
+      <div class="logo-area">
+        <div class="logo-text">
+          <div class="logo-title">LARC · PAN</div>
+          <div class="logo-subtitle">Example 15</div>
+        </div>
+      </div>
+      <div class="demo-info">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title-area">
+              <div class="title">Router & Navigation</div>
+              <div class="subtitle">SPA routing with <code>pan-router</code> and <code>pan-link</code></div>
+            </div>
+            <div class="toolbar">
+              <a class="button-link" href="../components/pan-router.mjs">pan-router</a>
+              <a class="button-link" href="../components/pan-link.mjs">pan-link</a>
+            </div>
+          </div>
+          <div class="panel-body">
+            <p style="line-height:1.6;margin-bottom:1rem;">
+              Demonstrates URL-based routing with history API, declarative navigation links,
+              route parameters, and programmatic navigation via PAN topics.
+            </p>
+            <div class="demo-actions">
+              <button class="demo-button" id="nav-products">Go to Products</button>
+              <button class="demo-button secondary" id="nav-back">Back</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="nav-demo">
+        <nav>
+          <pan-link to="/" exact>Home</pan-link>
+          <pan-link to="/about">About</pan-link>
+          <pan-link to="/products">Products</pan-link>
+          <pan-link to="/contact">Contact</pan-link>
+          <pan-link to="/profile/123">Profile (with param)</pan-link>
+        </nav>
+      </div>
+
+      <div class="route-info" id="route-info">
+        <div class="route-info-title">Current Route</div>
+        <div class="route-info-item">
+          <span class="route-info-label">Path:</span>
+          <span class="route-info-value" id="info-path">/</span>
+        </div>
+        <div class="route-info-item">
+          <span class="route-info-label">Query:</span>
+          <span class="route-info-value" id="info-query">{}</span>
+        </div>
+        <div class="route-info-item">
+          <span class="route-info-label">Hash:</span>
+          <span class="route-info-value" id="info-hash"></span>
+        </div>
+        <div class="route-info-item">
+          <span class="route-info-label">Params:</span>
+          <span class="route-info-value" id="info-params">{}</span>
+        </div>
+      </div>
+
+      <div id="page-content" class="page-content"></div>
+
+      <div class="inspector-area">
+        <div class="inspector-header">
+          <span class="inspector-title">PAN Inspector</span>
+          <span class="inspector-subtitle">Navigation events</span>
+        </div>
+        <pan-inspector style="height:100%;"></pan-inspector>
+      </div>
+    </main>
+  </div>
+
+  <!-- PAN Components -->
+  <pan-bus></pan-bus>
+  <pan-router mode="history" base="/"></pan-router>
+
+  <script type="module">
+    import { PanClient } from '../components/pan-client.mjs';
+
+    const pc = new PanClient();
+    const content = document.getElementById('page-content');
+
+    // Register routes with the router
+    const router = document.querySelector('pan-router');
+    router.addRoute('/profile/:id');
+
+    // Page templates
+    const pages = {
+      '/': {
+        title: 'Home',
+        content: `
+          <p class="page-text">Welcome to the LARC PAN router demo!</p>
+          <p class="page-text">
+            The router component syncs your browser's URL with PAN topics, enabling
+            single-page application navigation without page reloads.
+          </p>
+          <p class="page-text">
+            Click the links above to navigate, or use the buttons on the left for
+            programmatic navigation via <code>nav.goto</code> topics.
+          </p>
+        `
+      },
+      '/about': {
+        title: 'About',
+        content: `
+          <p class="page-text">
+            <code>&lt;pan-router&gt;</code> provides declarative routing for web applications.
+          </p>
+          <p class="page-text">
+            It supports both history and hash-based routing modes, route parameters,
+            query strings, and navigation guards for authentication.
+          </p>
+        `
+      },
+      '/products': {
+        title: 'Products',
+        content: `
+          <p class="page-text">
+            This is the products page. Try adding query parameters in the URL!
+          </p>
+          <p class="page-text">
+            For example: <a href="/products?category=electronics&sort=price">/products?category=electronics&sort=price</a>
+          </p>
+        `
+      },
+      '/contact': {
+        title: 'Contact',
+        content: `
+          <p class="page-text">Get in touch with us!</p>
+          <p class="page-text">
+            Email: <a href="mailto:hello@example.com">hello@example.com</a>
+          </p>
+        `
+      },
+      '/profile/:id': {
+        title: 'User Profile',
+        content: (params) => `
+          <p class="page-text">
+            Viewing profile for user ID: <strong>${params.id || 'unknown'}</strong>
+          </p>
+          <p class="page-text">
+            Route parameters are extracted automatically and available in <code>nav.state.params</code>.
+          </p>
+        `
+      }
+    };
+
+    // Subscribe to navigation state changes
+    pc.subscribe('nav.state', (msg) => {
+      const { path, query, hash, params } = msg.data;
+
+      // Update route info display
+      document.getElementById('info-path').textContent = path;
+      document.getElementById('info-query').textContent = JSON.stringify(query);
+      document.getElementById('info-hash').textContent = hash;
+      document.getElementById('info-params').textContent = JSON.stringify(params);
+
+      // Find matching page
+      let page = pages[path];
+      if (!page) {
+        // Try to match parameterized routes
+        for (const [route, pageData] of Object.entries(pages)) {
+          if (route.includes(':') && matchRoute(path, route)) {
+            page = pageData;
+            break;
+          }
+        }
+      }
+
+      // Render page content
+      if (page) {
+        const contentHTML = typeof page.content === 'function'
+          ? page.content(params)
+          : page.content;
+
+        content.innerHTML = `
+          <h1 class="page-title">${page.title}</h1>
+          ${contentHTML}
+        `;
+      } else {
+        content.innerHTML = `
+          <h1 class="page-title">404 Not Found</h1>
+          <p class="page-text">The page <code>${path}</code> doesn't exist.</p>
+          <p class="page-text"><pan-link to="/">Go home</pan-link></p>
+        `;
+      }
+    }, { retained: true });
+
+    // Programmatic navigation examples
+    document.getElementById('nav-products').addEventListener('click', () => {
+      pc.publish({
+        topic: 'nav.goto',
+        data: { path: '/products?featured=true' }
+      });
+    });
+
+    document.getElementById('nav-back').addEventListener('click', () => {
+      pc.publish({ topic: 'nav.back', data: {} });
+    });
+
+    // Helper to match parameterized routes
+    function matchRoute(path, pattern) {
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$');
+      return regex.test(path);
+    }
+  </script>
+
+  <!-- Autoload all components -->
+  <script type="module" src="../components/pan-autoload.mjs"></script>
+</body>
+</html>
