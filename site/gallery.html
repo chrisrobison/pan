@@ -7,25 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/theme.css">
   <style>
-    :root {
-      --color-primary: #6366f1;
-      --color-primary-dark: #4f46e5;
-      --color-accent: #06b6d4;
-      --color-bg: #ffffff;
-      --color-bg-alt: #f8fafc;
-      --color-text: #1e293b;
-      --color-text-muted: #64748b;
-      --color-border: #e2e8f0;
-      --color-code-bg: #1e293b;
-      --color-success: #10b981;
-      --color-warning: #f59e0b;
-      --spacing: 1rem;
-      --border-radius: 0.75rem;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    }
 
     * {
       margin: 0;
@@ -47,12 +30,19 @@
     }
 
     header {
-      background: white;
+      background: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
       padding: 1.5rem 2rem;
       margin-bottom: 2rem;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-content {
+      flex: 1;
     }
 
     h1 {
@@ -68,7 +58,7 @@
     }
 
     .filter-bar {
-      background: white;
+      background: var(--color-surface);
       padding: 1.5rem;
       border-radius: var(--border-radius);
       margin-bottom: 2rem;
@@ -112,11 +102,11 @@
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid var(--color-border);
-      background: white;
+      background: var(--color-surface);
     }
 
     .tag:hover {
-      background: var(--color-bg-alt);
+      background: var(--color-surface-alt);
       border-color: var(--color-primary);
     }
 
@@ -133,7 +123,7 @@
     }
 
     .component-card {
-      background: white;
+      background: var(--color-surface);
       border-radius: var(--border-radius);
       padding: 1.5rem;
       box-shadow: var(--shadow-md);
@@ -245,7 +235,7 @@
     }
 
     .btn-secondary {
-      background: white;
+      background: var(--color-surface);
       color: var(--color-text);
       border: 1px solid var(--color-border);
     }
@@ -285,7 +275,7 @@
     }
 
     .modal-content {
-      background: white;
+      background: var(--color-surface);
       border-radius: var(--border-radius);
       max-width: 900px;
       width: 100%;
@@ -357,7 +347,7 @@
       min-height: 300px;
       border: 1px solid var(--color-border);
       border-radius: 0.5rem;
-      background: white;
+      background: var(--color-surface);
     }
 
     @media (max-width: 768px) {
@@ -378,8 +368,11 @@
 <body>
   <div class="container">
     <header>
-      <h1>Component Gallery</h1>
-      <p class="subtitle">Explore, preview, and experiment with all LARC PAN components</p>
+      <div class="header-content">
+        <h1>Component Gallery</h1>
+        <p class="subtitle">Explore, preview, and experiment with all LARC PAN components</p>
+      </div>
+      <pan-theme-toggle variant="icon"></pan-theme-toggle>
     </header>
 
     <div class="filter-bar">
@@ -429,7 +422,7 @@
         status: 'stable',
         code: `<pan-bus></pan-bus>
 <script type="module">
-  import { PanClient } from './components/pan-client.mjs';
+  import { PanClient } from '../pan/core/pan-client.mjs';
   const pc = new PanClient();
   pc.subscribe('test.topic', (msg) => {
     console.log('Received:', msg.data);
@@ -443,7 +436,7 @@
         category: ['core'],
         status: 'stable',
         code: `<script type="module">
-  import { PanClient } from './components/pan-client.mjs';
+  import { PanClient } from '../pan/core/pan-client.mjs';
   const pc = new PanClient();
 
   // Subscribe to a topic
@@ -477,7 +470,7 @@
 <div id="content"></div>
 
 <script type="module">
-  import { PanClient } from './components/pan-client.mjs';
+  import { PanClient } from '../pan/core/pan-client.mjs';
   const pc = new PanClient();
 
   pc.subscribe('nav.state', (msg) => {
@@ -524,7 +517,7 @@
 </pan-idb>
 
 <script type="module">
-  import { PanClient } from './components/pan-client.mjs';
+  import { PanClient } from '../pan/core/pan-client.mjs';
   const pc = new PanClient();
 
   // Wait for ready
@@ -563,7 +556,7 @@
 </pan-websocket>
 
 <script type="module">
-  import { PanClient } from './components/pan-client.mjs';
+  import { PanClient } from '../pan/core/pan-client.mjs';
   const pc = new PanClient();
 
   pc.subscribe('ws.connected', () => {
@@ -595,7 +588,7 @@
 </pan-sse>
 
 <script type="module">
-  import { PanClient } from './components/pan-client.mjs';
+  import { PanClient } from '../pan/core/pan-client.mjs';
   const pc = new PanClient();
 
   pc.subscribe('notifications.*', (msg) => {
@@ -612,7 +605,7 @@
 <pan-inspector style="height: 400px;"></pan-inspector>
 
 <script type="module">
-  import { PanClient } from './components/pan-client.mjs';
+  import { PanClient } from '../pan/core/pan-client.mjs';
   const pc = new PanClient();
 
   // Generate some messages to inspect
@@ -693,7 +686,7 @@
             <button class="btn btn-primary" onclick="openPlayground('${comp.name}')">
               Try it
             </button>
-            <a href="./components/${comp.name}.mjs" class="btn btn-secondary" target="_blank">
+            <a href="../pan/components/${comp.name}.mjs" class="btn btn-secondary" target="_blank">
               View Source
             </a>
           </div>
@@ -756,7 +749,7 @@
     const base = '${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '')}';
     window.panAutoload = { componentsPath: base + '/components/' };
   <\/script>
-  <script type="module" src="./components/pan-autoload.mjs"><\/script>
+  <script type="module" src="../pan/core/pan-autoload.mjs"><\/script>
   ${code}
 </body>
 </html>`;
@@ -781,6 +774,14 @@
     renderComponents();
   </script>
 
-  <script type="module" src="./components/pan-autoload.mjs"></script>
+  <script type="module" src="../pan/core/pan-autoload.mjs"></script>
+
+  <!-- Theme System -->
+  <pan-theme-provider theme="auto"></pan-theme-provider>
+
+  <script type="module">
+    import '../pan/components/pan-theme-provider.mjs';
+    import '../pan/components/pan-theme-toggle.mjs';
+  </script>
 </body>
 </html>

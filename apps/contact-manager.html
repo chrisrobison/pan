@@ -602,7 +602,7 @@
   ></pan-idb>
 
   <script type="module">
-    import { PanClient } from '../components/pan-client.mjs';
+    import { PanClient } from '../pan/core/pan-client.mjs';
 
     const pc = new PanClient();
     let contacts = [];
@@ -988,6 +988,6 @@
   </script>
 
   <!-- Load PAN Autoload -->
-  <script type="module" src="../components/pan-autoload.mjs"></script>
+  <script type="module" src="../pan/core/pan-autoload.mjs"></script>
 </body>
 </html>

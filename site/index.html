@@ -8,24 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/theme.css">
   <style>
-    :root {
-      --color-primary: #6366f1;
-      --color-primary-dark: #4f46e5;
-      --color-accent: #06b6d4;
-      --color-bg: #ffffff;
-      --color-bg-alt: #f8fafc;
-      --color-text: #1e293b;
-      --color-text-muted: #64748b;
-      --color-border: #e2e8f0;
-      --color-code-bg: #1e293b;
-      --spacing-unit: 1rem;
-      --border-radius: 0.75rem;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-    }
 
     * {
       margin: 0;
@@ -46,9 +30,16 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(255, 255, 255, 0.8);
+      background: color-mix(in srgb, var(--color-bg) 80%, transparent);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--color-border);
+    }
+
+    @supports not (color: color-mix(in srgb, white, black)) {
+      .header {
+        background: var(--color-bg);
+        opacity: 0.95;
+      }
     }
 
     .header-content {
@@ -510,6 +501,7 @@
         <a href="demos.html">Demos</a>
         <a href="README.md">Docs</a>
         <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+        <pan-theme-toggle variant="icon"></pan-theme-toggle>
       </nav>
     </div>
   </header>
@@ -676,5 +668,13 @@
       <p>LARC (Lightweight Asynchronous Relay Core) · PAN (Page Area Network) · MIT License</p>
     </div>
   </footer>
+
+  <!-- Theme System -->
+  <pan-theme-provider theme="auto"></pan-theme-provider>
+
+  <script type="module">
+    import '../pan/components/pan-theme-provider.mjs';
+    import '../pan/components/pan-theme-toggle.mjs';
+  </script>
 </body>
 </html>

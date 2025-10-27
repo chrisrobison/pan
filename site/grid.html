@@ -110,6 +110,7 @@
     .modal .btn.cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); }
     .modal .btn.save { background: var(--accent); color: white; }
   </style>
+  <link rel="stylesheet" href="assets/theme.css">
 </head>
 <body>
   <main class="page">
@@ -794,6 +795,14 @@
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeModal(); });
 
     grid.addEventListener('rowclick', (ev) => { try { openModalForRow(ev.detail || {}); } catch (e) { console.error(e); } });
+  </script>
+
+  <!-- Theme System -->
+  <pan-theme-provider theme="auto"></pan-theme-provider>
+
+  <script type="module">
+    import '../pan/components/pan-theme-provider.mjs';
+    import '../pan/components/pan-theme-toggle.mjs';
   </script>
 </body>
 </html>

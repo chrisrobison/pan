@@ -45,14 +45,14 @@ Drop one script tag, then use any component. That's it!
 
 ```html
 <!doctype html><meta charset="utf-8">
-<script type="module" src="./components/pan-autoload.mjs"></script>
+<script type="module" src="./pan/core/pan-autoload.mjs"></script>
 
 <!-- Just declare the components you want - they load automatically -->
 <x-counter></x-counter>
 <pan-inspector></pan-inspector>
 ```
 
-All components live in `./components/` and load on demand as they approach the viewport. **The `<pan-bus>` is automatically created for you.** No imports, no `customElements.define()`, no bundler.
+All components live in `./pan/components/` and load on demand as they approach the viewport. **The `<pan-bus>` is automatically created for you.** No imports, no `customElements.define()`, no bundler.
 
 ---
 
@@ -105,7 +105,7 @@ Copy this into an `.html` file and open it to see the minimal PAN implementation
 Clone the repo and drop a single script tag on your page:
 
 ```html
-<script type="module" src="./components/pan-autoload.mjs"></script>
+<script type="module" src="./pan/core/pan-autoload.mjs"></script>
 ```
 
 Then just use components in your HTML - they load automatically on demand:
@@ -125,9 +125,9 @@ No bundler required. Works from `file://`.
 For fine-grained control or CDN usage (when published):
 
 ```html
-<script type="module" src="./components/pan-bus.mjs"></script>
-<script type="module" src="./components/pan-client.mjs"></script>
-<script type="module" src="./components/pan-inspector.mjs"></script>
+<script type="module" src="./pan/core/pan-bus.mjs"></script>
+<script type="module" src="./pan/core/pan-client.mjs"></script>
+<script type="module" src="./pan/app/devtools/pan-inspector.mjs"></script>
 ```
 
 ---
@@ -138,12 +138,12 @@ For fine-grained control or CDN usage (when published):
 
 Drop a single script tag on the page to progressively load Web Components from the
 `components/` folder. Tags with a dash (`<my-widget>`) are auto-detected; when they
-approach the viewport, the loader imports `./components/<tag>.mjs` and registers them.
+approach the viewport, the loader imports `./pan/components/<tag>.mjs` and registers them.
 
 **The `<pan-bus>` is automatically created** so you can start using components immediately:
 
 ```html
-<script type="module" src="./components/pan-autoload.mjs"></script>
+<script type="module" src="./pan/core/pan-autoload.mjs"></script>
 
 <!-- All of these load automatically - no imports needed -->
 <my-widget></my-widget>
@@ -163,7 +163,7 @@ Override the components path or file extension:
     rootMargin: 600  // px from viewport to trigger load
   };
 </script>
-<script type="module" src="./components/pan-autoload.mjs"></script>
+<script type="module" src="./pan/core/pan-autoload.mjs"></script>
 ```
 
 **Per-element override:**
@@ -171,11 +171,73 @@ Override the components path or file extension:
 Point a specific element to a different module:
 
 ```html
-<my-card data-module="/components/cards/my-card.mjs"></my-card>
+<my-card data-module="/pan/components/cards/my-card.mjs"></my-card>
 ```
 
 Components that don't self-register are defined automatically when they export a
 default class matching the tag name.
+
+---
+
+## Project Structure
+
+The project has a clean, approachable top-level structure:
+
+```
+pan/
+├── pan/           # 🎯 Component library (the heart of the project)
+│   ├── core/      # Core infrastructure (pan-bus, pan-client, pan-autoload)
+│   ├── ui/        # Simple, reusable UI building blocks
+│   ├── components/# Complex, feature-rich widgets
+│   ├── data/      # State management and data layer
+│   └── app/       # Domain-specific application components
+├── site/          # 🌐 Website (homepage, gallery, demos)
+├── apps/          # 📱 Demo applications
+├── examples/      # 📚 Example usage pages
+├── docs/          # 📖 Documentation
+│   ├── rfcs/      # Design proposals
+│   └── templates/ # Component starter templates
+├── assets/        # 🎨 Shared resources (theme.css, badges)
+├── scripts/       # 🔧 Build and utility scripts
+└── tests/         # ✅ Test suite
+```
+
+### Component Layers
+
+**Core** (`pan/core/`) - Required infrastructure
+- `pan-bus.mjs` - Message bus
+- `pan-client.mjs` - Client library
+- `pan-autoload.mjs` - Component autoloader
+
+**UI** (`pan/ui/`) - Simple building blocks
+- Cards, modals, dropdowns, tabs, etc.
+- Lightweight, single-purpose components
+- Highly reusable across projects
+
+**Components** (`pan/components/`) - Feature-rich widgets
+- Markdown editor/renderer
+- Data tables, charts, date pickers
+- File system manager
+- Theme system
+- Complex, production-ready tools
+
+**Data** (`pan/data/`) - State management
+- Store components for application state
+- Persistence logic (localStorage, IndexedDB)
+- Coordinates state via PAN bus
+
+**App** (`pan/app/`) - Domain-specific components
+- Built for specific applications
+- Tightly coupled to business logic
+- Not intended for general reuse
+
+**Apps** (`apps/`) - Complete demo applications
+- Invoice creator
+- Markdown notes editor
+- Data browser
+- Contact manager
+
+See individual README files in each directory for detailed documentation.
 
 ---
 

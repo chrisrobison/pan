@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Markdown Components Example — PAN</title>
+  <link rel="stylesheet" href="../assets/theme.css">
+  <style>
+    body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--color-text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .example-section {
+      margin-bottom: 3rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+    }
+
+    .example-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-border);
+    }
+
+    .example-description {
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .component-demo {
+      margin-top: 1rem;
+    }
+
+    .code-block {
+      background: var(--color-code-bg);
+      color: var(--color-code-text);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    pan-markdown-editor,
+    pan-markdown-renderer {
+      min-height: 400px;
+    }
+
+    pan-files {
+      min-height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Markdown Components Examples</h1>
+  <p class="subtitle">
+    Demonstrations of pan-markdown-editor, pan-markdown-renderer, and pan-files components
+  </p>
+
+  <!-- Example 1: Basic Renderer -->
+  <div class="example-section">
+    <div class="example-title">1. Markdown Renderer</div>
+    <div class="example-description">
+      The <code>pan-markdown-renderer</code> component renders markdown to styled HTML.
+    </div>
+
+    <div class="code-block">
+&lt;pan-markdown-renderer content="# Hello World
+This is **bold** and this is *italic*.
+
+- Item 1
+- Item 2
+- Item 3"&gt;
+&lt;/pan-markdown-renderer&gt;
+    </div>
+
+    <div class="component-demo">
+      <pan-markdown-renderer id="renderer-1" content="# Hello World
+
+This is **bold** and this is *italic*.
+
+## Features
+
+- Item 1
+- Item 2
+- Item 3
+
+### Code Example
+
+```javascript
+const greeting = 'Hello, World!';
+console.log(greeting);
+```
+
+> This is a blockquote with some important information.
+
+[Link to PAN](https://github.com/)"></pan-markdown-renderer>
+    </div>
+  </div>
+
+  <!-- Example 2: Editor with Preview -->
+  <div class="example-section">
+    <div class="example-title">2. Markdown Editor with Live Preview</div>
+    <div class="example-description">
+      The <code>pan-markdown-editor</code> component provides a rich editing experience with formatting toolbar and optional live preview.
+    </div>
+
+    <div class="code-block">
+&lt;pan-markdown-editor
+  value="# Start Writing..."
+  preview="true"
+  autosave="false"&gt;
+&lt;/pan-markdown-editor&gt;
+    </div>
+
+    <div class="component-demo">
+      <pan-markdown-editor
+        id="editor-1"
+        value="# Welcome to the Editor!
+
+Try using the **formatting toolbar** above, or use keyboard shortcuts:
+
+- **Ctrl+B**: Bold
+- **Ctrl+I**: Italic
+- **Ctrl+K**: Insert link
+
+## Lists
+
+1. First item
+2. Second item
+3. Third item
+
+## Task Lists
+
+- [x] Completed task
+- [ ] Pending task
+
+## Code
+
+Inline `code` or code blocks:
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+\`\`\`
+
+> Click the 👁️ Preview button to toggle the preview pane!"
+        preview="true"></pan-markdown-editor>
+    </div>
+  </div>
+
+  <!-- Example 3: File System Integration -->
+  <div class="example-section">
+    <div class="example-title">3. File System Manager</div>
+    <div class="example-description">
+      The <code>pan-files</code> component manages files in the browser's Origin Private File System (OPFS).
+      Try creating, renaming, and deleting files.
+    </div>
+
+    <div class="code-block">
+&lt;pan-files filter=".md"&gt;&lt;/pan-files&gt;
+    </div>
+
+    <div class="component-demo">
+      <pan-files filter=".md,.txt"></pan-files>
+    </div>
+  </div>
+
+  <!-- Example 4: Editor + Files Integration -->
+  <div class="example-section">
+    <div class="example-title">4. Editor + File Manager (PAN Integration)</div>
+    <div class="example-description">
+      Components communicate via PAN events. Select a file to load it in the editor, and save your changes.
+    </div>
+
+    <div class="grid-2col">
+      <div>
+        <h4 style="margin-top: 0;">File Browser</h4>
+        <pan-files id="files-integrated" filter=".md"></pan-files>
+      </div>
+      <div>
+        <h4 style="margin-top: 0;">Editor</h4>
+        <button id="save-btn" style="margin-bottom: 0.5rem; padding: 0.5rem 1rem; background: var(--color-primary); color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
+          💾 Save File
+        </button>
+        <pan-markdown-editor id="editor-integrated" preview="false"></pan-markdown-editor>
+      </div>
+    </div>
+  </div>
+
+  <!-- Example 5: Programmatic Control -->
+  <div class="example-section">
+    <div class="example-title">5. Programmatic Control</div>
+    <div class="example-description">
+      All components expose public APIs and can be controlled via JavaScript or PAN events.
+    </div>
+
+    <div class="code-block">
+// Get/Set editor content
+const editor = document.querySelector('pan-markdown-editor');
+editor.setValue('# New Content');
+const content = editor.getValue();
+
+// Render markdown programmatically
+const renderer = document.querySelector('pan-markdown-renderer');
+renderer.setContent('# Dynamic Content');
+
+// File operations
+const files = document.querySelector('pan-files');
+await files.writeFile('/test.md', '# Hello');
+const content = await files.readFile('/test.md');
+await files.deleteFile('/test.md');
+
+// PAN events
+bus.publish('markdown.set-content', { content: '# Hello' });
+bus.publish('file.save', { path: '/doc.md', content: '# Saved' });
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+      <button class="demo-btn" onclick="setRandomContent()">
+        🎲 Random Content
+      </button>
+      <button class="demo-btn" onclick="clearEditor()">
+        🗑️ Clear Editor
+      </button>
+      <button class="demo-btn" onclick="insertTable()">
+        ⊞ Insert Table
+      </button>
+      <button class="demo-btn" onclick="getStats()">
+        📊 Get Stats
+      </button>
+    </div>
+
+    <style>
+      .demo-btn {
+        padding: 0.5rem 1rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+      }
+      .demo-btn:hover {
+        background: var(--color-primary-soft);
+        border-color: var(--color-primary);
+      }
+    </style>
+
+    <pan-markdown-editor id="editor-demo" value="# Interactive Demo
+
+Click the buttons above to see programmatic control in action!" preview="false"></pan-markdown-editor>
+  </div>
+
+  <!-- Components -->
+  <pan-bus></pan-bus>
+  <pan-theme-provider theme="auto"></pan-theme-provider>
+  <pan-theme-toggle variant="icon" style="position: fixed; top: 1rem; right: 1rem;"></pan-theme-toggle>
+
+  <script type="module">
+    import '../pan/core/pan-bus.mjs';
+    import '../pan/components/pan-markdown-editor.mjs';
+    import '../pan/components/pan-markdown-renderer.mjs';
+    import '../pan/components/pan-files.mjs';
+    import '../pan/components/pan-theme-provider.mjs';
+    import '../pan/components/pan-theme-toggle.mjs';
+
+    const bus = document.querySelector('pan-bus');
+
+    // Example 4: Integrated editor + files
+    let currentFile = null;
+
+    bus.subscribe('file.selected', async (data) => {
+      if (data.isDirectory) return;
+
+      const files = document.getElementById('files-integrated');
+      const editor = document.getElementById('editor-integrated');
+
+      try {
+        const content = await files.readFile(data.path);
+        editor.setValue(content);
+        currentFile = data.path;
+      } catch (error) {
+        alert('Failed to load file: ' + error.message);
+      }
+    });
+
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      if (!currentFile) {
+        alert('No file selected!');
+        return;
+      }
+
+      const editor = document.getElementById('editor-integrated');
+      const files = document.getElementById('files-integrated');
+      const content = editor.getValue();
+
+      try {
+        await files.writeFile(currentFile, content);
+        await files.refresh();
+        alert('File saved!');
+      } catch (error) {
+        alert('Failed to save: ' + error.message);
+      }
+    });
+
+    // Example 5: Programmatic control
+    window.setRandomContent = () => {
+      const editor = document.getElementById('editor-demo');
+      const samples = [
+        '# Random Heading\n\nThis is some random **bold** content.',
+        '## Task List\n\n- [x] First task\n- [ ] Second task\n- [ ] Third task',
+        '### Code Example\n\n```javascript\nconst x = 42;\nconsole.log(x);\n```',
+        '> "The only way to do great work is to love what you do."\n>\n> — Steve Jobs'
+      ];
+      const random = samples[Math.floor(Math.random() * samples.length)];
+      editor.setValue(random);
+    };
+
+    window.clearEditor = () => {
+      const editor = document.getElementById('editor-demo');
+      editor.setValue('');
+    };
+
+    window.insertTable = () => {
+      const editor = document.getElementById('editor-demo');
+      const table = `
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Data 1   | Data 2   | Data 3   |
+| Data 4   | Data 5   | Data 6   |
+`;
+      editor.insertText(table);
+    };
+
+    window.getStats = () => {
+      const editor = document.getElementById('editor-demo');
+      const content = editor.getValue();
+      const words = content.trim().split(/\s+/).filter(w => w.length > 0).length;
+      const chars = content.length;
+      const lines = content.split('\n').length;
+      alert(`Stats:\n\nWords: ${words}\nCharacters: ${chars}\nLines: ${lines}`);
+    };
+
+    console.log('📝 Markdown Components Examples loaded');
+  </script>
+</body>
+</html>

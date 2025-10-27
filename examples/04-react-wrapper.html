@@ -49,7 +49,7 @@
   </div>
 
   <script type="module">
-    import '../components/pan-bus.js';
+    import '../pan/components/pan-bus.js';
     class PanClient {
       constructor(host = document) { this.host = host; }
       pub(msg) { this.host.dispatchEvent(new CustomEvent('pan:publish', { detail: msg, bubbles: true, composed: true })); }

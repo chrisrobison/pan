@@ -286,6 +286,7 @@
       const first = resources[0]; if (first){ pc.publish({ topic:'resource.select', data:{ resource:String(first) } }); }
     });
   </script>
+  <link rel="stylesheet" href="../assets/theme.css">
 </head>
 <body>
   <pan-bus></pan-bus>
@@ -327,5 +328,13 @@
       </pan-form>
     </div>
   </dialog>
+
+  <!-- Theme System -->
+  <pan-theme-provider theme="auto"></pan-theme-provider>
+
+  <script type="module">
+    import '../pan/components/pan-theme-provider.mjs';
+    import '../pan/components/pan-theme-toggle.mjs';
+  </script>
 </body>
 </html>
