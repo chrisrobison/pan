@@ -580,13 +580,13 @@
 <span class="code-comment">&lt;!-- Drop one script tag, then use any component. That's it! --&gt;</span>
 <span class="code-tag">&lt;script</span> <span class="code-attr">type</span>=<span class="code-string">"module"</span> <span class="code-attr">src</span>=<span class="code-string">"https://chrisrobison.github.io/pan/components/pan-autoload.mjs"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
 
-<span class="code-comment">&lt;!-- Components load automatically on demand --&gt;</span>
-<span class="code-tag">&lt;pan-bus&gt;&lt;/pan-bus&gt;</span>
+<span class="code-comment">&lt;!-- Components load automatically (including pan-bus!) --&gt;</span>
 <span class="code-tag">&lt;x-counter&gt;&lt;/x-counter&gt;</span>
 <span class="code-tag">&lt;pan-inspector&gt;&lt;/pan-inspector&gt;</span></code></pre>
       </div>
       <p class="code-section-note">
         ✨ All components load automatically when they appear in the DOM.
+        The <code>&lt;pan-bus&gt;</code> is automatically created for you.
         No imports, no <code>customElements.define()</code>, no bundler.
       </p>
     </div>

@@ -48,12 +48,11 @@ Drop one script tag, then use any component. That's it!
 <script type="module" src="./components/pan-autoload.mjs"></script>
 
 <!-- Just declare the components you want - they load automatically -->
-<pan-bus></pan-bus>
 <x-counter></x-counter>
 <pan-inspector></pan-inspector>
 ```
 
-All components live in `./components/` and load on demand as they approach the viewport. No imports, no `customElements.define()`, no bundler.
+All components live in `./components/` and load on demand as they approach the viewport. **The `<pan-bus>` is automatically created for you.** No imports, no `customElements.define()`, no bundler.
 
 ---
 
@@ -141,11 +140,12 @@ Drop a single script tag on the page to progressively load Web Components from t
 `components/` folder. Tags with a dash (`<my-widget>`) are auto-detected; when they
 approach the viewport, the loader imports `./components/<tag>.mjs` and registers them.
 
+**The `<pan-bus>` is automatically created** so you can start using components immediately:
+
 ```html
 <script type="module" src="./components/pan-autoload.mjs"></script>
 
 <!-- All of these load automatically - no imports needed -->
-<pan-bus></pan-bus>
 <my-widget></my-widget>
 <todo-list></todo-list>
 <pan-inspector></pan-inspector>

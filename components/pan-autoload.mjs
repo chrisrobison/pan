@@ -142,24 +142,42 @@ function setupMutationObserver() {
   });
 }
 
+async function ensurePanBus() {
+  // Check if pan-bus already exists in the document
+  if (document.querySelector('pan-bus')) return;
+
+  // Create and insert pan-bus element
+  const bus = document.createElement('pan-bus');
+  const target = document.body || document.documentElement;
+  if (target) {
+    target.insertBefore(bus, target.firstChild);
+  }
+
+  // Load the pan-bus component immediately
+  await maybeLoadFor(bus);
+}
+
 function init() {
   if (typeof document === 'undefined' || typeof customElements === 'undefined') return;
 
-  observeTree(document);
-  setupMutationObserver();
+  // Ensure pan-bus is loaded first (it's the backbone)
+  ensurePanBus().then(() => {
+    observeTree(document);
+    setupMutationObserver();
 
-  if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(() => {
+    if (typeof requestIdleCallback === 'function') {
+      requestIdleCallback(() => {
+        document.querySelectorAll(':not(:defined)').forEach((el) => {
+          if (isCustomTag(el)) maybeLoadFor(el);
+        });
+      });
+    } else {
+      // Fallback: eager load anything currently in view.
       document.querySelectorAll(':not(:defined)').forEach((el) => {
         if (isCustomTag(el)) maybeLoadFor(el);
       });
-    });
-  } else {
-    // Fallback: eager load anything currently in view.
-    document.querySelectorAll(':not(:defined)').forEach((el) => {
-      if (isCustomTag(el)) maybeLoadFor(el);
-    });
-  }
+    }
+  });
 }
 
 init();
