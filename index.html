@@ -269,6 +269,23 @@
       color: #e2e8f0;
     }
 
+    .code-section-note {
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 1rem;
+      margin-top: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .code-section-note code {
+      background: rgba(99, 102, 241, 0.1);
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      color: var(--color-primary);
+    }
+
     .code-comment {
       color: #64748b;
     }
@@ -559,39 +576,19 @@
       <h2>Get Started in 10 Seconds</h2>
       <p class="code-section-subtitle">Copy this into an HTML file and open it. That's it.</p>
       <div class="code-example">
-<pre><code><span class="code-comment">&lt;!-- Drop the bus on your page --&gt;</span>
+<pre><code><span class="code-comment">&lt;!doctype html&gt;</span>
+<span class="code-comment">&lt;!-- Drop one script tag, then use any component. That's it! --&gt;</span>
+<span class="code-tag">&lt;script</span> <span class="code-attr">type</span>=<span class="code-string">"module"</span> <span class="code-attr">src</span>=<span class="code-string">"./components/pan-autoload.mjs"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
+
+<span class="code-comment">&lt;!-- Components load automatically on demand --&gt;</span>
 <span class="code-tag">&lt;pan-bus&gt;&lt;/pan-bus&gt;</span>
 <span class="code-tag">&lt;x-counter&gt;&lt;/x-counter&gt;</span>
-
-<span class="code-tag">&lt;script</span> <span class="code-attr">type</span>=<span class="code-string">"module"</span><span class="code-tag">&gt;</span>
-  <span class="code-comment">// Import the core components</span>
-  <span class="code-keyword">import</span> <span class="code-string">'./components/pan-bus.js'</span>;
-  <span class="code-keyword">import</span> { PanClient } <span class="code-keyword">from</span> <span class="code-string">'./components/pan-client.mjs'</span>;
-
-  <span class="code-comment">// Define a simple counter component</span>
-  customElements.define(<span class="code-string">'x-counter'</span>, <span class="code-keyword">class extends</span> HTMLElement {
-    pc = <span class="code-keyword">new</span> PanClient(<span class="code-keyword">this</span>);
-    n = <span class="code-string">0</span>;
-
-    connectedCallback() {
-      <span class="code-keyword">this</span>.innerHTML = <span class="code-string">`&lt;button&gt;Clicked 0&lt;/button&gt;`</span>;
-
-      <span class="code-comment">// Publish on click</span>
-      <span class="code-keyword">this</span>.querySelector(<span class="code-string">'button'</span>).onclick = () =&gt;
-        <span class="code-keyword">this</span>.pc.publish({
-          topic: <span class="code-string">'demo:click'</span>,
-          data: { n: ++<span class="code-keyword">this</span>.n },
-          retain: <span class="code-keyword">true</span>
-        });
-
-      <span class="code-comment">// Subscribe to updates</span>
-      <span class="code-keyword">this</span>.pc.subscribe(<span class="code-string">'demo:click'</span>, msg =&gt; {
-        <span class="code-keyword">this</span>.querySelector(<span class="code-string">'button'</span>).textContent = <span class="code-string">`Clicked ${msg.data.n}`</span>;
-      });
-    }
-  });
-<span class="code-tag">&lt;/script&gt;</span></code></pre>
+<span class="code-tag">&lt;pan-inspector&gt;&lt;/pan-inspector&gt;</span></code></pre>
       </div>
+      <p class="code-section-note">
+        ✨ All components load automatically when they appear in the DOM.
+        No imports, no <code>customElements.define()</code>, no bundler.
+      </p>
     </div>
   </section>
 
