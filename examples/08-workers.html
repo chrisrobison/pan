@@ -110,13 +110,13 @@
   </pan-worker>
 
   <script type="module">
-    import '../dist/pan-bus.js';
-    import '../dist/pan-client.js';
-    import '../dist/pan-inspector.js';
-    import '../dist/pan-data-table.js';
-    import '../dist/pan-query.js';
-    import '../dist/pan-worker.js';
-    import { PanClient } from '../dist/pan-client.js';
+    import '../components/pan-bus.js';
+    import '../components/pan-client.mjs';
+    import '../components/pan-inspector.js';
+    import '../components/pan-data-table.js';
+    import '../components/pan-query.js';
+    import '../components/pan-worker.js';
+    import { PanClient } from '../components/pan-client.mjs';
 
     const pc = new PanClient();
     const $ = (selector) => document.querySelector(selector);

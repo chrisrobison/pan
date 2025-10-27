@@ -71,14 +71,14 @@
   <pan-data-connector resource="users" base-url="https://jsonplaceholder.typicode.com"></pan-data-connector>
 
   <script type="module">
-    import '../dist/pan-bus.js';
-    import '../dist/pan-client.js';
-    import '../dist/pan-inspector.js';
-    import '../dist/pan-data-table.js';
-    import '../dist/pan-form.js';
-    import '../dist/pan-data-connector.js';
+    import '../components/pan-bus.js';
+    import '../components/pan-client.mjs';
+    import '../components/pan-inspector.js';
+    import '../components/pan-data-table.js';
+    import '../components/pan-form.js';
+    import '../components/pan-data-connector.js';
 
-    import { PanClient } from '../dist/pan-client.js';
+    import { PanClient } from '../components/pan-client.mjs';
     const pc = new PanClient();
     document.getElementById('refresh')?.addEventListener('click', () => {
       pc.publish({ topic: 'users.list.get', data: {} });

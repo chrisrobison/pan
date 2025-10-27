@@ -3,68 +3,681 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LARC · PAN Demo Browser</title>
+  <title>LARC — Lightweight Asynchronous Relay Core</title>
+  <meta name="description" content="A lightweight DOM-native message bus for building loosely-coupled web UIs. Zero build, framework-agnostic, batteries included.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./examples/assets/grail.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #6366f1;
+      --color-primary-dark: #4f46e5;
+      --color-accent: #06b6d4;
+      --color-bg: #ffffff;
+      --color-bg-alt: #f8fafc;
+      --color-text: #1e293b;
+      --color-text-muted: #64748b;
+      --color-border: #e2e8f0;
+      --color-code-bg: #1e293b;
+      --spacing-unit: 1rem;
+      --border-radius: 0.75rem;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: var(--color-text);
+      background: var(--color-bg);
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--color-text);
+      text-decoration: none;
+    }
+
+    .logo img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav a:hover {
+      color: var(--color-primary);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--color-bg-alt);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .btn-secondary:hover {
+      background: white;
+      border-color: var(--color-primary);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 0.375rem 0.875rem;
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      color: white;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #1e293b 0%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: var(--color-text-muted);
+      margin-bottom: 3rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 400;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+
+    /* Features Grid */
+    .features {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+    }
+
+    .features h2 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: var(--color-text);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .feature-card {
+      padding: 2rem;
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--color-primary);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--color-text);
+    }
+
+    .feature-card p {
+      color: var(--color-text-muted);
+      line-height: 1.7;
+    }
+
+    /* Code Example Section */
+    .code-section {
+      background: var(--color-bg-alt);
+      padding: 4rem 2rem;
+      margin: 4rem 0;
+    }
+
+    .code-section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .code-section h2 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .code-section-subtitle {
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 1.125rem;
+      margin-bottom: 3rem;
+    }
+
+    .code-example {
+      background: var(--color-code-bg);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      overflow-x: auto;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .code-example pre {
+      margin: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+    }
+
+    .code-comment {
+      color: #64748b;
+    }
+
+    .code-tag {
+      color: #06b6d4;
+    }
+
+    .code-attr {
+      color: #a78bfa;
+    }
+
+    .code-string {
+      color: #34d399;
+    }
+
+    .code-keyword {
+      color: #f472b6;
+    }
+
+    /* Use Cases */
+    .use-cases {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+    }
+
+    .use-cases h2 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .use-case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .use-case {
+      padding: 1.5rem;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--color-primary);
+    }
+
+    .use-case h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+      color: var(--color-primary);
+    }
+
+    .use-case p {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+      margin: 4rem 0 0;
+    }
+
+    .cta-section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      opacity: 0.95;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-light {
+      background: white;
+      color: var(--color-primary);
+    }
+
+    .btn-light:hover {
+      background: var(--color-bg-alt);
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--color-bg-alt);
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .footer-section h4 {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: var(--color-text);
+    }
+
+    .footer-section ul {
+      list-style: none;
+    }
+
+    .footer-section a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 0.5rem;
+      transition: color 0.2s;
+    }
+
+    .footer-section a:hover {
+      color: var(--color-primary);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 2rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.125rem;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .features h2,
+      .code-section h2,
+      .use-cases h2,
+      .cta-section h2 {
+        font-size: 2rem;
+      }
+
+      .hero {
+        padding: 4rem 1.5rem 2rem;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero,
+    .features-grid,
+    .code-example {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .feature-card {
+      animation: fadeInUp 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.2s; }
+    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+    .feature-card:nth-child(4) { animation-delay: 0.4s; }
+    .feature-card:nth-child(5) { animation-delay: 0.5s; }
+    .feature-card:nth-child(6) { animation-delay: 0.6s; }
+  </style>
 </head>
 <body>
-  <pan-bus></pan-bus>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <img src="logo.svg" alt="LARC Logo">
+        <span>LARC</span>
+      </a>
+      <nav class="nav">
+        <a href="#features">Features</a>
+        <a href="#examples">Examples</a>
+        <a href="demos.html">Demos</a>
+        <a href="README.md">Docs</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
 
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <img src="logo.svg" width="24">
-        <span>PAN Demo Suite</span>
-      </div>
-      <div class="nav-content">
-        <pan-demo-nav sync-url="hash">
-          <script type="application/json">[
-            { "id": "intro", "title": "Welcome / Intro", "hint": "00", "href": "examples/00-intro.html" },
-            { "id": "ex-01", "title": "Hello Counter", "hint": "01", "href": "examples/01-hello.html" },
-            { "id": "ex-02", "title": "Todos + Inspector", "hint": "02", "href": "examples/02-todos-and-inspector.html" },
-            { "id": "ex-03", "title": "Cross-tab Sync", "hint": "03", "href": "examples/03-broadcastchannel.html" },
-            { "id": "ex-04", "title": "React Wrapper", "hint": "04", "href": "examples/04-react-wrapper.html" },
-            { "id": "ex-05", "title": "Lit Wrapper", "hint": "05", "href": "examples/05-lit-wrapper.html" },
-            { "id": "ex-06", "title": "CRUD (Mock Provider)", "hint": "06", "href": "examples/06-crud.html" },
-            { "id": "ex-07", "title": "REST Connector", "hint": "07", "href": "examples/07-rest-connector.html" },
-            { "id": "ex-08", "title": "Workers + Query", "hint": "08", "href": "examples/08-workers.html" },
-            { "id": "ex-09", "title": "Schema Form", "hint": "09", "href": "examples/09-schema-form.html" },
-            { "id": "ex-10", "title": "SSE + Store", "hint": "10", "href": "examples/10-sse-store.html" },
-            { "id": "ex-11", "title": "GraphQL Connector", "hint": "11", "href": "examples/11-graphql-connector.html" },
-            { "id": "ex-12", "title": "PHP Connector", "hint": "12", "href": "examples/12-php-connector.html" },
-            { "id": "ex-13", "title": "SSE (Local PHP)", "hint": "13", "href": "examples/13-sse-pan.html" },
-            { "id": "registry", "title": "Registry (Components)", "hint": "R", "href": "registry/index.html" },
-            { "id": "conformance", "title": "Conformance (PAN v1)", "hint": "C", "href": "conformance/index.html" },
-            { "id": "ex-14", "title": "Forwarder → SSE", "hint": "14", "href": "examples/14-forwarder.html" },
-            { "id": "grid", "title": "DB Grid (PHP)", "hint": "G", "href": "pan-grid.html" },
-            { "id": "tpl-provider", "title": "Template: Provider Kit", "hint": "T", "href": "templates/provider-kit/index.html" }
-          ]</script>
-        </pan-demo-nav>
-      </div>
-      <div class="sidebar-footer">
-        <strong>PAN</strong> is the Page Area Network — a DOM-native message bus.
-      </div>
-    </aside>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">v0.1.0 · PAN v1 Compliant</div>
+    <h1>Build Loosely-Coupled<br>Web UIs</h1>
+    <p class="hero-subtitle">
+      A lightweight DOM-native message bus for framework-agnostic components.<br>
+      Zero build. Zero dependencies. Just pure web standards.
+    </p>
+    <div class="hero-cta">
+      <a href="demos.html" class="btn btn-primary">Explore Demos</a>
+      <a href="examples/01-hello.html" class="btn btn-secondary">Quick Start</a>
+    </div>
+  </section>
 
-    <main class="main-region">
-      <section class="content-area">
-        <section class="panel viewer-panel">
-          <div class="panel-body viewer-body">
-            <pan-demo-viewer mode="iframe" base="."></pan-demo-viewer>
-          </div>
-        </section>
-      </section>
-    </main>
-  </div>
+  <!-- Features Grid -->
+  <section class="features" id="features">
+    <h2>Why LARC?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Zero Build Required</h3>
+        <p>Drop a script tag and start building. Works from file://, no webpack, no bundlers, no configuration.</p>
+      </div>
 
-  <script type="module">
-    import './dist/pan-bus.js';
-    import './dist/pan-client.js';
-    import './dist/pan-demo-nav.js';
-    import './dist/pan-demo-viewer.js';
-    import './dist/pan-inspector.js';
-  </script>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Framework Agnostic</h3>
+        <p>Works seamlessly with React, Vue, Lit, Svelte, or vanilla JS. Mix and match frameworks in the same page.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <h3>Loose Coupling</h3>
+        <p>Components communicate via topics, not imports. Build truly independent, composable UI components.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🪶</div>
+        <h3>Lightweight</h3>
+        <p>Core library is under 200 lines. All 21 components together are just 128KB. Zero runtime dependencies.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>DevTools Included</h3>
+        <p>Built-in Inspector component lets you watch message flow, filter topics, and debug in real-time.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Rich Ecosystem</h3>
+        <p>REST, GraphQL, PHP connectors. Web Worker support. SSE bridges. Schema-driven forms. CRUD components.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code Example -->
+  <section class="code-section" id="examples">
+    <div class="code-section-inner">
+      <h2>Get Started in 10 Seconds</h2>
+      <p class="code-section-subtitle">Copy this into an HTML file and open it. That's it.</p>
+      <div class="code-example">
+<pre><code><span class="code-comment">&lt;!-- Drop the bus on your page --&gt;</span>
+<span class="code-tag">&lt;pan-bus&gt;&lt;/pan-bus&gt;</span>
+<span class="code-tag">&lt;x-counter&gt;&lt;/x-counter&gt;</span>
+
+<span class="code-tag">&lt;script</span> <span class="code-attr">type</span>=<span class="code-string">"module"</span><span class="code-tag">&gt;</span>
+  <span class="code-comment">// Import the core components</span>
+  <span class="code-keyword">import</span> <span class="code-string">'./components/pan-bus.js'</span>;
+  <span class="code-keyword">import</span> { PanClient } <span class="code-keyword">from</span> <span class="code-string">'./components/pan-client.mjs'</span>;
+
+  <span class="code-comment">// Define a simple counter component</span>
+  customElements.define(<span class="code-string">'x-counter'</span>, <span class="code-keyword">class extends</span> HTMLElement {
+    pc = <span class="code-keyword">new</span> PanClient(<span class="code-keyword">this</span>);
+    n = <span class="code-string">0</span>;
+
+    connectedCallback() {
+      <span class="code-keyword">this</span>.innerHTML = <span class="code-string">`&lt;button&gt;Clicked 0&lt;/button&gt;`</span>;
+
+      <span class="code-comment">// Publish on click</span>
+      <span class="code-keyword">this</span>.querySelector(<span class="code-string">'button'</span>).onclick = () =&gt;
+        <span class="code-keyword">this</span>.pc.publish({
+          topic: <span class="code-string">'demo:click'</span>,
+          data: { n: ++<span class="code-keyword">this</span>.n },
+          retain: <span class="code-keyword">true</span>
+        });
+
+      <span class="code-comment">// Subscribe to updates</span>
+      <span class="code-keyword">this</span>.pc.subscribe(<span class="code-string">'demo:click'</span>, msg =&gt; {
+        <span class="code-keyword">this</span>.querySelector(<span class="code-string">'button'</span>).textContent = <span class="code-string">`Clicked ${msg.data.n}`</span>;
+      });
+    }
+  });
+<span class="code-tag">&lt;/script&gt;</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Use Cases -->
+  <section class="use-cases">
+    <h2>Perfect For</h2>
+    <div class="use-case-grid">
+      <div class="use-case">
+        <h3>Micro-Frontends</h3>
+        <p>Build independent teams' components that communicate without tight coupling.</p>
+      </div>
+      <div class="use-case">
+        <h3>Component Libraries</h3>
+        <p>Create reusable UI components that work in any framework or vanilla JS.</p>
+      </div>
+      <div class="use-case">
+        <h3>Progressive Enhancement</h3>
+        <p>Layer interactive features onto existing pages without heavy frameworks.</p>
+      </div>
+      <div class="use-case">
+        <h3>Rapid Prototyping</h3>
+        <p>Build and iterate quickly without build tooling or configuration overhead.</p>
+      </div>
+      <div class="use-case">
+        <h3>Framework Migration</h3>
+        <p>Gradually migrate between frameworks while maintaining interoperability.</p>
+      </div>
+      <div class="use-case">
+        <h3>Educational Projects</h3>
+        <p>Teach modern web patterns without the complexity of build systems.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <h2>Ready to Build?</h2>
+    <p>Explore 15+ progressive examples from basic counters to GraphQL connectors.</p>
+    <div class="cta-buttons">
+      <a href="demos.html" class="btn btn-light">Browse All Demos</a>
+      <a href="README.md" class="btn btn-outline">Read the Docs</a>
+      <a href="https://github.com/chrisrobison/pan" target="_blank" class="btn btn-outline">View on GitHub</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Documentation</h4>
+        <ul>
+          <li><a href="README.md">Getting Started</a></li>
+          <li><a href="PAN_SPEC.v1.md">PAN v1 Spec</a></li>
+          <li><a href="LARC_ROADMAP.md">Roadmap</a></li>
+          <li><a href="CHANGELOG.md">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Examples</h4>
+        <ul>
+          <li><a href="examples/01-hello.html">Hello Counter</a></li>
+          <li><a href="examples/02-todos-and-inspector.html">Todo List</a></li>
+          <li><a href="examples/06-crud.html">CRUD Stack</a></li>
+          <li><a href="demos.html">All Examples</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Components</h4>
+        <ul>
+          <li><a href="registry/index.html">Registry</a></li>
+          <li><a href="conformance/index.html">Conformance Tests</a></li>
+          <li><a href="templates/provider-kit/index.html">Provider Kit</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a></li>
+          <li><a href="https://github.com/chrisrobison/pan/issues" target="_blank">Issues</a></li>
+          <li><a href="rfcs/README.md">RFCs</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>LARC (Lightweight Asynchronous Relay Core) · PAN (Page Area Network) · MIT License</p>
+    </div>
+  </footer>
 </body>
 </html>

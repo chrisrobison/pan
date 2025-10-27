@@ -24,12 +24,12 @@
     .controls button.secondary{ background:transparent; color:var(--fg); border:1px solid var(--border) }
   </style>
   <script type="module">
-    import './dist/pan-bus.js';
-    import './dist/pan-client.js';
-    import './dist/pan-data-table.js';
-    import './dist/pan-php-connector.js';
-    import './dist/pan-inspector.js';
-    import { PanClient } from './dist/pan-client.js';
+    import './components/pan-bus.js';
+    import './components/pan-client.mjs';
+    import './components/pan-data-table.js';
+    import './components/pan-php-connector.js';
+    import './components/pan-inspector.js';
+    import { PanClient } from './components/pan-client.mjs';
 
     window.addEventListener('DOMContentLoaded', () => {
       const pc = new PanClient();

@@ -38,14 +38,14 @@
 </div>
 
 <script type="module">
-  import '../dist/pan-bus.js';
-  import '../dist/pan-client.js';
-  import '../dist/pan-data-table.js';
-  import '../dist/pan-data-connector.js';
-  import '../dist/pan-sse.js';
-  import { createStore, bind } from '../dist/pan-store.js';
-  import { syncItem } from '../dist/pan-store-pan.js';
-  import { PanClient } from '../dist/pan-client.js';
+  import '../components/pan-bus.js';
+  import '../components/pan-client.mjs';
+  import '../components/pan-data-table.js';
+  import '../components/pan-data-connector.js';
+  import '../components/pan-sse.js';
+  import { createStore, bind } from '../components/pan-store.js';
+  import { syncItem } from '../components/pan-store-pan.js';
+  import { PanClient } from '../components/pan-client.mjs';
 
   // REST connector points to the sidecar server
   const dc = document.createElement('pan-data-connector');

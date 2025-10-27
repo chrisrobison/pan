@@ -35,7 +35,7 @@
               <div class="subtitle">Publish <code>demo:click</code>, replay retained state on subscribe.</div>
             </div>
             <div class="toolbar">
-              <a class="button-link" href="../dist/pan-client.js">PanClient API</a>
+              <a class="button-link" href="../components/pan-client.mjs">PanClient API</a>
             </div>
           </div>
           <div class="panel-body">
@@ -46,24 +46,7 @@
     </main>
   </div>
 
-  <script type="module">
-    import { PanClient } from '../dist/pan-client.js';
-    import '../dist/pan-bus.js';
-
-    customElements.define('x-counter', class extends HTMLElement {
-      pc = new PanClient(this);
-      n = 0;
-      connectedCallback() {
-        this.innerHTML = `<button class="button-link" style="font-size:1.1rem;padding:0.75rem 1.2rem;">Clicked 0</button>`;
-        this.querySelector('button')?.addEventListener('click', () => {
-          this.pc.publish({ topic: 'demo:click', data: { n: ++this.n }, retain: true });
-        });
-        this.pc.subscribe('demo:click', (m) => {
-          const btn = this.querySelector('button');
-          if (btn) btn.textContent = `Clicked ${m.data.n}`;
-        }, { retained: true });
-      }
-    });
-  </script>
+  <!-- PAN Autoload: just one script tag, then use any component -->
+  <script type="module" src="../components/pan-autoload.mjs"></script>
 </body>
 </html>

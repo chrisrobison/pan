@@ -39,7 +39,27 @@ Security tips:
 
 ## Quickstart (10‑second demo)
 
-Copy this into an `.html` file and open it.
+**With autoload (recommended):**
+
+Drop one script tag, then use any component. That's it!
+
+```html
+<!doctype html><meta charset="utf-8">
+<script type="module" src="./components/pan-autoload.mjs"></script>
+
+<!-- Just declare the components you want - they load automatically -->
+<pan-bus></pan-bus>
+<x-counter></x-counter>
+<pan-inspector></pan-inspector>
+```
+
+All components live in `./components/` and load on demand as they approach the viewport. No imports, no `customElements.define()`, no bundler.
+
+---
+
+**Manual setup (for learning):**
+
+Copy this into an `.html` file and open it to see the minimal PAN implementation:
 
 ```html
 <!doctype html><meta charset="utf-8">
@@ -81,47 +101,81 @@ Copy this into an `.html` file and open it.
 
 ## Install
 
-LARC is distributed as pure ESM/HTML. Use any of:
+**Recommended: Use autoload**
 
-* **CDN (when published):**
+Clone the repo and drop a single script tag on your page:
 
-  ```html
-  <script type="module" src="https://cdn.example/pan-bus.min.js"></script>
-  <script type="module" src="https://cdn.example/pan-client.min.js"></script>
-  <script type="module" src="https://cdn.example/pan-inspector.min.js"></script>
-  ```
-* **Local files (clone repo):**
+```html
+<script type="module" src="./components/pan-autoload.mjs"></script>
+```
 
-  ```html
-  <script type="module" src="./dist/pan-bus.js"></script>
-  <script type="module" src="./dist/pan-client.js"></script>
-  ```
+Then just use components in your HTML - they load automatically on demand:
+
+```html
+<pan-bus></pan-bus>
+<todo-list></todo-list>
+<pan-inspector></pan-inspector>
+```
 
 No bundler required. Works from `file://`.
 
 ---
 
+**Alternative: Manual imports**
+
+For fine-grained control or CDN usage (when published):
+
+```html
+<script type="module" src="./components/pan-bus.mjs"></script>
+<script type="module" src="./components/pan-client.mjs"></script>
+<script type="module" src="./components/pan-inspector.mjs"></script>
+```
+
+---
+
 ## Autoloading Custom Elements
 
-Drop a single module on the page to progressively load Web Components from a
-`components/` folder. Tags with a dash (`<my-widget>`) are auto-detected; the
-loader imports `../components/<tag>.mjs` relative to `dist/pan-autoload.js` by
-default. Override the path per element with `data-module` or globally via
-`window.panAutoload` before loading the script.
+**This is the recommended way to use LARC.**
+
+Drop a single script tag on the page to progressively load Web Components from the
+`components/` folder. Tags with a dash (`<my-widget>`) are auto-detected; when they
+approach the viewport, the loader imports `./components/<tag>.mjs` and registers them.
+
+```html
+<script type="module" src="./components/pan-autoload.mjs"></script>
+
+<!-- All of these load automatically - no imports needed -->
+<pan-bus></pan-bus>
+<my-widget></my-widget>
+<todo-list></todo-list>
+<pan-inspector></pan-inspector>
+```
+
+**Configuration (optional):**
+
+Override the components path or file extension:
 
 ```html
 <script>
-  window.panAutoload = { componentsPath: '../components/' };
+  window.panAutoload = {
+    componentsPath: './my-components/',
+    extension: '.js',
+    rootMargin: 600  // px from viewport to trigger load
+  };
 </script>
-<script type="module" src="./dist/pan-autoload.js"></script>
+<script type="module" src="./components/pan-autoload.mjs"></script>
 ```
+
+**Per-element override:**
+
+Point a specific element to a different module:
 
 ```html
 <my-card data-module="/components/cards/my-card.mjs"></my-card>
 ```
 
-Modules that do not self-register are defined automatically when they export a
-default class matching the tag.
+Components that don't self-register are defined automatically when they export a
+default class matching the tag name.
 
 ---
 
