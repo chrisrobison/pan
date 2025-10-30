@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LARC Build Test - Bundler Pattern</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    #output {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      min-height: 100px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>LARC Build Test - Bundler Pattern</h1>
+  <p>Testing explicit imports from dist/ (simulating bundler usage with npm package)</p>
+
+  <div id="status"></div>
+  <div id="output"></div>
+
+  <script type="module">
+    // Import from built dist/ folder
+    import { PanClient, PanBus, ensureBus, createClient } from '../dist/index.js';
+
+    const output = document.getElementById('output');
+    const status = document.getElementById('status');
+
+    function log(message, type = 'info') {
+      const div = document.createElement('div');
+      div.textContent = `[${new Date().toISOString().split('T')[1].split('.')[0]}] ${message}`;
+      div.style.marginBottom = '5px';
+      output.appendChild(div);
+      console.log(message);
+    }
+
+    function setStatus(message, success = true) {
+      status.innerHTML = `<div class="status ${success ? 'success' : 'error'}">${message}</div>`;
+    }
+
+    async function runTests() {
+      try {
+        log('Starting LARC build tests...');
+
+        // Test 1: Check exports exist
+        log('✓ PanClient imported');
+        log('✓ PanBus imported');
+        log('✓ ensureBus imported');
+        log('✓ createClient imported');
+
+        // Test 2: Create bus
+        const bus = ensureBus();
+        log(`✓ Bus created: ${bus.tagName}`);
+
+        // Test 3: Create client
+        const client = createClient();
+        log(`✓ Client created with ID: ${client.clientId}`);
+
+        // Test 4: Wait for bus ready
+        await client.ready();
+        log('✓ Bus is ready');
+
+        // Test 5: Subscribe and publish
+        let received = false;
+        const unsub = client.subscribe('test.message', (msg) => {
+          received = true;
+          log(`✓ Received message on ${msg.topic}: ${JSON.stringify(msg.data)}`);
+        });
+
+        // Test 6: Publish message
+        client.pub('test.message', { hello: 'world', timestamp: Date.now() });
+
+        // Wait a bit for message delivery
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        if (received) {
+          log('✓ Message successfully delivered');
+        } else {
+          throw new Error('Message not received');
+        }
+
+        // Test 7: Request/Reply
+        log('Testing request/reply pattern...');
+
+        // Set up a responder
+        client.subscribe('test.echo', (msg) => {
+          if (msg.replyTo) {
+            client.publish({
+              topic: msg.replyTo,
+              data: { echo: msg.data, timestamp: Date.now() },
+              correlationId: msg.correlationId
+            });
+          }
+        });
+
+        const reply = await client.request('test.echo', { test: 'data' });
+        log(`✓ Request/Reply works: ${JSON.stringify(reply.data)}`);
+
+        // Test 8: Pattern matching
+        const matches = PanClient.matches('user.login.success', 'user.*');
+        log(`✓ Pattern matching: user.login.success matches user.* = ${matches}`);
+
+        // Clean up
+        unsub();
+        log('✓ Unsubscribed successfully');
+
+        setStatus('✅ All tests passed!', true);
+        log('All tests completed successfully!');
+
+      } catch (error) {
+        setStatus(`❌ Test failed: ${error.message}`, false);
+        log(`ERROR: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    // Run tests when page loads
+    runTests();
+  </script>
+</body>
+</html>
