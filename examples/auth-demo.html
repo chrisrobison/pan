@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAN Authentication Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .header p {
+      opacity: 0.9;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .card h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-size: 14px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    button:hover { background: #5568d3; }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .status.authenticated {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .status.unauthenticated {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .user-info {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+    .user-info p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #555;
+    }
+    .user-info strong { color: #333; }
+    .users-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .user-item {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .user-item:last-child { border-bottom: none; }
+    .user-item h3 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    .user-item p {
+      font-size: 13px;
+      color: #666;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge.admin {
+      background: #667eea;
+      color: white;
+    }
+    .badge.user {
+      background: #e0e0e0;
+      color: #555;
+    }
+    .error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .credentials {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+    .credentials h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .credentials ul {
+      margin-left: 20px;
+    }
+    .credentials li { margin: 3px 0; }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔐 PAN Authentication Demo</h1>
+      <p>Zero-build JWT authentication with automatic header injection</p>
+    </div>
+
+    <div class="grid">
+      <!-- Auth Status Card -->
+      <div class="card">
+        <h2>Authentication Status</h2>
+        <auth-status></auth-status>
+      </div>
+
+      <!-- Login Card -->
+      <div class="card">
+        <h2>Login</h2>
+        <login-form></login-form>
+      </div>
+
+      <!-- Users List Card (protected) -->
+      <div class="card">
+        <h2>Users (Protected)</h2>
+        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+          This data requires authentication. The auth header is automatically injected!
+        </p>
+        <users-list></users-list>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mock Auth API -->
+  <script type="module" src="./mock-auth-api.mjs"></script>
+
+  <!-- PAN Core -->
+  <script type="module" src="../pan/core/pan-bus.mjs"></script>
+  <script type="module" src="../pan/core/pan-client.mjs"></script>
+  <script type="module" src="../pan/core/pan-auth.mjs"></script>
+  <script type="module" src="../pan/components/pan-data-connector.mjs"></script>
+
+  <!-- Auth Manager (no build, no config needed) -->
+  <pan-bus></pan-bus>
+  <pan-auth
+    storage="localStorage"
+    auto-refresh="true"
+    refresh-before="300"
+    login-endpoint="/api/auth/login"
+    refresh-endpoint="/api/auth/refresh"
+    logout-endpoint="/api/auth/logout">
+  </pan-auth>
+
+  <!-- Data connector (auto-injects auth headers!) -->
+  <pan-data-connector
+    resource="users"
+    base-url="/api">
+  </pan-data-connector>
+
+  <!-- Components -->
+  <script type="module">
+    import { PanClient } from '../pan/core/pan-client.mjs';
+
+    // Auth Status Component
+    customElements.define('auth-status', class extends HTMLElement {
+      constructor() {
+        super();
+        this.pc = new PanClient(this);
+      }
+
+      connectedCallback() {
+        this.pc.subscribe('auth.state', msg => {
+          this.render(msg.data);
+        }, { retained: true });
+      }
+
+      render(authState = {}) {
+        if (authState.authenticated) {
+          this.innerHTML = `
+            <div class="status authenticated">
+              ✓ Authenticated
+            </div>
+            <div class="user-info">
+              <p><strong>Name:</strong> ${authState.user?.name || 'N/A'}</p>
+              <p><strong>Email:</strong> ${authState.user?.email || 'N/A'}</p>
+              <p><strong>Role:</strong> <span class="badge ${authState.user?.role}">${authState.user?.role || 'N/A'}</span></p>
+            </div>
+            <button id="logout-btn">Logout</button>
+          `;
+
+          this.querySelector('#logout-btn').addEventListener('click', () => {
+            this.pc.publish({ topic: 'auth.logout', data: {} });
+          });
+        } else {
+          this.innerHTML = `
+            <div class="status unauthenticated">
+              ✗ Not authenticated
+            </div>
+            <p style="color: #666; font-size: 14px;">
+              Please log in to access protected resources.
+            </p>
+          `;
+        }
+      }
+    });
+
+    // Login Form Component
+    customElements.define('login-form', class extends HTMLElement {
+      constructor() {
+        super();
+        this.pc = new PanClient(this);
+      }
+
+      connectedCallback() {
+        this.render();
+
+        // Listen for login events
+        this.pc.subscribe('auth.login.success', () => {
+          this.showMessage('Login successful!', 'success');
+        });
+
+        this.pc.subscribe('auth.login.error', msg => {
+          this.showMessage(msg.data.error || 'Login failed', 'error');
+        });
+
+        // Listen for auth state to hide/show form
+        this.pc.subscribe('auth.state', msg => {
+          if (msg.data.authenticated) {
+            this.querySelector('form').style.display = 'none';
+            this.querySelector('.credentials').style.display = 'none';
+          } else {
+            this.querySelector('form').style.display = 'block';
+            this.querySelector('.credentials').style.display = 'block';
+          }
+        }, { retained: true });
+      }
+
+      render() {
+        this.innerHTML = `
+          <div class="credentials">
+            <h3>Test Credentials:</h3>
+            <ul>
+              <li><code>admin@example.com</code> / <code>admin123</code></li>
+              <li><code>user@example.com</code> / <code>user123</code></li>
+              <li><code>demo@example.com</code> / <code>demo</code></li>
+            </ul>
+          </div>
+          <div id="message"></div>
+          <form id="login-form">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" name="email" required value="demo@example.com">
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" name="password" required value="demo">
+            </div>
+            <button type="submit">Login</button>
+          </form>
+        `;
+
+        this.querySelector('#login-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const btn = this.querySelector('button[type="submit"]');
+
+          btn.disabled = true;
+          btn.textContent = 'Logging in...';
+
+          try {
+            await this.pc.request('auth.login', {
+              email: formData.get('email'),
+              password: formData.get('password')
+            }, { timeoutMs: 5000 });
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Login';
+          }
+        });
+      }
+
+      showMessage(text, type) {
+        const msgEl = this.querySelector('#message');
+        msgEl.className = type === 'error' ? 'error' : 'status authenticated';
+        msgEl.textContent = text;
+        msgEl.style.display = 'block';
+
+        setTimeout(() => {
+          msgEl.style.display = 'none';
+        }, 3000);
+      }
+    });
+
+    // Users List Component (protected resource)
+    customElements.define('users-list', class extends HTMLElement {
+      constructor() {
+        super();
+        this.pc = new PanClient(this);
+      }
+
+      connectedCallback() {
+        // Subscribe to auth state
+        this.pc.subscribe('auth.state', msg => {
+          if (msg.data.authenticated) {
+            // User logged in - fetch users
+            this.pc.publish({ topic: 'users.list.get', data: {} });
+          } else {
+            // User logged out - clear list
+            this.render([]);
+          }
+        }, { retained: true });
+
+        // Subscribe to users list
+        this.pc.subscribe('users.list.state', msg => {
+          this.render(msg.data.items);
+        }, { retained: true });
+      }
+
+      render(users = []) {
+        if (users.length === 0) {
+          this.innerHTML = `
+            <p style="color: #999; font-style: italic;">
+              Please log in to view users.
+            </p>
+          `;
+          return;
+        }
+
+        this.innerHTML = `
+          <div class="users-list">
+            ${users.map(user => `
+              <div class="user-item">
+                <h3>${user.name}</h3>
+                <p>${user.email}</p>
+                <span class="badge ${user.role}">${user.role}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

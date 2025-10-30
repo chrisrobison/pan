@@ -23,10 +23,21 @@
 import { PanClient } from './pan-client.mjs';
 
 export class PanGraphQLConnector extends HTMLElement {
-  constructor(){ super(); this.pc = new PanClient(this); this._offs=[]; this.paths={}; this.ops={}; }
+  constructor(){
+    super();
+    this.pc = new PanClient(this);
+    this._offs=[];
+    this.paths={};
+    this.ops={};
+    this.authState = null; // Will hold auth token for auto-injection
+  }
   static get observedAttributes(){ return ['resource','endpoint','key']; }
   connectedCallback(){ this.#init(); }
-  disconnectedCallback(){ this._offs.forEach(f=>f&&f()); this._offs=[]; }
+  disconnectedCallback(){
+    this._offs.forEach(f=>f&&f());
+    this._offs=[];
+    this._authOff?.();
+  }
   attributeChangedCallback(){ this.#init(); }
 
   get resource(){ return (this.getAttribute('resource')||'items').trim(); }
@@ -35,6 +46,12 @@ export class PanGraphQLConnector extends HTMLElement {
 
   #init(){
     this._offs.forEach(f=>f&&f()); this._offs=[]; this.#loadScripts();
+
+    // Subscribe to auth state for auto-header injection
+    this._authOff = this.pc.subscribe('auth.internal.state', (m) => {
+      this.authState = m.data;
+    }, { retained: true });
+
     const r = this.resource;
     this._offs.push(this.pc.subscribe(`${r}.list.get`, (m)=> this.#onListGet(m)));
     this._offs.push(this.pc.subscribe(`${r}.item.get`, (m)=> this.#onItemGet(m)));
@@ -55,7 +72,14 @@ export class PanGraphQLConnector extends HTMLElement {
 
   async #fetchGQL(query, variables){
     if (!this.endpoint) throw new Error('Missing endpoint');
-    const res = await fetch(this.endpoint, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ query, variables }) });
+    const headers = { 'Content-Type':'application/json' };
+
+    // Auto-inject Authorization header if auth token is available
+    if (this.authState?.authenticated && this.authState?.token) {
+      headers['Authorization'] = `Bearer ${this.authState.token}`;
+    }
+
+    const res = await fetch(this.endpoint, { method:'POST', headers, body: JSON.stringify({ query, variables }) });
     const json = await res.json();
     if (json.errors && json.errors.length) throw new Error(json.errors.map(e=>e.message).join('; '));
     return json;

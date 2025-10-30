@@ -21,7 +21,11 @@ import { PanClient } from './pan-client.mjs';
  * </pan-data-connector>
  */
 export class PanDataConnector extends HTMLElement {
-  constructor(){ super(); this.pc = new PanClient(this); }
+  constructor(){
+    super();
+    this.pc = new PanClient(this);
+    this.authState = null; // Will hold auth token for auto-injection
+  }
 
   connectedCallback(){
     this.resource = (this.getAttribute('resource') || 'items').trim();
@@ -32,6 +36,11 @@ export class PanDataConnector extends HTMLElement {
     this.updateMethod = (this.getAttribute('update-method') || 'PUT').toUpperCase();
     this.credentials = (this.getAttribute('credentials') || '').trim();
     this.opts = this.#loadOpts(); // default fetch options
+
+    // Subscribe to auth state for auto-header injection
+    this.authOff = this.pc.subscribe('auth.internal.state', (m) => {
+      this.authState = m.data;
+    }, { retained: true });
 
     const listGet = `${this.resource}.list.get`;
     const itemGet = `${this.resource}.item.get`;
@@ -49,7 +58,10 @@ export class PanDataConnector extends HTMLElement {
     this.#refreshList();
   }
 
-  disconnectedCallback(){ this.off?.forEach(f=>f&&f()); }
+  disconnectedCallback(){
+    this.off?.forEach(f=>f&&f());
+    this.authOff?.();
+  }
 
   #loadOpts(){
     // Merge attributes with <script type="application/json"> contents
@@ -81,6 +93,12 @@ export class PanDataConnector extends HTMLElement {
   async #fetchJson(url, { method = 'GET', body } = {}){
     const init = Object.assign({ method }, this.opts);
     init.headers = Object.assign({ 'Content-Type': 'application/json' }, this.opts?.headers || {});
+
+    // Auto-inject Authorization header if auth token is available
+    if (this.authState?.authenticated && this.authState?.token) {
+      init.headers['Authorization'] = `Bearer ${this.authState.token}`;
+    }
+
     if (body !== undefined) init.body = typeof body === 'string' ? body : JSON.stringify(body);
     const res = await fetch(url, init);
     const text = await res.text();
