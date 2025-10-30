@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../pan/components/pan-table.mjs"],
+  "sourcesContent": ["// Alias wrapper for PanDataTable with <pan-table> tag\nimport PanDataTable from './pan-data-table.js';\n\n// Define an alias custom element if not already defined\ntry { if (!customElements.get('pan-table')) customElements.define('pan-table', /** @type {any} */(PanDataTable)); } catch {}\n\nexport { PanDataTable };\nexport default PanDataTable;\n\n"],
+  "mappings": "AACA,OAAO,kBAAkB;AAGzB,IAAI;AAAE,MAAI,CAAC,eAAe,IAAI,WAAW,EAAG,gBAAe;AAAA,IAAO;AAAA;AAAA,IAAgC;AAAA,EAAa;AAAG,QAAQ;AAAC;AAG3H,IAAO,oBAAQ;",
+  "names": []
+}

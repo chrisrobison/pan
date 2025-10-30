@@ -1,0 +1,72 @@
+{
+  "name": "larc",
+  "version": "1.0.0",
+  "description": "LARC (Lightweight Asynchronous Relay Core) — PAN (Page Area Network) zero-build, framework-agnostic message bus for web component coordination",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./autoload": {
+      "import": "./autoload.js",
+      "types": "./autoload.d.ts"
+    },
+    "./inspector": {
+      "import": "./inspector.js",
+      "types": "./inspector.d.ts"
+    },
+    "./components/*": "./components/*",
+    "./ui/*": "./ui/*",
+    "./app/*": "./app/*",
+    "./core/*": "./core/*",
+    "./data/*": "./data/*"
+  },
+  "files": [
+    "index.js",
+    "index.js.map",
+    "index.d.ts",
+    "autoload.js",
+    "autoload.js.map",
+    "autoload.d.ts",
+    "inspector.js",
+    "inspector.js.map",
+    "inspector.d.ts",
+    "components/",
+    "ui/",
+    "app/",
+    "core/",
+    "data/"
+  ],
+  "keywords": [
+    "larc",
+    "pan",
+    "page-area-network",
+    "message-bus",
+    "pubsub",
+    "web-components",
+    "custom-elements",
+    "framework-agnostic",
+    "zero-build",
+    "dom-events",
+    "event-driven",
+    "loose-coupling"
+  ],
+  "author": "Christopher Robison",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrisrobison/pan.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chrisrobison/pan/issues"
+  },
+  "homepage": "https://github.com/chrisrobison/pan#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": [
+    "./index.js"
+  ]
+}

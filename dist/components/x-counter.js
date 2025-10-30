@@ -1,0 +1,25 @@
+import { PanClient } from "./pan-client.mjs";
+class XCounter extends HTMLElement {
+  pc = new PanClient(this);
+  n = 0;
+  connectedCallback() {
+    this.innerHTML = `<button class="button-link" style="font-size:1.1rem;padding:0.75rem 1.2rem;">Clicked 0</button>`;
+    this.querySelector("button")?.addEventListener("click", () => {
+      this.pc.publish({
+        topic: "demo:click",
+        data: { n: ++this.n },
+        retain: true
+      });
+    });
+    this.pc.subscribe("demo:click", (m) => {
+      const btn = this.querySelector("button");
+      if (btn) btn.textContent = `Clicked ${m.data.n}`;
+    }, { retained: true });
+  }
+}
+customElements.define("x-counter", XCounter);
+var x_counter_default = XCounter;
+export {
+  x_counter_default as default
+};
+//# sourceMappingURL=x-counter.js.map
