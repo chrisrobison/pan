@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const fileUrl = (rel: string) => pathToFileURL(path.resolve(__dirname, '..', rel)).toString();
 

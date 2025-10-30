@@ -1,5 +1,9 @@
 # LARC — Lightweight Asynchronous Relay Core
 
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/chrisrobison/pan)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-pre--release-orange.svg)](V1_CHECKLIST.md)
+
 > **A very lightweight DOM‑native message bus reference (PAN) and its reference implementation:** topics, request/reply, retained messages, lightweight, no build, with an Inspector!
 
 * **Zero build:** drop a `<pan-bus>` on the page; talk via `CustomEvent`s.
@@ -10,6 +14,8 @@
 LARC is the project and reference implementation for the Page Area Network (PAN) messaging bus. The PAN bus element and topic conventions remain named with the `pan-`/`pan:` prefixes (for example `<pan-bus>` and `pan:publish`) — this repo provides LARC as the lightweight implementation, docs, and examples.
 
 PAN (Page Area Network) is the messaging model and bus that enables a central communications hub for web components or micro-frontends. It works with any framework or no framework at all.
+
+**📋 [v1.0 Roadmap](docs/V1_ROADMAP.md)** | **✅ [v1.0 Checklist](V1_CHECKLIST.md)** | **📖 [Full Documentation](#documentation)**
 
 ---
 

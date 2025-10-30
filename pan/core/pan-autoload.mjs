@@ -1,13 +1,24 @@
 // PAN Autoload — progressively loads Web Components on demand.
 //
-// Usage:
-//   <script type="module" src="./components/pan-autoload.js"></script>
+// Usage (Local):
+//   <script type="module" src="./pan/core/pan-autoload.mjs"></script>
 //   <!-- declare <my-widget></my-widget> anywhere -->
 //
-// Conventions:
-//   - Components live in `${componentsPath}/${tagName}.mjs`
+// Usage (CDN):
+//   <script type="module">
+//     window.panAutoload = {
+//       baseUrl: 'https://unpkg.com/pan@latest/',
+//       extension: '.js'
+//     };
+//   </script>
+//   <script type="module" src="https://unpkg.com/pan@latest/autoload.js"></script>
+//
+// Configuration:
+//   - baseUrl: Full CDN URL (e.g., 'https://unpkg.com/pan@latest/')
+//   - componentsPath: Relative path from baseUrl (default: './')
+//   - extension: File extension (default: '.mjs' local, '.js' for npm)
+//   - rootMargin: Intersection observer margin in px (default: 600)
 //   - Override per element with `data-module="/path/to/file.mjs"`
-//   - Configure before load with `window.panAutoload = { componentsPath: '/custom', extension: '.js' }`
 //
 // The loader observes the document for custom element tags (names with a dash)
 // that are not yet defined. When one approaches the viewport it dynamically
@@ -15,7 +26,8 @@
 // defines it from the default export (if it is a class).
 
 const defaults = {
-  componentsPath: './',
+  baseUrl: null,           // Full URL base (CDN or absolute path)
+  componentsPath: './',    // Relative path from baseUrl or import.meta.url
   extension: '.mjs',
   rootMargin: 600,
 };
@@ -30,13 +42,28 @@ config.extension = config.extension?.startsWith('.') ? config.extension : `.${co
 config.componentsPath = config.componentsPath || defaults.componentsPath;
 config.rootMargin = Number.isFinite(config.rootMargin) ? config.rootMargin : defaults.rootMargin;
 
+// Calculate base URL for component loading
 let baseHref;
-try {
-  const normalizedBase = config.componentsPath.endsWith('/') ? config.componentsPath : `${config.componentsPath}/`;
-  baseHref = new URL(normalizedBase, import.meta.url).href;
-} catch (_) {
-  const normalizedBase = config.componentsPath.endsWith('/') ? config.componentsPath : `${config.componentsPath}/`;
-  baseHref = normalizedBase;
+if (config.baseUrl) {
+  // Use explicit baseUrl (for CDN usage)
+  const normalizedBase = config.baseUrl.endsWith('/') ? config.baseUrl : `${config.baseUrl}/`;
+  const componentsPath = config.componentsPath.startsWith('./')
+    ? config.componentsPath.slice(2)
+    : config.componentsPath;
+  try {
+    baseHref = new URL(componentsPath, normalizedBase).href;
+  } catch (_) {
+    baseHref = `${normalizedBase}${componentsPath}`;
+  }
+} else {
+  // Use relative path from import.meta.url (local development)
+  try {
+    const normalizedBase = config.componentsPath.endsWith('/') ? config.componentsPath : `${config.componentsPath}/`;
+    baseHref = new URL(normalizedBase, import.meta.url).href;
+  } catch (_) {
+    const normalizedBase = config.componentsPath.endsWith('/') ? config.componentsPath : `${config.componentsPath}/`;
+    baseHref = normalizedBase;
+  }
 }
 config.resolvedComponentsPath = baseHref;
 

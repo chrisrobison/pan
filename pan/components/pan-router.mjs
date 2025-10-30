@@ -14,6 +14,10 @@ import { PanClient } from './pan-client.mjs';
 export class PanRouter extends HTMLElement {
   static get observedAttributes() { return ['base', 'mode', 'auth-topic']; }
 
+  // Private fields
+  #onPopState;
+  #onLinkClick;
+
   constructor() {
     super();
     this.pc = new PanClient(this);
