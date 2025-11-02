@@ -7,7 +7,7 @@
 // Subscribes:
 // - `nav.state` (retained) with `{ href }` and loads content accordingly.
 
-import { PanClient } from './pan-client.mjs';
+import { PanClient } from '../../core/pan-client.mjs';
 
 export class PanDemoViewer extends HTMLElement {
   static get observedAttributes(){ return ['mode','base']; }

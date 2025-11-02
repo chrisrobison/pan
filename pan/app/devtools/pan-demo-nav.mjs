@@ -9,7 +9,7 @@
 // - Publishes retained `nav.state` with `{ href, id }`
 // - Also publishes `nav.goto` with `{ href, id }` for consumers that act on imperative nav
 
-import { PanClient } from './pan-client.mjs';
+import { PanClient } from '../../core/pan-client.mjs';
 
 export class PanDemoNav extends HTMLElement {
   static get observedAttributes(){ return ['sync-url']; }
