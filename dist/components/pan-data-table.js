@@ -1,42 +1,103 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * Custom element that displays a data table with live updates from pan-bus.
+ * Automatically subscribes to resource list and item state changes.
+ *
+ * @fires {resource}.item.select - Published when a row is clicked
+ *
+ * @attr {string} resource - Resource name for pub/sub topics (default: "items")
+ * @attr {string} columns - Comma-separated column names to display
+ * @attr {string} key - Property name used as unique identifier (default: "id")
+ * @attr {string} live - Enable live updates: "true" or "false" (default: "true")
+ *
+ * @example
+ * <pan-data-table
+ *   resource="users"
+ *   columns="id,name,email"
+ *   key="id"
+ *   live="true">
+ * </pan-data-table>
+ */
 class PanDataTable extends HTMLElement {
   static get observedAttributes() {
     return ["resource", "columns", "key", "live"];
   }
+
+  /**
+   * Creates a new PanDataTable instance
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
     this.pc = new PanClient(this);
+    /** @type {Array<Object>} */
     this.items = [];
+    /** @type {Array<Function>} */
     this._offs = [];
   }
+  /**
+   * Lifecycle: Called when element is added to the DOM
+   */
   connectedCallback() {
     this.render();
     this.#subscribe();
     this.#requestList();
   }
+
+  /**
+   * Lifecycle: Called when element is removed from the DOM
+   */
   disconnectedCallback() {
     this._unsubscribeAll();
   }
+
+  /**
+   * Lifecycle: Called when an observed attribute changes
+   */
   attributeChangedCallback() {
     this.render();
     this.#subscribe();
     this.#requestList();
   }
+
+  /**
+   * Get the resource name for pub/sub topics
+   * @returns {string} Resource name
+   */
   get resource() {
     return (this.getAttribute("resource") || "items").trim();
   }
+
+  /**
+   * Get the columns to display
+   * @returns {string[]|null} Array of column names or null to auto-detect
+   */
   get columns() {
     const c = (this.getAttribute("columns") || "").trim();
     return c ? c.split(/\s*,\s*/) : null;
   }
+
+  /**
+   * Get the unique identifier property name
+   * @returns {string} Key property name
+   */
   get key() {
     return (this.getAttribute("key") || "id").trim();
   }
+
+  /**
+   * Check if live updates are enabled
+   * @returns {boolean} True if live updates enabled
+   */
   get live() {
     const v = (this.getAttribute("live") || "true").toLowerCase();
     return v !== "false" && v !== "0";
   }
+  /**
+   * Subscribe to list and item state topics
+   * @private
+   */
   #subscribe() {
     this._unsubscribeAll();
     this._offs.push(this.pc.subscribe(`${this.resource}.list.state`, (m) => {
@@ -47,9 +108,19 @@ class PanDataTable extends HTMLElement {
       this._offs.push(this.pc.subscribe(`${this.resource}.item.state.*`, (m) => this.#onItemState(m), { retained: false }));
     }
   }
+
+  /**
+   * Request the full list of items from the data source
+   * @private
+   */
   #requestList() {
     this.pc.publish({ topic: `${this.resource}.list.get`, data: {} });
   }
+
+  /**
+   * Unsubscribe from all active subscriptions
+   * @private
+   */
   _unsubscribeAll() {
     try {
       this._offs.forEach((f) => f && f());
@@ -57,6 +128,11 @@ class PanDataTable extends HTMLElement {
     }
     this._offs = [];
   }
+  /**
+   * Handle item state change messages for live updates
+   * @private
+   * @param {Object} m - Message with item state changes
+   */
   #onItemState(m) {
     const d = m?.data || {};
     const items = Array.isArray(this.items) ? this.items.slice() : [];
@@ -101,6 +177,10 @@ class PanDataTable extends HTMLElement {
       this.renderBody();
     }
   }
+
+  /**
+   * Render the table structure with shadow DOM styles
+   */
   render() {
     const h = String.raw;
     const cols = this.columns || (this.items[0] ? Object.keys(this.items[0]) : []);
@@ -121,6 +201,11 @@ class PanDataTable extends HTMLElement {
     `;
     this.renderBody();
   }
+
+  /**
+   * Render table body rows with current items
+   * Attaches click handlers to publish item.select events
+   */
   renderBody() {
     const tbody = this.shadowRoot.querySelector("tbody");
     if (!tbody) return;
@@ -135,6 +220,13 @@ class PanDataTable extends HTMLElement {
       });
     });
   }
+
+  /**
+   * Escape HTML special characters to prevent XSS
+   * @private
+   * @param {*} v - Value to escape
+   * @returns {string} Escaped string
+   */
   #escape(v) {
     if (v == null) return "";
     return String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

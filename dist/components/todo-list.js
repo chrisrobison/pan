@@ -1,8 +1,66 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * Generates a unique identifier for todo items.
+ * Uses crypto.randomUUID() if available, otherwise falls back to timestamp-based ID.
+ * @returns {string} A unique identifier
+ * @private
+ */
 const uid = () => globalThis.crypto && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+/**
+ * @typedef {Object} TodoItem
+ * @property {string} id - Unique identifier for the todo item
+ * @property {string} title - The todo item text
+ * @property {boolean} done - Whether the todo is completed
+ */
+
+/**
+ * A custom element that displays and manages a list of todo items.
+ * Integrates with PanClient for pub/sub state management.
+ *
+ * @class TodoList
+ * @extends HTMLElement
+ * @fires {CustomEvent} todos.change - Fires when a new todo is added
+ * @fires {CustomEvent} todos.toggle - Fires when a todo's done state is toggled
+ * @fires {CustomEvent} todos.remove - Fires when a todo is removed
+ *
+ * @example
+ * // Basic usage
+ * <todo-list></todo-list>
+ *
+ * @example
+ * // Subscribing to todo state
+ * const pc = new PanClient();
+ * pc.subscribe('todos.state', (msg) => {
+ *   console.log('Current todos:', msg.data.items);
+ * });
+ *
+ * @example
+ * // Adding a todo programmatically
+ * pc.publish({
+ *   topic: 'todos.change',
+ *   data: { item: { id: 'abc', title: 'New task', done: false } },
+ *   retain: true
+ * });
+ */
 class TodoList extends HTMLElement {
+  /**
+   * PanClient instance for pub/sub communication
+   * @type {PanClient}
+   */
   pc = new PanClient(this);
+
+  /**
+   * Array of todo items
+   * @type {TodoItem[]}
+   */
   items = [];
+
+  /**
+   * Lifecycle callback invoked when element is added to the DOM.
+   * Sets up shadow DOM, rendering, and topic subscriptions.
+   */
   connectedCallback() {
     this.attachShadow({ mode: "open" });
     this.#render();
@@ -11,6 +69,12 @@ class TodoList extends HTMLElement {
       this.#render();
     }, { retained: true });
   }
+
+  /**
+   * Renders the todo list UI into the shadow DOM.
+   * Creates the form, list items, and attaches event handlers.
+   * @private
+   */
   #render() {
     const h = String.raw;
     this.shadowRoot.innerHTML = h`
@@ -79,6 +143,13 @@ class TodoList extends HTMLElement {
       });
     });
   }
+
+  /**
+   * Escapes HTML special characters to prevent XSS attacks.
+   * @param {string} s - The string to escape
+   * @returns {string} The escaped string
+   * @private
+   */
   #escape(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({
       "&": "&amp;",

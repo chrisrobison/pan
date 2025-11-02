@@ -1,15 +1,51 @@
+/**
+ * Markdown renderer component that converts markdown text to styled HTML.
+ *
+ * This component parses markdown syntax and renders it as formatted HTML with proper styling.
+ * It supports headings, lists, code blocks, tables, links, images, emphasis, and more.
+ * HTML sanitization is enabled by default to prevent XSS attacks.
+ *
+ * @class PanMarkdownRenderer
+ * @extends HTMLElement
+ *
+ * @example
+ * <pan-markdown-renderer content="# Hello World\n\nThis is **bold**" sanitize="true"></pan-markdown-renderer>
+ *
+ * @example
+ * // Programmatic usage
+ * const renderer = document.querySelector('pan-markdown-renderer');
+ * renderer.setContent('## My Content\n\n- Item 1\n- Item 2');
+ */
 class PanMarkdownRenderer extends HTMLElement {
+  /** @type {string[]} Observed attributes that trigger attributeChangedCallback */
   static observedAttributes = ["content", "sanitize"];
+
+  /**
+   * Initializes the renderer with shadow DOM and default state.
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    /** @type {string} Markdown content to render */
     this._content = "";
+    /** @type {boolean} Whether to sanitize HTML in content */
     this._sanitize = true;
   }
+
+  /**
+   * Called when element is added to the DOM. Initializes rendering and Pan listeners.
+   */
   connectedCallback() {
     this.render();
     this._setupPanListeners();
   }
+
+  /**
+   * Called when observed attributes change. Updates content and re-renders.
+   * @param {string} name - The attribute name
+   * @param {string} oldValue - Previous attribute value
+   * @param {string} newValue - New attribute value
+   */
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === "content" && oldValue !== newValue) {
       this._content = newValue || "";
@@ -18,6 +54,10 @@ class PanMarkdownRenderer extends HTMLElement {
       this._sanitize = newValue !== "false";
     }
   }
+
+  /**
+   * Renders the basic structure with styling. Called once during initialization.
+   */
   render() {
     this.shadowRoot.innerHTML = `
       <style>
@@ -191,12 +231,23 @@ class PanMarkdownRenderer extends HTMLElement {
     `;
     this.renderMarkdown();
   }
+  /**
+   * Renders the markdown content as HTML in the container element.
+   */
   renderMarkdown() {
     const container = this.shadowRoot.querySelector(".markdown-body");
     if (!container) return;
     const html = this._parseMarkdown(this._content);
     container.innerHTML = html;
   }
+
+  /**
+   * Parses markdown text and converts it to HTML.
+   * Supports headers, lists, code blocks, tables, emphasis, links, images, and more.
+   * @private
+   * @param {string} markdown - The markdown text to parse
+   * @returns {string} Rendered HTML
+   */
   _parseMarkdown(markdown) {
     if (!markdown) return "";
     let html = markdown;
@@ -258,6 +309,12 @@ class PanMarkdownRenderer extends HTMLElement {
     html = processed.join("\n");
     return html;
   }
+  /**
+   * Parses markdown table syntax and converts to HTML tables.
+   * @private
+   * @param {string} html - HTML string that may contain markdown tables
+   * @returns {string} HTML with tables rendered
+   */
   _parseTables(html) {
     const lines = html.split("\n");
     const result = [];
@@ -296,11 +353,22 @@ class PanMarkdownRenderer extends HTMLElement {
     }
     return result.join("\n");
   }
+  /**
+   * Escapes HTML special characters to prevent XSS attacks.
+   * @private
+   * @param {string} text - The text to escape
+   * @returns {string} Escaped HTML
+   */
   _escapeHtml(text) {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
   }
+
+  /**
+   * Sets up listeners for Pan message bus events to enable remote content control.
+   * @private
+   */
   _setupPanListeners() {
     const bus = document.querySelector("pan-bus");
     if (bus) {
@@ -311,14 +379,35 @@ class PanMarkdownRenderer extends HTMLElement {
       });
     }
   }
+
   // Public API
+  /**
+   * Sets the markdown content to render.
+   * @param {string} content - The markdown content
+   * @example
+   * renderer.setContent('# Title\n\nParagraph text');
+   */
   setContent(content) {
     this._content = content || "";
     this.renderMarkdown();
   }
+
+  /**
+   * Gets the current markdown content (not the rendered HTML).
+   * @returns {string} The raw markdown content
+   * @example
+   * const markdown = renderer.getContent();
+   */
   getContent() {
     return this._content;
   }
+
+  /**
+   * Gets the rendered HTML output.
+   * @returns {string} The rendered HTML
+   * @example
+   * const html = renderer.getHtml();
+   */
   getHtml() {
     return this.shadowRoot.querySelector(".markdown-body")?.innerHTML || "";
   }

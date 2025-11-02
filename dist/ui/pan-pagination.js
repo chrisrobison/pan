@@ -1,27 +1,94 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * PanPagination - A pagination component with page numbers, navigation buttons, and optional jump-to-page input.
+ *
+ * @class PanPagination
+ * @extends {HTMLElement}
+ *
+ * @fires pagination.changed - Emitted when the page changes (published on PanBus)
+ *
+ * @example
+ * // Basic pagination
+ * <pan-pagination current-page="1" total-pages="10"></pan-pagination>
+ *
+ * @example
+ * // With total items and page size (calculates total pages)
+ * <pan-pagination total-items="100" page-size="10" show-info show-jump></pan-pagination>
+ *
+ * @example
+ * // With custom topic
+ * <pan-pagination current-page="1" total-pages="5" topic="results"></pan-pagination>
+ */
 class PanPagination extends HTMLElement {
+  /**
+   * Returns the list of attributes that trigger attributeChangedCallback when modified.
+   *
+   * @static
+   * @returns {string[]} Array of observed attribute names
+   */
   static get observedAttributes() {
     return ["current-page", "total-pages", "total-items", "page-size", "topic", "show-info", "show-jump"];
   }
+
+  /**
+   * Creates an instance of PanPagination.
+   * Initializes shadow DOM and PanClient.
+   *
+   * @constructor
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+
+    /**
+     * PanClient instance for pub/sub messaging.
+     * @type {PanClient}
+     */
     this.pc = new PanClient(this);
   }
+  /**
+   * Lifecycle callback invoked when the element is connected to the DOM.
+   */
   connectedCallback() {
     this.render();
     this.setupTopics();
     this.setupEvents();
   }
+
+  /**
+   * Lifecycle callback invoked when an observed attribute changes.
+   */
   attributeChangedCallback() {
     if (this.isConnected) this.render();
   }
+
+  /**
+   * Gets the current page number.
+   *
+   * @type {number}
+   * @returns {number} The current page, defaults to 1
+   */
   get currentPage() {
     return parseInt(this.getAttribute("current-page")) || 1;
   }
+
+  /**
+   * Sets the current page number.
+   *
+   * @param {number} val - The new page number
+   */
   set currentPage(val) {
     this.setAttribute("current-page", val);
   }
+
+  /**
+   * Gets the total number of pages.
+   * Calculates from total-items and page-size if not explicitly set.
+   *
+   * @type {number}
+   * @returns {number} The total pages
+   */
   get totalPages() {
     const attr = parseInt(this.getAttribute("total-pages"));
     if (attr) return attr;
@@ -32,21 +99,62 @@ class PanPagination extends HTMLElement {
     }
     return 1;
   }
+
+  /**
+   * Gets the total number of items across all pages.
+   *
+   * @type {number}
+   * @returns {number} The total items, defaults to 0
+   */
   get totalItems() {
     return parseInt(this.getAttribute("total-items")) || 0;
   }
+
+  /**
+   * Gets the number of items per page.
+   *
+   * @type {number}
+   * @returns {number} The page size, defaults to 10
+   */
   get pageSize() {
     return parseInt(this.getAttribute("page-size")) || 10;
   }
+
+  /**
+   * Gets the PanBus topic prefix for publishing events.
+   *
+   * @type {string}
+   * @returns {string} The topic prefix, defaults to "pagination"
+   */
   get topic() {
     return this.getAttribute("topic") || "pagination";
   }
+
+  /**
+   * Gets whether to show pagination info (e.g., "Showing 1-10 of 100").
+   *
+   * @type {boolean}
+   * @returns {boolean} True if info should be shown (default)
+   */
   get showInfo() {
     return this.getAttribute("show-info") !== "false";
   }
+
+  /**
+   * Gets whether to show the jump-to-page input field.
+   *
+   * @type {boolean}
+   * @returns {boolean} True if jump input should be shown
+   */
   get showJump() {
     return this.hasAttribute("show-jump");
   }
+
+  /**
+   * Subscribes to PanBus topics for goto page commands.
+   *
+   * @private
+   */
   setupTopics() {
     this.pc.subscribe(`${this.topic}.goto`, (msg) => {
       if (typeof msg.data.page === "number") {
@@ -54,6 +162,12 @@ class PanPagination extends HTMLElement {
       }
     });
   }
+
+  /**
+   * Sets up event listeners for navigation buttons and jump input.
+   *
+   * @private
+   */
   setupEvents() {
     const prevBtn = this.shadowRoot.querySelector(".prev-btn");
     const nextBtn = this.shadowRoot.querySelector(".next-btn");
@@ -82,6 +196,12 @@ class PanPagination extends HTMLElement {
       });
     }
   }
+  /**
+   * Navigates to a specific page and publishes a changed event.
+   *
+   * @param {number} page - The page number to navigate to
+   * @public
+   */
   goToPage(page) {
     if (page < 1 || page > this.totalPages) return;
     if (page === this.currentPage) return;
@@ -91,6 +211,14 @@ class PanPagination extends HTMLElement {
       data: { page, pageSize: this.pageSize }
     });
   }
+
+  /**
+   * Calculates which page numbers to display with ellipsis for large page counts.
+   * Shows up to 7 pages with intelligent ellipsis placement.
+   *
+   * @returns {Array<number|string>} Array of page numbers and ellipsis strings
+   * @private
+   */
   getPageNumbers() {
     const current = this.currentPage;
     const total = this.totalPages;
@@ -116,6 +244,13 @@ class PanPagination extends HTMLElement {
     }
     return pages;
   }
+
+  /**
+   * Renders the component's shadow DOM with styles and markup.
+   * Creates pagination buttons, page numbers, and optional info/jump elements.
+   *
+   * @private
+   */
   render() {
     const pages = this.getPageNumbers();
     const startItem = (this.currentPage - 1) * this.pageSize + 1;

@@ -1,24 +1,68 @@
+/**
+ * Rich markdown editor component with live preview, toolbar, and autosave capabilities.
+ *
+ * This component provides a full-featured markdown editing experience with formatting toolbar,
+ * keyboard shortcuts, live preview, word/character counting, and optional autosave functionality.
+ * It integrates with the Pan message bus for content synchronization.
+ *
+ * @class PanMarkdownEditor
+ * @extends HTMLElement
+ * @fires markdown.changed - When content changes
+ * @fires markdown.saved - When content is saved (autosave or Ctrl+S)
+ *
+ * @example
+ * <pan-markdown-editor
+ *   value="# Hello World"
+ *   placeholder="Start writing..."
+ *   preview="true"
+ *   autosave="true">
+ * </pan-markdown-editor>
+ */
 class PanMarkdownEditor extends HTMLElement {
+  /** @type {string[]} Observed attributes that trigger attributeChangedCallback */
   static observedAttributes = ["value", "placeholder", "preview", "autosave"];
+
+  /**
+   * Initializes the editor with shadow DOM and default state.
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    /** @type {string} Current markdown content */
     this._value = "";
+    /** @type {string} Placeholder text for empty editor */
     this._placeholder = "Start writing...";
+    /** @type {boolean} Whether to show the preview pane */
     this._showPreview = false;
+    /** @type {boolean} Whether autosave is enabled */
     this._autosave = false;
+    /** @type {number|null} Timer ID for debounced autosave */
     this._saveTimer = null;
   }
+  /**
+   * Called when element is added to the DOM. Initializes rendering and event listeners.
+   */
   connectedCallback() {
     this.render();
     this._setupEventListeners();
     this._setupPanListeners();
   }
+
+  /**
+   * Called when element is removed from the DOM. Cleans up timers.
+   */
   disconnectedCallback() {
     if (this._saveTimer) {
       clearTimeout(this._saveTimer);
     }
   }
+
+  /**
+   * Called when observed attributes change. Updates internal state and re-renders.
+   * @param {string} name - The attribute name
+   * @param {string} oldValue - Previous attribute value
+   * @param {string} newValue - New attribute value
+   */
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) return;
     switch (name) {
@@ -40,6 +84,10 @@ class PanMarkdownEditor extends HTMLElement {
         break;
     }
   }
+  /**
+   * Renders the complete editor UI including toolbar, textarea, preview pane, and footer.
+   * Creates all necessary HTML structure with styling in the shadow DOM.
+   */
   render() {
     this.shadowRoot.innerHTML = `
       <style>
@@ -259,6 +307,10 @@ class PanMarkdownEditor extends HTMLElement {
       </div>
     `;
   }
+  /**
+   * Sets up event listeners for textarea input, toolbar buttons, and keyboard shortcuts.
+   * @private
+   */
   _setupEventListeners() {
     const textarea = this.shadowRoot.querySelector(".editor-textarea");
     const toolbar = this.shadowRoot.querySelector(".toolbar");
@@ -280,6 +332,10 @@ class PanMarkdownEditor extends HTMLElement {
     this._updateStats();
     this._updatePreview();
   }
+  /**
+   * Sets up listeners for Pan message bus events to enable remote content control.
+   * @private
+   */
   _setupPanListeners() {
     const bus = document.querySelector("pan-bus");
     if (bus) {
@@ -295,6 +351,12 @@ class PanMarkdownEditor extends HTMLElement {
       });
     }
   }
+
+  /**
+   * Handles textarea input events, updates stats, preview, and triggers autosave.
+   * @private
+   * @fires markdown.changed - Broadcasts content changes to Pan message bus
+   */
   _handleInput() {
     const textarea = this.shadowRoot.querySelector(".editor-textarea");
     this._value = textarea.value;
@@ -505,16 +567,42 @@ ${taskMatch[1]}- [ ] `);
     }
   }
   // Public API
+  /**
+   * Sets the editor content programmatically.
+   * @param {string} value - The markdown content to set
+   * @example
+   * editor.setValue('# My Document\n\nHello world!');
+   */
   setValue(value) {
     this._value = value || "";
     this._updateTextarea();
   }
+
+  /**
+   * Gets the current markdown content from the editor.
+   * @returns {string} Current markdown content
+   * @example
+   * const content = editor.getValue();
+   */
   getValue() {
     return this._value;
   }
+
+  /**
+   * Inserts text at the current cursor position.
+   * @param {string} text - The text to insert
+   * @example
+   * editor.insertText('**bold text**');
+   */
   insertText(text) {
     this._insertText(text);
   }
+
+  /**
+   * Focuses the editor textarea.
+   * @example
+   * editor.focus();
+   */
   focus() {
     const textarea = this.shadowRoot.querySelector(".editor-textarea");
     textarea?.focus();

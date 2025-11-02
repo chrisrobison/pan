@@ -1,16 +1,94 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * @typedef {Object} ListItem
+ * @property {string|number} id - Unique identifier for the item
+ * @property {string} [content] - Content to display for the item
+ * @property {string} [label] - Alternative label to display
+ * @property {string} [title] - Alternative title to display
+ */
+
+/**
+ * A custom element that provides drag-and-drop reordering functionality for lists.
+ * Supports custom drag handles, disabled states, and pub/sub communication via PanClient.
+ *
+ * @class DragDropList
+ * @extends HTMLElement
+ * @fires {CustomEvent} {topic}.reorder - Fires when items are reordered via drag and drop
+ *
+ * @example
+ * // Basic usage
+ * <drag-drop-list
+ *   topic="mylist"
+ *   items='[{"id":1,"content":"Item 1"},{"id":2,"content":"Item 2"}]'>
+ * </drag-drop-list>
+ *
+ * @example
+ * // With custom drag handle and disabled state
+ * <drag-drop-list
+ *   topic="tasks"
+ *   items='[...]'
+ *   handle=".drag-handle"
+ *   disabled>
+ * </drag-drop-list>
+ *
+ * @example
+ * // Listening to reorder events
+ * const pc = new PanClient();
+ * pc.subscribe('mylist.reorder', (msg) => {
+ *   console.log('Reordered:', msg.data.items);
+ *   console.log('From index:', msg.data.from, 'To index:', msg.data.to);
+ * });
+ */
 class DragDropList extends HTMLElement {
+  /**
+   * Specifies which attributes trigger attributeChangedCallback when modified.
+   * @returns {string[]} Array of observed attribute names
+   */
   static get observedAttributes() {
     return ["topic", "items", "disabled", "handle"];
   }
+
+  /**
+   * Creates a new DragDropList instance.
+   * Initializes shadow DOM, PanClient, and internal state.
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+
+    /**
+     * PanClient instance for pub/sub communication
+     * @type {PanClient}
+     * @private
+     */
     this.pc = new PanClient(this);
+
+    /**
+     * Array of list items
+     * @type {ListItem[]}
+     */
     this.items = [];
+
+    /**
+     * The currently dragged DOM element
+     * @type {HTMLElement|null}
+     * @private
+     */
     this.draggedElement = null;
+
+    /**
+     * The index of the currently dragged item
+     * @type {number|null}
+     * @private
+     */
     this.draggedIndex = null;
   }
+
+  /**
+   * Lifecycle callback invoked when element is added to the DOM.
+   * Parses initial items attribute and sets up topic subscriptions.
+   */
   connectedCallback() {
     if (this.getAttribute("items")) {
       try {
@@ -22,6 +100,13 @@ class DragDropList extends HTMLElement {
     this.render();
     this.setupTopics();
   }
+
+  /**
+   * Lifecycle callback invoked when an observed attribute changes.
+   * @param {string} name - Name of the changed attribute
+   * @param {string} oldVal - Previous attribute value
+   * @param {string} newVal - New attribute value
+   */
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === "items" && newVal) {
       try {
@@ -34,15 +119,36 @@ class DragDropList extends HTMLElement {
       this.render();
     }
   }
+
+  /**
+   * Gets the topic name for pub/sub communication.
+   * @returns {string} The topic name, defaults to "list"
+   */
   get topic() {
     return this.getAttribute("topic") || "list";
   }
+
+  /**
+   * Checks if the list is disabled (drag operations not allowed).
+   * @returns {boolean} True if disabled attribute is present
+   */
   get disabled() {
     return this.hasAttribute("disabled");
   }
+
+  /**
+   * Gets the CSS selector for the drag handle element.
+   * @returns {string|null} The handle selector or null for default behavior
+   */
   get handle() {
     return this.getAttribute("handle") || null;
   }
+
+  /**
+   * Sets up PanClient topic subscriptions for list manipulation.
+   * Subscribes to setItems, addItem, and removeItem topics.
+   * @private
+   */
   setupTopics() {
     this.pc.subscribe(`${this.topic}.setItems`, (msg) => {
       if (msg.data.items) {
@@ -64,6 +170,12 @@ class DragDropList extends HTMLElement {
       }
     });
   }
+
+  /**
+   * Attaches drag event listeners to all list items.
+   * Handles dragstart, dragend, dragover, dragenter, dragleave, and drop events.
+   * @private
+   */
   setupDragEvents() {
     const listItems = this.shadowRoot.querySelectorAll(".list-item");
     listItems.forEach((item, index) => {
@@ -130,6 +242,14 @@ class DragDropList extends HTMLElement {
       }
     });
   }
+
+  /**
+   * Determines which element the dragged item should be inserted after.
+   * Uses mouse Y position to find the closest non-dragging element.
+   * @param {number} y - Mouse Y coordinate
+   * @returns {HTMLElement|undefined} The element to insert after, or undefined for end of list
+   * @private
+   */
   getDragAfterElement(y) {
     const draggableElements = [...this.shadowRoot.querySelectorAll(".list-item:not(.dragging)")];
     return draggableElements.reduce((closest, child) => {
@@ -142,6 +262,12 @@ class DragDropList extends HTMLElement {
       }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
+
+  /**
+   * Renders the list UI into the shadow DOM.
+   * Creates styled list items with drag handles and sets up drag events.
+   * @private
+   */
   render() {
     this.shadowRoot.innerHTML = `
       <style>

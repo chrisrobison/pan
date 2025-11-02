@@ -1,16 +1,57 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * Date picker component with calendar dropdown and date range constraints.
+ *
+ * This component provides a user-friendly date selection interface with a calendar popup,
+ * date formatting options, min/max date constraints, and Pan message bus integration
+ * for programmatic control.
+ *
+ * @class PanDatePicker
+ * @extends HTMLElement
+ * @fires Publishes to topic: `{topic}.change` when date is selected or cleared
+ *
+ * @example
+ * <pan-date-picker
+ *   value="2025-01-15"
+ *   format="YYYY-MM-DD"
+ *   min="2025-01-01"
+ *   max="2025-12-31"
+ *   placeholder="Select a date">
+ * </pan-date-picker>
+ *
+ * @example
+ * // Programmatic date selection via Pan bus
+ * const bus = document.querySelector('pan-bus');
+ * bus.publish('datepicker.setValue', { date: '2025-02-14' });
+ */
 class PanDatePicker extends HTMLElement {
+  /**
+   * Defines which attributes trigger attributeChangedCallback when modified.
+   * @returns {string[]} Array of observed attribute names
+   */
   static get observedAttributes() {
     return ["value", "format", "min", "max", "topic", "placeholder"];
   }
+
+  /**
+   * Initializes the date picker with shadow DOM and default state.
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    /** @type {PanClient} Pan message bus client instance */
     this.pc = new PanClient(this);
+    /** @type {boolean} Whether calendar dropdown is open */
     this.isOpen = false;
+    /** @type {Date} Currently displayed month in calendar */
     this.currentMonth = /* @__PURE__ */ new Date();
+    /** @type {Date|null} Currently selected date */
     this.selectedDate = null;
   }
+  /**
+   * Called when element is added to the DOM. Initializes date, rendering, and events.
+   */
   connectedCallback() {
     if (this.value) {
       this.selectedDate = new Date(this.value);
@@ -20,6 +61,13 @@ class PanDatePicker extends HTMLElement {
     this.setupTopics();
     this.setupEvents();
   }
+
+  /**
+   * Called when observed attributes change. Updates date and re-renders.
+   * @param {string} name - The attribute name
+   * @param {string} oldVal - Previous attribute value
+   * @param {string} newVal - New attribute value
+   */
   attributeChangedCallback(name, oldVal, newVal) {
     if (name === "value" && newVal && !this.isOpen) {
       this.selectedDate = new Date(newVal);
@@ -27,27 +75,66 @@ class PanDatePicker extends HTMLElement {
     }
     if (this.isConnected) this.render();
   }
+
+  /**
+   * Gets the selected date value as ISO date string.
+   * @returns {string} ISO date string (YYYY-MM-DD)
+   */
   get value() {
     return this.getAttribute("value") || "";
   }
+
+  /**
+   * Sets the selected date value.
+   * @param {string} val - ISO date string to set
+   */
   set value(val) {
     this.setAttribute("value", val);
   }
+
+  /**
+   * Gets the date format string.
+   * @returns {string} Date format, defaults to "YYYY-MM-DD"
+   */
   get format() {
     return this.getAttribute("format") || "YYYY-MM-DD";
   }
+
+  /**
+   * Gets the minimum selectable date.
+   * @returns {Date|null} Minimum date or null if not set
+   */
   get min() {
     return this.getAttribute("min") ? new Date(this.getAttribute("min")) : null;
   }
+
+  /**
+   * Gets the maximum selectable date.
+   * @returns {Date|null} Maximum date or null if not set
+   */
   get max() {
     return this.getAttribute("max") ? new Date(this.getAttribute("max")) : null;
   }
+
+  /**
+   * Gets the topic name for Pan message bus events.
+   * @returns {string} Topic name, defaults to "datepicker"
+   */
   get topic() {
     return this.getAttribute("topic") || "datepicker";
   }
+
+  /**
+   * Gets the placeholder text for the input.
+   * @returns {string} Placeholder text, defaults to "Select date"
+   */
   get placeholder() {
     return this.getAttribute("placeholder") || "Select date";
   }
+
+  /**
+   * Sets up Pan message bus topic subscriptions for programmatic date selection.
+   */
   setupTopics() {
     this.pc.subscribe(`${this.topic}.setValue`, (msg) => {
       if (msg.data.date) {
@@ -55,6 +142,9 @@ class PanDatePicker extends HTMLElement {
       }
     });
   }
+  /**
+   * Sets up event listeners for input, calendar navigation, and outside clicks.
+   */
   setupEvents() {
     const input = this.shadowRoot.querySelector(".date-input");
     const calendar = this.shadowRoot.querySelector(".calendar");
@@ -114,6 +204,11 @@ class PanDatePicker extends HTMLElement {
     this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + delta, 1);
     this.renderCalendar();
   }
+  /**
+   * Selects a date and closes the calendar. Publishes change event to Pan bus.
+   * @param {Date|null} date - The date to select, or null to clear
+   * @fires Publishes to topic: `{topic}.change` with selected date
+   */
   selectDate(date) {
     this.selectedDate = date;
     if (date) {
@@ -215,6 +310,9 @@ class PanDatePicker extends HTMLElement {
       });
     }, 0);
   }
+  /**
+   * Renders the date picker UI with input field, calendar dropdown, and navigation.
+   */
   render() {
     const displayValue = this.selectedDate ? this.formatDate(this.selectedDate) : "";
     this.shadowRoot.innerHTML = `

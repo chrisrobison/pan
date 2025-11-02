@@ -69,9 +69,11 @@ Quick reference checklist for tracking v1.0 progress. See [docs/V1_ROADMAP.md](d
 - [ ] Optimize hot paths
 
 ### Developer Experience
-- [ ] TypeScript definitions for PanClient
-- [ ] TypeScript definitions for PanMessage
-- [ ] TypeScript definitions for topic patterns
+- [ ] JSDoc comments in pan-bus.mjs (all methods)
+- [ ] JSDoc comments in pan-client.mjs (all methods)
+- [ ] JSDoc comments in pan-autoload.mjs (all methods)
+- [ ] JSDoc for PanMessage envelope format
+- [ ] JSDoc for common topic patterns
 - [ ] Improve error messages (clear, actionable)
 - [ ] Write debugging guide
 - [ ] Create VS Code snippets
@@ -117,6 +119,12 @@ Quick reference checklist for tracking v1.0 progress. See [docs/V1_ROADMAP.md](d
 - [ ] Vue wrapper example
 - [ ] Svelte wrapper example
 - [ ] Angular wrapper example
+
+### TypeScript Support
+- [ ] TypeScript definitions (.d.ts) for PanClient
+- [ ] TypeScript definitions (.d.ts) for PanMessage
+- [ ] TypeScript definitions (.d.ts) for topic patterns
+- [ ] Type-safe component props
 
 ### Developer Tools
 - [ ] Enhanced inspector (time travel)
@@ -180,8 +188,8 @@ Before releasing v1.0.0:
 If you want to help, start here:
 
 1. **Write core tests** - Most critical gap
-2. **Create browser compatibility matrix** - Test and document
-3. **TypeScript definitions** - Improve DX immediately
+2. **Add JSDoc comments to core** - Improve DX immediately, no build required
+3. **Create browser compatibility matrix** - Test and document
 4. **Security audit** - Review markdown renderer and file manager
 5. **Performance benchmarks** - Establish baseline
 

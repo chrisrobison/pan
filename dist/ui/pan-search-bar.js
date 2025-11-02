@@ -1,36 +1,134 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * PanSearchBar - A search input component with debouncing, filters, and PanBus integration.
+ *
+ * @class PanSearchBar
+ * @extends {HTMLElement}
+ *
+ * @fires search.search - Emitted when search query changes (published on PanBus)
+ * @fires search.clear - Emitted when search is cleared (published on PanBus)
+ *
+ * @example
+ * // Basic search bar
+ * <pan-search-bar placeholder="Search products..."></pan-search-bar>
+ *
+ * @example
+ * // With filters and custom debounce
+ * <pan-search-bar
+ *   debounce="500"
+ *   filters='[{"label":"All","value":""},{"label":"Active","value":"active"}]'>
+ * </pan-search-bar>
+ *
+ * @example
+ * // With custom topic
+ * <pan-search-bar topic="products" placeholder="Find products"></pan-search-bar>
+ */
 class PanSearchBar extends HTMLElement {
+  /**
+   * Returns the list of attributes that trigger attributeChangedCallback when modified.
+   *
+   * @static
+   * @returns {string[]} Array of observed attribute names
+   */
   static get observedAttributes() {
     return ["placeholder", "topic", "debounce", "filters", "show-filters"];
   }
+
+  /**
+   * Creates an instance of PanSearchBar.
+   * Initializes shadow DOM, PanClient, and search state.
+   *
+   * @constructor
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+
+    /**
+     * PanClient instance for pub/sub messaging.
+     * @type {PanClient}
+     */
     this.pc = new PanClient(this);
+
+    /**
+     * Timer ID for debounced search.
+     * @type {number|null}
+     */
     this.debounceTimer = null;
+
+    /**
+     * Current search query string.
+     * @type {string}
+     */
     this.currentQuery = "";
+
+    /**
+     * Currently selected filter value.
+     * @type {string|null}
+     */
     this.currentFilter = null;
   }
+  /**
+   * Lifecycle callback invoked when the element is connected to the DOM.
+   */
   connectedCallback() {
     this.render();
     this.setupTopics();
     this.setupEvents();
   }
+
+  /**
+   * Lifecycle callback invoked when the element is disconnected from the DOM.
+   * Cleans up the debounce timer.
+   */
   disconnectedCallback() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
   }
+
+  /**
+   * Lifecycle callback invoked when an observed attribute changes.
+   */
   attributeChangedCallback() {
     if (this.isConnected) this.render();
   }
+
+  /**
+   * Gets the search input placeholder text.
+   *
+   * @type {string}
+   * @returns {string} The placeholder, defaults to "Search..."
+   */
   get placeholder() {
     return this.getAttribute("placeholder") || "Search...";
   }
+
+  /**
+   * Gets the PanBus topic prefix for publishing events.
+   *
+   * @type {string}
+   * @returns {string} The topic prefix, defaults to "search"
+   */
   get topic() {
     return this.getAttribute("topic") || "search";
   }
+
+  /**
+   * Gets the debounce delay in milliseconds.
+   *
+   * @type {number}
+   * @returns {number} The debounce delay, defaults to 300ms
+   */
   get debounce() {
     return parseInt(this.getAttribute("debounce")) || 300;
   }
+
+  /**
+   * Gets the filter options array from JSON attribute.
+   *
+   * @type {Array<{label: string, value: string, icon?: string}>}
+   * @returns {Array} Array of filter options, empty array if invalid JSON
+   */
   get filters() {
     const attr = this.getAttribute("filters");
     if (!attr) return [];
@@ -40,11 +138,25 @@ class PanSearchBar extends HTMLElement {
       return [];
     }
   }
+
+  /**
+   * Gets whether to show the filter dropdown.
+   *
+   * @type {boolean}
+   * @returns {boolean} True if filters exist and not disabled
+   */
   get showFilters() {
     const attr = this.getAttribute("show-filters");
     if (attr === "false") return false;
     return this.filters.length > 0;
   }
+
+  /**
+   * Subscribes to PanBus topics for remote search control.
+   * Listens for `{topic}.set` messages to update query and filter.
+   *
+   * @private
+   */
   setupTopics() {
     this.pc.subscribe(`${this.topic}.set`, (msg) => {
       const { query, filter } = msg.data;
@@ -59,6 +171,12 @@ class PanSearchBar extends HTMLElement {
       }
     });
   }
+
+  /**
+   * Sets up event listeners for input, clear button, and filter dropdown.
+   *
+   * @private
+   */
   setupEvents() {
     const input = this.shadowRoot.querySelector(".search-input");
     const clearBtn = this.shadowRoot.querySelector(".clear-btn");
@@ -103,10 +221,21 @@ class PanSearchBar extends HTMLElement {
       });
     }
   }
+  /**
+   * Triggers a debounced search, clearing any pending search timer.
+   *
+   * @private
+   */
   debouncedSearch() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => this.search(), this.debounce);
   }
+
+  /**
+   * Executes the search and publishes a search event to PanBus.
+   *
+   * @public
+   */
   search() {
     this.pc.publish({
       topic: `${this.topic}.search`,
@@ -116,6 +245,13 @@ class PanSearchBar extends HTMLElement {
       }
     });
   }
+
+  /**
+   * Clears the search input and filter, then triggers a new search.
+   * Publishes a clear event to PanBus.
+   *
+   * @public
+   */
   clear() {
     const input = this.shadowRoot.querySelector(".search-input");
     if (input) input.value = "";
@@ -127,6 +263,12 @@ class PanSearchBar extends HTMLElement {
     });
     this.search();
   }
+
+  /**
+   * Updates the filter button text and active state based on selected filter.
+   *
+   * @private
+   */
   updateFilterButton() {
     const filterBtn = this.shadowRoot.querySelector(".filter-btn");
     if (!filterBtn) return;
@@ -139,6 +281,13 @@ class PanSearchBar extends HTMLElement {
       filterBtn.classList.remove("active");
     }
   }
+
+  /**
+   * Renders the component's shadow DOM with styles and markup.
+   * Creates search input, clear button, and optional filter dropdown.
+   *
+   * @private
+   */
   render() {
     this.shadowRoot.innerHTML = `
       <style>

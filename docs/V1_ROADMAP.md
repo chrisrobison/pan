@@ -176,16 +176,19 @@ PAN is currently at **v0.1.0** with a solid foundation. This document outlines w
 ### 7. Developer Experience 🟡 HIGH PRIORITY
 
 **Needed:**
-- [ ] **TypeScript definitions** - For core APIs
-  - PanMessage interface
-  - PanClient class
+- [ ] **JSDoc comments** - In all core source code (aligned with "no build" philosophy)
+  - PanBus class methods
+  - PanClient class methods
+  - PanMessage envelope format
   - Common topic patterns
+  - Provides IDE autocomplete/intellisense without requiring TypeScript
 - [ ] **IDE support** - VS Code snippets, extensions
 - [ ] **Better error messages** - Clear, actionable errors
 - [ ] **Debugging guide** - Common issues and solutions
 - [ ] **Migration tools** - If needed for v0.x → v1.0
+- [ ] **TypeScript definitions** (.d.ts files) - Nice to have for TypeScript users, but JSDoc is sufficient
 
-**Target:** Smooth onboarding experience
+**Target:** Smooth onboarding experience without requiring a build process
 
 ---
 
@@ -261,7 +264,7 @@ PAN is currently at **v0.1.0** with a solid foundation. This document outlines w
 - [ ] Browser compatibility documented
 - [ ] Security audit complete
 - [ ] Performance benchmarks established
-- [ ] TypeScript definitions
+- [ ] JSDoc comments in all core source code
 - [ ] Complete API reference
 - [ ] Migration guide (if needed)
 
@@ -271,8 +274,10 @@ PAN is currently at **v0.1.0** with a solid foundation. This document outlines w
 - [ ] npm packages published
 - [ ] Developer tools (inspector enhancements)
 - [ ] Production template
+- [ ] JSDoc comments in all components
 
 ### Nice to Have
+- [ ] TypeScript definitions (.d.ts files) for TypeScript users
 - [ ] Framework integration examples
 - [ ] Community guidelines
 - [ ] Advanced tutorials
@@ -292,7 +297,7 @@ PAN is currently at **v0.1.0** with a solid foundation. This document outlines w
 ### Milestone 2: Documentation & DX (2 weeks)
 **Goal:** Complete documentation and great developer experience
 - Write complete API reference
-- Create TypeScript definitions
+- Add JSDoc comments to all core source code
 - Write tutorials and guides
 - Improve error messages
 

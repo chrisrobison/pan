@@ -1,39 +1,100 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * Dynamic form component that renders and validates based on JSON Schema definitions.
+ *
+ * This component listens for schema definitions and selected items from the Pan message bus,
+ * then dynamically generates form fields with validation. It supports various input types
+ * including text, number, boolean, select, and textarea fields, with live updates when data changes.
+ *
+ * @class PanSchemaForm
+ * @extends HTMLElement
+ * @fires Publishes to topic: `{resource}.item.save` when form is submitted
+ * @fires Publishes to topic: `{resource}.item.delete` when delete button is clicked
+ *
+ * @example
+ * <pan-schema-form resource="users" key="id" live="true"></pan-schema-form>
+ */
 class PanSchemaForm extends HTMLElement {
+  /**
+   * Defines which attributes trigger attributeChangedCallback when modified.
+   * @returns {string[]} Array of observed attribute names
+   */
   static get observedAttributes() {
     return ["resource", "key", "live"];
   }
+
+  /**
+   * Initializes the form with shadow DOM, PanClient connection, and empty state.
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    /** @type {PanClient} Pan message bus client instance */
     this.pc = new PanClient(this);
+    /** @type {Object|null} The JSON Schema definition for this form */
     this.schema = null;
+    /** @type {Object} Current form values */
     this.value = {};
+    /** @type {Function[]} Array of unsubscribe functions for cleanup */
     this._offs = [];
+    /** @type {Function|null} Unsubscribe function for live updates */
     this._offLive = null;
+    /** @type {string|null} Currently selected item ID */
     this._selectedId = null;
   }
+  /**
+   * Called when element is added to the DOM. Renders the form and sets up event handlers.
+   */
   connectedCallback() {
     this.render();
     this.#wire();
   }
+
+  /**
+   * Called when element is removed from the DOM. Cleans up all subscriptions.
+   */
   disconnectedCallback() {
     this.#unsubAll();
   }
+
+  /**
+   * Called when observed attributes change. Re-renders and re-wires the form.
+   */
   attributeChangedCallback() {
     this.render();
     this.#wire();
   }
+
+  /**
+   * Gets the resource name for this form (used in topic names).
+   * @returns {string} The resource name, defaults to "items"
+   */
   get resource() {
     return (this.getAttribute("resource") || "items").trim();
   }
+
+  /**
+   * Gets the key field name used to identify items (usually "id").
+   * @returns {string} The key field name, defaults to "id"
+   */
   get key() {
     return (this.getAttribute("key") || "id").trim();
   }
+
+  /**
+   * Gets whether live updates are enabled for this form.
+   * @returns {boolean} True if live updates are enabled, false otherwise
+   */
   get live() {
     const v = (this.getAttribute("live") || "true").toLowerCase();
     return v !== "false" && v !== "0";
   }
+  /**
+   * Sets up event subscriptions and handlers for the form.
+   * Subscribes to schema state and item selection events, and wires up form submit and delete handlers.
+   * @private
+   */
   #wire() {
     this.#unsubAll();
     this._offs.push(this.pc.subscribe(`${this.resource}.schema.state`, (m) => {
@@ -62,6 +123,11 @@ class PanSchemaForm extends HTMLElement {
       this.#delete();
     };
   }
+
+  /**
+   * Unsubscribes from all event subscriptions to prevent memory leaks.
+   * @private
+   */
   #unsubAll() {
     try {
       this._offs.forEach((f) => f && f());
@@ -74,6 +140,12 @@ class PanSchemaForm extends HTMLElement {
     }
     this._offLive = null;
   }
+
+  /**
+   * Subscribes to live updates for the currently selected item if live mode is enabled.
+   * Updates form values when the item changes on the server.
+   * @private
+   */
   #subscribeLive() {
     try {
       this._offLive && this._offLive();
@@ -104,6 +176,11 @@ class PanSchemaForm extends HTMLElement {
       }
     }, { retained: false });
   }
+  /**
+   * Saves the form data by collecting values, validating, and publishing to the message bus.
+   * @private
+   * @fires Publishes to topic: `{resource}.item.save` with collected item data
+   */
   async #save() {
     const item = this.#collect();
     const errors = this.#validate(item);
@@ -118,6 +195,12 @@ class PanSchemaForm extends HTMLElement {
     } catch {
     }
   }
+
+  /**
+   * Deletes the current item by publishing a delete request to the message bus.
+   * @private
+   * @fires Publishes to topic: `{resource}.item.delete` with item ID
+   */
   async #delete() {
     const id = this.value?.[this.key] || this.value?.id;
     if (!id) return;
@@ -127,6 +210,12 @@ class PanSchemaForm extends HTMLElement {
     } catch {
     }
   }
+
+  /**
+   * Collects form field values from the shadow DOM inputs and returns them as an object.
+   * @private
+   * @returns {Object} Object containing all form field values
+   */
   #collect() {
     const v = Object.assign({}, this.value || {});
     const props = this.schema?.properties || {};
@@ -138,6 +227,14 @@ class PanSchemaForm extends HTMLElement {
     }
     return v;
   }
+
+  /**
+   * Coerces an input value to the correct type based on the schema property definition.
+   * @private
+   * @param {Object} prop - The schema property definition
+   * @param {HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement} input - The input element
+   * @returns {*} The coerced value (boolean, number, or string)
+   */
   #coerce(prop, input) {
     const t = prop && prop.type || "string";
     if (t === "boolean") return !!input.checked;
@@ -147,6 +244,13 @@ class PanSchemaForm extends HTMLElement {
     }
     return input.value;
   }
+
+  /**
+   * Validates form values against the JSON Schema definition.
+   * @private
+   * @param {Object} v - The values to validate
+   * @returns {Array<{name: string, message: string}>} Array of validation errors
+   */
   #validate(v) {
     const errors = [];
     const props = this.schema?.properties || {};
@@ -184,6 +288,11 @@ class PanSchemaForm extends HTMLElement {
     }
     return errors;
   }
+  /**
+   * Displays validation errors in the form by updating error message elements.
+   * @private
+   * @param {Array<{name: string, message: string}>} errors - Array of validation errors
+   */
   #showErrors(errors) {
     const map = new Map((errors || []).map((e) => [e.name, e.message]));
     this.shadowRoot.querySelectorAll(".err").forEach((el) => el.textContent = "");
@@ -192,11 +301,23 @@ class PanSchemaForm extends HTMLElement {
       if (el) el.textContent = msg;
     }
   }
+
+  /**
+   * Sets the form value and re-renders the form.
+   * @private
+   * @param {Object} v - The new form values
+   */
   #setValue(v) {
     this.value = v || {};
     this.render();
     this.#wire();
   }
+
+  /**
+   * Determines the display order of form fields based on schema ui:order or uiOrder hint.
+   * @private
+   * @returns {string[]} Ordered array of field names
+   */
   #fieldOrder() {
     const props = this.schema?.properties || {};
     const names = Object.keys(props);
@@ -204,6 +325,11 @@ class PanSchemaForm extends HTMLElement {
     if (Array.isArray(ui)) return names.sort((a, b) => (ui.indexOf(a) === -1 ? 1 : ui.indexOf(a)) - (ui.indexOf(b) === -1 ? 1 : ui.indexOf(b)));
     return names;
   }
+
+  /**
+   * Renders the form UI in the shadow DOM based on the current schema and values.
+   * Creates form fields dynamically based on schema property types and constraints.
+   */
   render() {
     const h = String.raw;
     const props = this.schema?.properties || {};
@@ -260,6 +386,12 @@ class PanSchemaForm extends HTMLElement {
     `;
     this.#subscribeLive();
   }
+  /**
+   * Escapes HTML special characters to prevent XSS attacks.
+   * @private
+   * @param {*} s - The string to escape
+   * @returns {string} The escaped string
+   */
   #esc(s) {
     return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   }

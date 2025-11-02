@@ -1,43 +1,109 @@
 import { PanClient } from "./pan-client.mjs";
+
+/**
+ * Custom element that displays an editable form with live updates from pan-bus.
+ * Automatically subscribes to item selection and state changes.
+ *
+ * @fires {resource}.item.save - Published when form is submitted
+ * @fires {resource}.item.delete - Published when delete button is clicked
+ * @fires {resource}.item.get - Requested when item is selected
+ *
+ * @attr {string} resource - Resource name for pub/sub topics (default: "items")
+ * @attr {string} fields - Comma-separated field names to display in form
+ * @attr {string} key - Property name used as unique identifier (default: "id")
+ * @attr {string} live - Enable live updates: "true" or "false" (default: "true")
+ *
+ * @example
+ * <pan-form
+ *   resource="users"
+ *   fields="name,email,age"
+ *   key="id"
+ *   live="true">
+ * </pan-form>
+ */
 class PanForm extends HTMLElement {
   static get observedAttributes() {
     return ["resource", "fields", "key", "live"];
   }
+
+  /**
+   * Creates a new PanForm instance
+   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
     this.pc = new PanClient(this);
+    /** @type {Object} */
     this.value = {};
+    /** @type {Function|null} */
     this._offSel = null;
+    /** @type {Function|null} */
     this._offLive = null;
+    /** @type {*} */
     this._selectedId = null;
+    /** @type {string|null} */
     this._liveTopic = null;
   }
+  /**
+   * Lifecycle: Called when element is added to the DOM
+   */
   connectedCallback() {
     this.render();
     this.#wire();
   }
+
+  /**
+   * Lifecycle: Called when element is removed from the DOM
+   */
   disconnectedCallback() {
     this._unsubAll();
   }
+
+  /**
+   * Lifecycle: Called when an observed attribute changes
+   */
   attributeChangedCallback() {
     this.render();
     this.#wire();
   }
+
+  /**
+   * Get the resource name for pub/sub topics
+   * @returns {string} Resource name
+   */
   get resource() {
     return (this.getAttribute("resource") || "items").trim();
   }
+
+  /**
+   * Get the fields to display in form
+   * @returns {string[]} Array of field names
+   */
   get fields() {
     const f = (this.getAttribute("fields") || "").trim();
     return f ? f.split(/\s*,\s*/) : [];
   }
+
+  /**
+   * Get the unique identifier property name
+   * @returns {string} Key property name
+   */
   get key() {
     return (this.getAttribute("key") || "id").trim();
   }
+
+  /**
+   * Check if live updates are enabled
+   * @returns {boolean} True if live updates enabled
+   */
   get live() {
     const v = (this.getAttribute("live") || "true").toLowerCase();
     return v !== "false" && v !== "0";
   }
+  /**
+   * Wire up event handlers and subscriptions
+   * @private
+   */
   #wire() {
     this._unsubAll();
     this._offSel = this.pc.subscribe(`${this.resource}.item.select`, async (m) => {
@@ -62,6 +128,11 @@ class PanForm extends HTMLElement {
       this.#delete();
     };
   }
+
+  /**
+   * Unsubscribe from all active subscriptions
+   * @private
+   */
   _unsubAll() {
     try {
       this._offSel && this._offSel();
@@ -75,6 +146,10 @@ class PanForm extends HTMLElement {
     this._offLive = null;
     this._liveTopic = null;
   }
+  /**
+   * Subscribe to live updates for current item
+   * @private
+   */
   #subscribeLive() {
     if (!this.live) return;
     const id = this._selectedId || this.value?.[this.key] || this.value?.id;
@@ -107,6 +182,11 @@ class PanForm extends HTMLElement {
       }
     }, { retained: true });
   }
+
+  /**
+   * Save current form values
+   * @private
+   */
   async #save() {
     const item = this.#collect();
     try {
@@ -118,6 +198,11 @@ class PanForm extends HTMLElement {
     } catch {
     }
   }
+
+  /**
+   * Delete current item
+   * @private
+   */
   async #delete() {
     const id = this.value?.id || this.value?.[this.key];
     if (!id) return;
@@ -127,6 +212,12 @@ class PanForm extends HTMLElement {
     } catch {
     }
   }
+
+  /**
+   * Collect form values into object
+   * @private
+   * @returns {Object} Object with form field values
+   */
   #collect() {
     const out = Object.assign({}, this.value);
     for (const name of this.fields) {
@@ -137,11 +228,21 @@ class PanForm extends HTMLElement {
     }
     return out;
   }
+
+  /**
+   * Set form value and re-render
+   * @private
+   * @param {Object} v - New value object
+   */
   #setValue(v) {
     this.value = v || {};
     this.render();
     this.#wire();
   }
+
+  /**
+   * Render form with shadow DOM styles
+   */
   render() {
     const h = String.raw;
     const v = this.value || {};
@@ -169,6 +270,13 @@ class PanForm extends HTMLElement {
     `;
     this.#subscribeLive();
   }
+
+  /**
+   * Escape HTML special characters to prevent XSS
+   * @private
+   * @param {*} s - Value to escape
+   * @returns {string} Escaped string
+   */
   #escape(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   }
