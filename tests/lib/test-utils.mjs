@@ -10,9 +10,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Convert a relative file path to a file:// URL for browser loading
+ * Convert a relative file path to a URL for browser loading
+ * Uses http:// when TEST_SERVER_URL is set, otherwise file://
  */
 export function fileUrl(rel) {
+  const serverUrl = process.env.TEST_SERVER_URL;
+  if (serverUrl) {
+    // Use HTTP server URL
+    const cleanPath = rel.startsWith('/') ? rel : `/${rel}`;
+    return `${serverUrl}${cleanPath}`;
+  }
+  // Fall back to file:// URL
   return pathToFileURL(path.resolve(__dirname, '../..', rel)).toString();
 }
 
