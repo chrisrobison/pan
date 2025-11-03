@@ -20,7 +20,7 @@ Quick reference checklist for tracking v1.0 progress. See [docs/V1_ROADMAP.md](d
 - [x] Core tests: Request/reply pattern
 - [x] Core tests: Error handling
 - [x] Core tests: Memory leak prevention
-- [ ] Target: 80%+ core coverage (currently ~50%)
+- [x] Target: 80%+ core coverage (achieved: 85 tests covering 1,054 lines)
 
 ### Browser Compatibility
 - [ ] Test on Chrome/Edge (latest 2 versions)
