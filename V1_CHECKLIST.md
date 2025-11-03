@@ -39,12 +39,12 @@ Quick reference checklist for tracking v1.0 progress. See [docs/V1_ROADMAP.md](d
 - [ ] Document localStorage security
 
 ### API Documentation
-- [ ] Complete API reference for PanClient
-- [ ] Complete API reference for PanMessage
-- [ ] Document all core topic conventions
-- [ ] Document component props/attributes
-- [ ] Document CustomEvent names
-- [ ] Add code examples for all APIs
+- [x] Complete API reference for PanClient
+- [x] Complete API reference for PanMessage
+- [x] Document all core topic conventions
+- [x] Document component props/attributes
+- [x] Document CustomEvent names
+- [x] Add code examples for all APIs
 
 ---
 
