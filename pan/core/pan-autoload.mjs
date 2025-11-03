@@ -1,30 +1,46 @@
-// PAN Autoload — progressively loads Web Components on demand.
-//
-// Usage (Local):
-//   <script type="module" src="./pan/core/pan-autoload.mjs"></script>
-//   <!-- declare <my-widget></my-widget> anywhere -->
-//
-// Usage (CDN):
-//   <script type="module">
-//     window.panAutoload = {
-//       baseUrl: 'https://unpkg.com/pan@latest/',
-//       extension: '.js'
-//     };
-//   </script>
-//   <script type="module" src="https://unpkg.com/pan@latest/autoload.js"></script>
-//
-// Configuration:
-//   - baseUrl: Full CDN URL (e.g., 'https://unpkg.com/pan@latest/')
-//   - componentsPath: Relative path from baseUrl (default: './')
-//   - extension: File extension (default: '.mjs' local, '.js' for npm)
-//   - rootMargin: Intersection observer margin in px (default: 600)
-//   - Override per element with `data-module="/path/to/file.mjs"`
-//
-// The loader observes the document for custom element tags (names with a dash)
-// that are not yet defined. When one approaches the viewport it dynamically
-// imports the module and, if the module did not register the custom element,
-// defines it from the default export (if it is a class).
+/**
+ * @fileoverview PAN Autoload - Progressive loading of Web Components on demand
+ *
+ * Automatically discovers and loads custom elements as they approach the viewport using
+ * IntersectionObserver. Eliminates the need for manual imports and customElements.define()
+ * calls, enabling true zero-build development.
+ *
+ * @example
+ * // Local development
+ * <script type="module" src="./pan/core/pan-autoload.mjs"></script>
+ * <!-- Just use your components -->
+ * <my-widget></my-widget>
+ * <pan-card></pan-card>
+ *
+ * @example
+ * // CDN usage with configuration
+ * <script type="module">
+ *   window.panAutoload = {
+ *     baseUrl: 'https://unpkg.com/pan@latest/',
+ *     extension: '.js'
+ *   };
+ * </script>
+ * <script type="module" src="https://unpkg.com/pan@latest/autoload.js"></script>
+ *
+ * @example
+ * // Override component path
+ * <my-card data-module="/custom/path/special-card.mjs"></my-card>
+ */
 
+/**
+ * @typedef {Object} AutoloadConfig
+ * @property {string|null} baseUrl - Full CDN URL (e.g., 'https://unpkg.com/pan@latest/')
+ * @property {string} componentsPath - Relative path from baseUrl (default: './')
+ * @property {string} extension - File extension for components (default: '.mjs')
+ * @property {number} rootMargin - IntersectionObserver margin in pixels (default: 600)
+ * @property {string} resolvedComponentsPath - Computed full path for component loading
+ */
+
+/**
+ * Default configuration for autoloader
+ * @type {AutoloadConfig}
+ * @private
+ */
 const defaults = {
   baseUrl: null,           // Full URL base (CDN or absolute path)
   componentsPath: './',    // Relative path from baseUrl or import.meta.url
@@ -32,11 +48,16 @@ const defaults = {
   rootMargin: 600,
 };
 
+// Merge user configuration from window.panAutoload if provided
 const rawGlobal =
   typeof window !== 'undefined' && window.panAutoload && typeof window.panAutoload === 'object'
     ? window.panAutoload
     : {};
 
+/**
+ * Active configuration (merged defaults + user config)
+ * @type {AutoloadConfig}
+ */
 const config = Object.assign({}, defaults, rawGlobal);
 config.extension = config.extension?.startsWith('.') ? config.extension : `.${config.extension || 'mjs'}`;
 config.componentsPath = config.componentsPath || defaults.componentsPath;
@@ -67,11 +88,33 @@ if (config.baseUrl) {
 }
 config.resolvedComponentsPath = baseHref;
 
+/**
+ * Set of currently loading module URLs to prevent duplicate loads
+ * @type {Set<string>}
+ * @private
+ */
 const loading = new Set();
+
+/**
+ * WeakSet of observed elements to prevent duplicate observation
+ * @type {WeakSet<Element>}
+ * @private
+ */
 const observed = new WeakSet();
 
+/**
+ * Check if IntersectionObserver is available
+ * @type {boolean}
+ * @private
+ */
 const hasIO = typeof window !== 'undefined' && 'IntersectionObserver' in window;
 
+/**
+ * IntersectionObserver instance for progressive loading
+ * Loads components as they approach the viewport
+ * @type {IntersectionObserver|null}
+ * @private
+ */
 const io = hasIO
   ? new IntersectionObserver((entries) => {
       for (const { isIntersecting, target } of entries) {
@@ -82,6 +125,17 @@ const io = hasIO
     }, { rootMargin: `${config.rootMargin}px` })
   : null;
 
+/**
+ * Constructs module URL from tag name using configured paths
+ *
+ * @param {string} tag - Tag name (e.g., 'my-widget')
+ * @returns {string} Full URL to component module
+ * @private
+ *
+ * @example
+ * moduleFromTag('my-widget')
+ * // Returns: 'https://example.com/components/my-widget.mjs'
+ */
 function moduleFromTag(tag) {
   try {
     return new URL(`${tag}${config.extension}`, baseHref).href;
@@ -91,6 +145,22 @@ function moduleFromTag(tag) {
   }
 }
 
+/**
+ * Checks if a node is a custom element tag that needs loading
+ * A custom tag must:
+ * - Be an Element (nodeType === 1)
+ * - Have a dash in the tag name (web component standard)
+ * - Not be already defined in customElements registry
+ *
+ * @param {Node} node - DOM node to check
+ * @returns {boolean} True if node is an undefined custom element
+ * @private
+ *
+ * @example
+ * isCustomTag(document.createElement('my-widget'))  // true (if not defined)
+ * isCustomTag(document.createElement('div'))        // false (no dash)
+ * isCustomTag(document.createElement('pan-bus'))    // false (if already defined)
+ */
 function isCustomTag(node) {
   if (typeof customElements === 'undefined') return false;
   return (
@@ -102,12 +172,46 @@ function isCustomTag(node) {
   );
 }
 
+/**
+ * Gets the module URL for an element
+ * Respects data-module attribute for custom paths
+ *
+ * @param {Element} el - Element to get URL for
+ * @returns {string} Module URL
+ * @private
+ *
+ * @example
+ * // Default: uses tag name
+ * <my-widget></my-widget>
+ * urlFor(el) // Returns: './my-widget.mjs'
+ *
+ * // Override with data-module
+ * <my-card data-module="/custom/special-card.mjs"></my-card>
+ * urlFor(el) // Returns: '/custom/special-card.mjs'
+ */
 function urlFor(el) {
   const explicit = el.getAttribute('data-module');
   if (explicit) return explicit;
   return moduleFromTag(el.localName);
 }
 
+/**
+ * Loads the component module for an element if needed
+ * - Checks if element is a custom tag
+ * - Prevents duplicate loads
+ * - Dynamically imports the module
+ * - Auto-defines the element if module exports a default class
+ *
+ * @param {Element} el - Element to load component for
+ * @returns {Promise<void>} Resolves when load completes or skips
+ * @public
+ *
+ * @example
+ * // Manual loading (usually not needed - autoload handles this)
+ * const widget = document.createElement('my-widget');
+ * await maybeLoadFor(widget);
+ * // Component is now loaded and defined
+ */
 export async function maybeLoadFor(el) {
   if (!el || !isCustomTag(el)) return;
   const url = urlFor(el);
@@ -116,6 +220,7 @@ export async function maybeLoadFor(el) {
   loading.add(url);
   try {
     const mod = await import(url);
+    // Auto-define if module exports a class and element isn't defined yet
     if (!customElements.get(el.localName) && mod?.default instanceof Function) {
       customElements.define(el.localName, mod.default);
     }
@@ -126,6 +231,24 @@ export async function maybeLoadFor(el) {
   }
 }
 
+/**
+ * Observes a DOM tree for undefined custom elements
+ * - Finds all :not(:defined) elements
+ * - Sets up IntersectionObserver (or loads immediately if not available)
+ * - Prevents duplicate observation with WeakSet
+ *
+ * @param {Document|Element} [root=document] - Root element to observe
+ * @returns {void}
+ * @public
+ *
+ * @example
+ * // Observe entire document (default)
+ * observeTree();
+ *
+ * // Observe specific subtree
+ * const container = document.querySelector('#dynamic-content');
+ * observeTree(container);
+ */
 export function observeTree(root = document) {
   if (!root || observed.has(root)) return;
 
@@ -146,6 +269,15 @@ export function observeTree(root = document) {
   }
 }
 
+/**
+ * Sets up MutationObserver to watch for new custom elements
+ * Observes:
+ * - childList: New elements added to DOM
+ * - attributes: data-module attribute changes
+ * - subtree: All descendants
+ *
+ * @private
+ */
 function setupMutationObserver() {
   if (typeof MutationObserver === 'undefined') return;
   const target = document.documentElement;
@@ -169,6 +301,16 @@ function setupMutationObserver() {
   });
 }
 
+/**
+ * Ensures pan-bus element exists and is loaded
+ * PAN bus is the backbone of PAN messaging, so it's loaded first
+ * - Checks if pan-bus already exists
+ * - Creates and inserts it if not found
+ * - Loads the pan-bus component immediately
+ *
+ * @returns {Promise<void>} Resolves when pan-bus is ready
+ * @private
+ */
 async function ensurePanBus() {
   // Check if pan-bus already exists in the document
   if (document.querySelector('pan-bus')) return;
@@ -184,6 +326,15 @@ async function ensurePanBus() {
   await maybeLoadFor(bus);
 }
 
+/**
+ * Initializes the autoloader
+ * - Ensures pan-bus is loaded first
+ * - Observes document for undefined elements
+ * - Sets up MutationObserver for dynamic content
+ * - Uses requestIdleCallback for non-blocking initial scan
+ *
+ * @private
+ */
 function init() {
   if (typeof document === 'undefined' || typeof customElements === 'undefined') return;
 
@@ -192,6 +343,7 @@ function init() {
     observeTree(document);
     setupMutationObserver();
 
+    // Non-blocking initial scan of existing elements
     if (typeof requestIdleCallback === 'function') {
       requestIdleCallback(() => {
         document.querySelectorAll(':not(:defined)').forEach((el) => {
@@ -199,7 +351,7 @@ function init() {
         });
       });
     } else {
-      // Fallback: eager load anything currently in view.
+      // Fallback: eager load anything currently in view
       document.querySelectorAll(':not(:defined)').forEach((el) => {
         if (isCustomTag(el)) maybeLoadFor(el);
       });
@@ -207,8 +359,30 @@ function init() {
   });
 }
 
+// Start autoloading
 init();
 
+/**
+ * Public API for pan-autoload
+ * Exposed as window.panAutoload and as module exports
+ *
+ * @type {Object}
+ * @property {AutoloadConfig} config - Active configuration
+ * @property {Function} observeTree - Manually observe a DOM tree
+ * @property {Function} maybeLoadFor - Manually load a component
+ *
+ * @example
+ * // Access configuration
+ * console.log(window.panAutoload.config);
+ *
+ * // Manually observe new content
+ * const newContent = document.querySelector('#dynamic');
+ * window.panAutoload.observeTree(newContent);
+ *
+ * // Manually load component
+ * const widget = document.createElement('my-widget');
+ * await window.panAutoload.maybeLoadFor(widget);
+ */
 export const panAutoload = {
   config,
   observeTree,
