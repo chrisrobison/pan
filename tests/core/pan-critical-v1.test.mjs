@@ -25,12 +25,11 @@ describe('PAN Core - Critical v1.0 Tests', () => {
   // ERROR HANDLING TESTS
   // =========================================================================
 
-  describe('Error Handling', () => {
-    test('handles publishing invalid message gracefully', async () => {
+  test('[Error Handling] handles publishing invalid message gracefully', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -63,15 +62,15 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      // Client should still work even if some publishes fail
-      expect(result.clientStillWorks).toBe(true);
-    });
+    // Client should still work even if some publishes fail
+    expect(result.clientStillWorks).toBe(true);
+  });
 
-    test('handles subscription to invalid topic pattern', async () => {
+  test('[Error Handling] handles subscription to invalid topic pattern', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -90,14 +89,14 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         }
       });
 
-      expect(result.success).toBe(true);
-    });
+    expect(result.success).toBe(true);
+  });
 
-    test('handles missing handler in subscribe', async () => {
+  test('[Error Handling] handles missing handler in subscribe', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -110,15 +109,15 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         }
       });
 
-      // Should either throw or handle gracefully
-      expect(result).toBeDefined();
-    });
+    // Should either throw or handle gracefully
+    expect(result).toBeDefined();
+  });
 
-    test('handles circular references in message data', async () => {
+  test('[Error Handling] handles circular references in message data', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -136,14 +135,14 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         }
       });
 
-      expect(result.handled).toBe(true);
-    });
+    expect(result.handled).toBe(true);
+  });
 
-    test('handles request timeout correctly without memory leaks', async () => {
+  test('[Error Handling] handles request timeout correctly without memory leaks', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -164,21 +163,19 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.allTimedOut).toBe(true);
-      expect(result.clientStillWorks).toBe(true);
-    });
+    expect(result.allTimedOut).toBe(true);
+    expect(result.clientStillWorks).toBe(true);
   });
 
   // =========================================================================
   // MEMORY LEAK PREVENTION TESTS
   // =========================================================================
 
-  describe('Memory Leak Prevention', () => {
-    test('cleans up subscriptions on unsubscribe', async () => {
+  test('[Memory Leak Prevention] cleans up subscriptions on unsubscribe', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -210,14 +207,14 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.cleaned).toBe(true);
-    });
+    expect(result.cleaned).toBe(true);
+  });
 
-    test('cleans up request subscriptions after reply', async () => {
+  test('[Memory Leak Prevention] cleans up request subscriptions after reply', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -255,14 +252,14 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.cleaned).toBe(true);
-    });
+    expect(result.cleaned).toBe(true);
+  });
 
-    test('does not accumulate event listeners on repeated operations', async () => {
+  test('[Memory Leak Prevention] does not accumulate event listeners on repeated operations', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
 
         // Create and destroy many clients
         for (let i = 0; i < 20; i++) {
@@ -296,15 +293,15 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.receivedOnce).toBe(true);
-      expect(result.clientWorks).toBe(true);
-    });
+    expect(result.receivedOnce).toBe(true);
+    expect(result.clientWorks).toBe(true);
+  });
 
-    test('retained messages do not grow unbounded', async () => {
+  test('[Memory Leak Prevention] retained messages do not grow unbounded', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -339,21 +336,19 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.didNotGrow).toBe(true);
-      expect(result.firstSize).toBe(1000);
-    });
+    expect(result.didNotGrow).toBe(true);
+    expect(result.firstSize).toBe(1000);
   });
 
   // =========================================================================
   // EDGE CASES AND BOUNDARY CONDITIONS
   // =========================================================================
 
-  describe('Edge Cases', () => {
-    test('handles very large messages', async () => {
+  test('[Edge Cases] handles very large messages', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -380,14 +375,14 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         });
       });
 
-      expect(result.received).toBe(true);
-    });
+    expect(result.received).toBe(true);
+  });
 
-    test('handles rapid message publishing', async () => {
+  test('[Edge Cases] handles rapid message publishing', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -421,15 +416,15 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         });
       });
 
-      // Should receive all or most messages
-      expect(result.receivedCount).toBeGreaterThan(900);
-    });
+    // Should receive all or most messages
+    expect(result.receivedCount).toBeGreaterThan(900);
+  });
 
-    test('handles topic pattern with special regex characters', async () => {
+  test('[Edge Cases] handles topic pattern with special regex characters', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
 
         // Test topic patterns that might break regex
         const tests = [
@@ -450,14 +445,14 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.allPassed).toBe(true);
-    });
+    expect(result.allPassed).toBe(true);
+  });
 
-    test('handles subscribe with AbortSignal', async () => {
+  test('[Edge Cases] handles subscribe with AbortSignal', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -497,16 +492,16 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.subscribedOnce).toBe(true);
-      expect(result.unsubscribedOnAbort).toBe(true);
-      expect(result.receivedOnlyFirst).toBe(true);
-    });
+    expect(result.subscribedOnce).toBe(true);
+    expect(result.unsubscribedOnAbort).toBe(true);
+    expect(result.receivedOnlyFirst).toBe(true);
+  });
 
-    test('handles multiple clients on same element', async () => {
+  test('[Edge Cases] handles multiple clients on same element', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
 
         // Create multiple clients on document
         const client1 = new PanClient();
@@ -532,20 +527,18 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.allReceived).toBe(true);
-    });
+    expect(result.allReceived).toBe(true);
   });
 
   // =========================================================================
   // CONCURRENCY TESTS
   // =========================================================================
 
-  describe('Concurrency', () => {
-    test('handles concurrent subscriptions and publications', async () => {
+  test('[Concurrency] handles concurrent subscriptions and publications', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -580,15 +573,15 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.allReceived).toBe(true);
-      expect(result.values).toHaveLength(10);
-    });
+    expect(result.allReceived).toBe(true);
+    expect(result.values).toHaveLength(10);
+  });
 
-    test('handles concurrent request/reply operations', async () => {
+  test('[Concurrency] handles concurrent request/reply operations', async () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('./pan/core/pan-client.mjs');
+        const { PanClient } = await import('../pan/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -622,8 +615,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
         };
       });
 
-      expect(result.allResolved).toBe(true);
-      expect(result.correctValues).toBe(true);
-    });
+    expect(result.allResolved).toBe(true);
+    expect(result.correctValues).toBe(true);
   });
 });

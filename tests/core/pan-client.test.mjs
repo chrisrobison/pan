@@ -25,7 +25,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
       return {
@@ -44,7 +44,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
 
@@ -75,7 +75,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
 
@@ -100,7 +100,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
 
@@ -133,7 +133,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
 
@@ -160,7 +160,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
 
@@ -180,7 +180,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
 
@@ -210,7 +210,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
 
       return {
         exactMatch: PanClient.matches('user.login', 'user.login'),
@@ -232,7 +232,7 @@ describe('PanClient', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('./pan/core/pan-client.mjs');
+      const { PanClient } = await import('../pan/core/pan-client.mjs');
       const client = new PanClient();
       await client.ready();
 
