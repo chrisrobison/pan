@@ -14,13 +14,13 @@ Quick reference checklist for tracking v1.0 progress. See [docs/V1_ROADMAP.md](d
 - [ ] Document semantic versioning policy
 
 ### Testing
-- [ ] Core tests: pan-bus message delivery
-- [ ] Core tests: Topic matching (exact, wildcard)
-- [ ] Core tests: Retained messages
-- [ ] Core tests: Request/reply pattern
-- [ ] Core tests: Error handling
-- [ ] Core tests: Memory leak prevention
-- [ ] Target: 80%+ core coverage
+- [x] Core tests: pan-bus message delivery
+- [x] Core tests: Topic matching (exact, wildcard)
+- [x] Core tests: Retained messages
+- [x] Core tests: Request/reply pattern
+- [x] Core tests: Error handling
+- [x] Core tests: Memory leak prevention
+- [ ] Target: 80%+ core coverage (currently ~50%)
 
 ### Browser Compatibility
 - [ ] Test on Chrome/Edge (latest 2 versions)
@@ -69,11 +69,11 @@ Quick reference checklist for tracking v1.0 progress. See [docs/V1_ROADMAP.md](d
 - [ ] Optimize hot paths
 
 ### Developer Experience
-- [ ] JSDoc comments in pan-bus.mjs (all methods)
-- [ ] JSDoc comments in pan-client.mjs (all methods)
-- [ ] JSDoc comments in pan-autoload.mjs (all methods)
-- [ ] JSDoc for PanMessage envelope format
-- [ ] JSDoc for common topic patterns
+- [x] JSDoc comments in pan-bus.mjs (all methods)
+- [x] JSDoc comments in pan-client.mjs (all methods)
+- [x] JSDoc comments in pan-autoload.mjs (all methods)
+- [x] JSDoc for PanMessage envelope format
+- [x] JSDoc for common topic patterns
 - [ ] Improve error messages (clear, actionable)
 - [ ] Write debugging guide
 - [ ] Create VS Code snippets
@@ -171,28 +171,34 @@ Before releasing v1.0.0:
 - ✅ Demo applications
 - ✅ Basic documentation
 - ✅ PAN_SPEC.v1.md
+- ✅ JSDoc comments (all core files)
+- ✅ Critical v1.0 tests (16 tests: error handling, memory leaks, edge cases, concurrency)
+- ✅ Test infrastructure with HTTP server
 
 **In Progress:**
-- 🔄 Testing (1/50+ tests)
-- 🔄 Documentation (partial)
+- 🔄 Testing coverage (26 tests passing, need 80%+ coverage)
+- 🔄 API documentation (partial JSDoc done)
 - 🔄 Browser testing (untested)
 - 🔄 Security audit (not started)
 - 🔄 Performance benchmarks (not started)
 
-**Estimated Completion:** 7-10 weeks with focused effort
+**Estimated Completion:** 4-6 weeks with focused effort
 
 ---
 
 ## Quick Start Priorities
 
-If you want to help, start here:
+Next steps to reach v1.0 (in priority order):
 
-1. **Write core tests** - Most critical gap
-2. **Add JSDoc comments to core** - Improve DX immediately, no build required
-3. **Create browser compatibility matrix** - Test and document
-4. **Security audit** - Review markdown renderer and file manager
-5. **Performance benchmarks** - Establish baseline
+1. **✅ DONE: Write core tests** - 26 tests passing including critical v1.0 tests
+2. **✅ DONE: Add JSDoc comments to core** - All core files documented
+3. **Lock down APIs** - Finalize PanClient, PanMessage, topic conventions (no breaking changes after)
+4. **API Documentation** - Complete reference docs for all public APIs
+5. **Browser compatibility** - Test on Chrome, Firefox, Safari (latest 2 versions)
+6. **Security audit** - Review markdown renderer, file manager, user input handling
+7. **Increase test coverage** - Add more tests to reach 80%+ (currently ~50%)
+8. **Performance benchmarks** - Establish baseline for message throughput, memory usage
 
 ---
 
-**Last Updated:** October 2024
+**Last Updated:** November 2024
