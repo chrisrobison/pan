@@ -1,8 +1,11 @@
 # LARC — Lightweight Asynchronous Relay Core
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/chrisrobison/pan)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/chrisrobison/pan)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-pre--release-orange.svg)](V1_CHECKLIST.md)
+[![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](RELEASE_NOTES.md)
+[![Browser Support](https://img.shields.io/badge/browser-chrome--tested-green.svg)](RELEASE_NOTES.md#browser-support)
+[![Test Coverage](https://img.shields.io/badge/coverage-80%25+-success.svg)](tests/)
+[![Performance](https://img.shields.io/badge/performance-exceptional-brightgreen.svg)](docs/PERFORMANCE.md)
 
 > **A very lightweight DOM‑native message bus reference (PAN) and its reference implementation:** topics, request/reply, retained messages, lightweight, no build, with an Inspector!
 
@@ -15,7 +18,26 @@ LARC is the project and reference implementation for the Page Area Network (PAN)
 
 PAN (Page Area Network) is the messaging model and bus that enables a central communications hub for web components or micro-frontends. It works with any framework or no framework at all.
 
-**📋 [v1.0 Roadmap](docs/V1_ROADMAP.md)** | **✅ [v1.0 Checklist](V1_CHECKLIST.md)** | **📖 [Full Documentation](#documentation)**
+**📋 [v1.0 Roadmap](docs/V1_ROADMAP.md)** | **✅ [v1.0 Checklist](V1_CHECKLIST.md)** | **📖 [Full Documentation](#documentation)** | **🎉 [Release Notes](RELEASE_NOTES.md)**
+
+---
+
+## 🎉 v1.0.0 Released!
+
+**PAN v1.0 is production-ready!** The core messaging infrastructure is stable, tested, and performance-validated.
+
+**What's Production-Ready:**
+- ✅ **Core Infrastructure** (pan-bus, pan-client, pan-autoload) - Fully stable with locked APIs
+- ✅ **80%+ Test Coverage** - 85 comprehensive test suites
+- ✅ **Exceptional Performance** - 300k+ msg/sec, zero memory leaks ([benchmarks](docs/PERFORMANCE.md))
+- ✅ **Complete Documentation** - API reference, guides, and examples
+
+**Important Notes for v1.0:**
+- ⚠️ **Components are experimental** - Need security audit before production use
+- ⚠️ **Browser support: Chrome-only** - Multi-browser testing planned for v1.1
+- ⚠️ **Core is rock-solid** - Use pan-bus and pan-client with confidence in production
+
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for full details and [v1.1 roadmap](RELEASE_NOTES.md#whats-next-v11-roadmap).
 
 ---
 
