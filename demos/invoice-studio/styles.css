@@ -1,0 +1,61 @@
+/**
+ * PAN Invoice Studio - Global Styles
+ *
+ * Additional global styles for Invoice Studio.
+ * Most styles are scoped within components.
+ */
+
+/* Print styles */
+@media print {
+  body {
+    background: white;
+  }
+
+  .app-header,
+  pan-invoice-toolbar,
+  pan-contact-manager,
+  pan-invoice-browser,
+  pan-toast {
+    display: none !important;
+  }
+
+  .app-main {
+    padding: 0;
+    max-width: none;
+  }
+
+  .invoice-paper {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
