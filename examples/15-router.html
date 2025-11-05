@@ -139,7 +139,7 @@
               <div class="subtitle">SPA routing with <code>pan-router</code> and <code>pan-link</code></div>
             </div>
             <div class="toolbar">
-              <a class="button-link" href="../pan/components/pan-router.mjs">pan-router</a>
+              <a class="button-link" href="../src/components/pan-router.mjs">pan-router</a>
               <a class="button-link" href="../pan/ui/pan-link.mjs">pan-link</a>
             </div>
           </div>
@@ -205,7 +205,7 @@
   <pan-router mode="history" base="/"></pan-router>
 
   <script type="module">
-    import { PanClient } from '../pan/core/pan-client.mjs';
+    import { PanClient } from '../src/core/pan-client.mjs';
 
     const pc = new PanClient();
     const content = document.getElementById('page-content');
@@ -336,6 +336,6 @@
   </script>
 
   <!-- Autoload all components -->
-  <script type="module" src="../pan/core/pan-autoload.mjs"></script>
+  <script type="module" src="../src/pan.mjs"></script>
 </body>
 </html>

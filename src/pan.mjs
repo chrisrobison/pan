@@ -7,7 +7,7 @@
  *
  * @example
  * // Local development
- * <script type="module" src="./pan/core/pan-autoload.mjs"></script>
+ * <script type="module" src="./src/pan.mjs"></script>
  * <!-- Just use your components -->
  * <my-widget></my-widget>
  * <pan-card></pan-card>
@@ -42,8 +42,8 @@
  * @private
  */
 const defaults = {
-  baseUrl: null,           // Full URL base (CDN or absolute path)
-  componentsPath: './',    // Relative path from baseUrl or import.meta.url
+  baseUrl: null,                // Full URL base (CDN or absolute path)
+  componentsPath: './components/',  // Relative path from baseUrl or import.meta.url
   extension: '.mjs',
   rootMargin: 600,
 };

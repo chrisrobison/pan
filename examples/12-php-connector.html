@@ -71,12 +71,12 @@
   <pan-php-connector id="conn" api-url="../api.php" resource="Business" page-size="20"></pan-php-connector>
 
   <script type="module">
-    import '../pan/components/pan-bus.js';
-    import '../pan/core/pan-client.mjs';
-    import '../pan/components/pan-inspector.js';
-    import '../pan/components/pan-data-table.js';
-    import '../pan/components/pan-php-connector.js';
-    import { PanClient } from '../pan/core/pan-client.mjs';
+    import '../src/components/pan-bus.js';
+    import '../src/core/pan-client.mjs';
+    import '../src/components/pan-inspector.js';
+    import '../src/components/pan-data-table.js';
+    import '../src/components/pan-php-connector.js';
+    import { PanClient } from '../src/core/pan-client.mjs';
 
     const pc = new PanClient();
     const $ = (s)=> document.querySelector(s);

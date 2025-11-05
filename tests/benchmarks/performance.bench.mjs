@@ -59,7 +59,7 @@ describe('Performance Benchmarks', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -118,7 +118,7 @@ describe('Performance Benchmarks', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -173,7 +173,7 @@ describe('Performance Benchmarks', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -242,7 +242,7 @@ describe('Performance Benchmarks', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -300,7 +300,7 @@ describe('Performance Benchmarks', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -379,7 +379,7 @@ describe('Performance Benchmarks', () => {
     const startMemory = await getMemoryUsage();
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -455,7 +455,7 @@ describe('Performance Benchmarks', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();

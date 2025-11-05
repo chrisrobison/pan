@@ -185,12 +185,12 @@ describe('pan-bus Coverage Tests', () => {
       window.readyFired = true;
     });
   </script>
-  <script type="module" src="${fileUrl('pan/core/pan-autoload.mjs')}"></script>
+  <script type="module" src="${fileUrl('src/pan.mjs')}"></script>
 </body>
 </html>`;
 
     await page.setContent(html);
-    await page.addScriptTag({ path: './pan/core/pan-autoload.mjs', type: 'module' });
+    await page.addScriptTag({ path: './src/pan.mjs', type: 'module' });
 
     // Wait for bus to be ready
     await page.waitForFunction(() => window.__panReady === true, { timeout: 5000 });
@@ -284,7 +284,7 @@ describe('pan-bus Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanBus } = await import('../pan/core/pan-bus.mjs');
+      const { PanBus } = await import('../src/core/pan-bus.mjs');
 
       return {
         // Should match literal characters, not regex
@@ -342,7 +342,7 @@ describe('pan-bus Coverage Tests', () => {
 <body>
   <div id="shadow-host"></div>
   <script type="module">
-    import { PanClient } from '${fileUrl('pan/core/pan-client.mjs')}';
+    import { PanClient } from '${fileUrl('src/core/pan-client.mjs')}';
 
     // Create shadow DOM
     const host = document.getElementById('shadow-host');
@@ -365,13 +365,13 @@ describe('pan-bus Coverage Tests', () => {
     window.shadowClient = client;
     window.shadowElement = button;
   </script>
-  <script type="module" src="${fileUrl('pan/core/pan-autoload.mjs')}"></script>
+  <script type="module" src="${fileUrl('src/pan.mjs')}"></script>
 </body>
 </html>`;
 
     await page.setContent(html);
-    await page.addScriptTag({ path: './pan/core/pan-client.mjs', type: 'module' });
-    await page.addScriptTag({ path: './pan/core/pan-autoload.mjs', type: 'module' });
+    await page.addScriptTag({ path: './src/core/pan-client.mjs', type: 'module' });
+    await page.addScriptTag({ path: './src/pan.mjs', type: 'module' });
 
     // Wait for setup
     await page.waitForFunction(() => window.shadowClient !== undefined, { timeout: 5000 });

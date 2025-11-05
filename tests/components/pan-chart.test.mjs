@@ -28,8 +28,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -59,8 +59,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -86,8 +86,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -113,8 +113,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -150,8 +150,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -179,8 +179,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -210,8 +210,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -236,8 +236,8 @@ describe('pan-chart', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -265,8 +265,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -293,8 +293,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -334,8 +334,8 @@ describe('pan-chart', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -361,8 +361,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -394,8 +394,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -422,8 +422,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -454,8 +454,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>
@@ -481,8 +481,8 @@ describe('pan-chart', () => {
       <html>
       <head>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-chart.js')}"></script>
       </head>
       <body>

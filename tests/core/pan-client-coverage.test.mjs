@@ -25,7 +25,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       // Create custom element as host
       const myDiv = document.createElement('div');
@@ -137,7 +137,7 @@ describe('PanClient Coverage Tests', () => {
     await page.waitForFunction(() => window.__panReady === true, { timeout: 5000 });
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       // Create client with custom bus selector
       const client = new PanClient(document, 'custom-bus');
@@ -155,7 +155,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       // Create element without ID
       const myDiv = document.createElement('div');
@@ -177,7 +177,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -215,7 +215,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -252,7 +252,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -286,7 +286,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
 
@@ -311,7 +311,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -348,7 +348,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -377,7 +377,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -412,7 +412,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       return {
         // Empty strings
@@ -455,7 +455,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -492,7 +492,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       // Create temporary element
       const tempDiv = document.createElement('div');
@@ -528,7 +528,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client = new PanClient();
       await client.ready();
@@ -576,7 +576,7 @@ describe('PanClient Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanClient } = await import('../pan/core/pan-client.mjs');
+      const { PanClient } = await import('../src/core/pan-client.mjs');
 
       const client1 = new PanClient();
       const client2 = new PanClient();

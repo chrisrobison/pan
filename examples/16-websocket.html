@@ -173,7 +173,7 @@
               <div class="subtitle">Bidirectional realtime with <code>pan-websocket</code></div>
             </div>
             <div class="toolbar">
-              <a class="button-link" href="../pan/components/pan-websocket.mjs">View source</a>
+              <a class="button-link" href="../src/components/pan-websocket.mjs">View source</a>
             </div>
           </div>
           <div class="panel-body">
@@ -237,7 +237,7 @@
   </pan-websocket>
 
   <script type="module">
-    import { PanClient } from '../pan/core/pan-client.mjs';
+    import { PanClient } from '../src/core/pan-client.mjs';
 
     const pc = new PanClient();
     const messages = document.getElementById('messages');
@@ -344,6 +344,6 @@
   </script>
 
   <!-- Autoload all components -->
-  <script type="module" src="../pan/core/pan-autoload.mjs"></script>
+  <script type="module" src="../src/pan.mjs"></script>
 </body>
 </html>

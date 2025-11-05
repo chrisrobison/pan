@@ -41,11 +41,11 @@ export async function createTestPage(page, content) {
   ${content}
   <script type="module">
     window.panAutoload = {
-      componentsPath: './pan/',
+      componentsPath: './src/',
       extension: '.mjs'
     };
   </script>
-  <script type="module" src="./pan/core/pan-autoload.mjs"></script>
+  <script type="module" src="./src/pan.mjs"></script>
 </body>
 </html>
   `;

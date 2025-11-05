@@ -27,8 +27,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -57,8 +57,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -84,8 +84,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -111,8 +111,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -137,8 +137,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -166,8 +166,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -196,8 +196,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -222,8 +222,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -249,8 +249,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -276,8 +276,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -303,8 +303,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -333,8 +333,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -359,8 +359,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -385,8 +385,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -412,8 +412,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -438,8 +438,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -464,8 +464,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -490,8 +490,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -516,8 +516,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -543,8 +543,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -569,8 +569,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>
@@ -595,8 +595,8 @@ describe('pan-date-picker', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/pan-date-picker.js')}"></script>
       </head>
       <body>

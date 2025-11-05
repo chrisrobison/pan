@@ -27,8 +27,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -57,8 +57,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -88,8 +88,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -120,8 +120,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -152,8 +152,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -182,8 +182,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -212,8 +212,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -240,8 +240,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -266,8 +266,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -296,8 +296,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -327,8 +327,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -358,8 +358,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -389,8 +389,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -421,8 +421,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -453,8 +453,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -483,8 +483,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -514,8 +514,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>
@@ -540,8 +540,8 @@ describe('drag-drop-list', () => {
       <!DOCTYPE html>
       <html>
       <head>
-        <script type="module" src="${fileUrl('pan/core/pan-bus.mjs')}"></script>
-        <script type="module" src="${fileUrl('pan/core/pan-client.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-bus.mjs')}"></script>
+        <script type="module" src="${fileUrl('src/core/pan-client.mjs')}"></script>
         <script type="module" src="${fileUrl('dist/components/drag-drop-list.js')}"></script>
       </head>
       <body>

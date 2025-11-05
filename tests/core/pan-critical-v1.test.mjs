@@ -29,7 +29,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -70,7 +70,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -96,7 +96,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -117,7 +117,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -142,7 +142,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -175,7 +175,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -214,7 +214,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -259,7 +259,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
 
         // Create and destroy many clients
         for (let i = 0; i < 20; i++) {
@@ -301,7 +301,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -348,7 +348,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -382,7 +382,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -424,7 +424,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
 
         // Test topic patterns that might break regex
         const tests = [
@@ -452,7 +452,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -501,7 +501,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
 
         // Create multiple clients on document
         const client1 = new PanClient();
@@ -544,7 +544,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
@@ -587,7 +587,7 @@ describe('PAN Core - Critical v1.0 Tests', () => {
       await page.goto(fileUrl('examples/01-hello.html'));
 
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('../pan/core/pan-client.mjs');
+        const { PanClient } = await import('../src/core/pan-client.mjs');
         const client = new PanClient();
         await client.ready();
 
