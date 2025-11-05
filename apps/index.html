@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Demo Applications</title>
+  <link rel="stylesheet" href="../assets/theme.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: var(--color-bg, #f8fafc);
+    }
+
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .page-title {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--color-primary, #006699);
+      margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+      font-size: 1.25rem;
+      color: var(--color-text-muted, #64748b);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .app-card {
+      background: var(--color-surface, #ffffff);
+      border: 2px solid var(--color-border, #e2e8f0);
+      border-radius: 1rem;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--color-primary, #006699);
+    }
+
+    .app-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .app-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text, #1e293b);
+      margin-bottom: 0.5rem;
+    }
+
+    .app-description {
+      font-size: 0.9375rem;
+      color: var(--color-text-muted, #64748b);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .app-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+      font-size: 0.875rem;
+      color: var(--color-text, #1e293b);
+    }
+
+    .app-features li {
+      padding: 0.25rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .app-features li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--color-success, #10b981);
+      font-weight: bold;
+    }
+
+    .app-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--color-primary, #006699);
+      color: white;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      justify-content: center;
+    }
+
+    .app-link:hover {
+      background: var(--color-primary-dark, #004d73);
+      transform: translateX(2px);
+    }
+
+    .info-section {
+      background: var(--color-surface, #ffffff);
+      border: 2px solid var(--color-border, #e2e8f0);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .info-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text, #1e293b);
+      margin-bottom: 1rem;
+    }
+
+    .info-text {
+      color: var(--color-text-muted, #64748b);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .code-block {
+      background: var(--color-bg-alt, #f1f5f9);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.875rem;
+      color: var(--color-text, #1e293b);
+      overflow-x: auto;
+    }
+
+    .theme-toggle-container {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 100;
+    }
+
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .apps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-container {
+        padding: 2rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-toggle-container">
+    <pan-theme-toggle variant="icon"></pan-theme-toggle>
+  </div>
+
+  <div class="page-container">
+    <header class="page-header">
+      <h1 class="page-title">📦 PAN Demo Applications</h1>
+      <p class="page-subtitle">
+        Complete, working applications built with PAN components.
+        Explore real-world usage patterns and use as templates for your own projects.
+      </p>
+    </header>
+
+    <div class="apps-grid">
+      <!-- Invoice Studio -->
+      <div class="app-card">
+        <div class="app-icon">📄</div>
+        <h2 class="app-name">Invoice Studio</h2>
+        <p class="app-description">
+          Professional invoice management system with advanced features.
+          Complete suite for creating, managing, and exporting invoices with a polished UI.
+        </p>
+        <ul class="app-features">
+          <li>ContentEditable invoice fields</li>
+          <li>Auto-calculating line items</li>
+          <li>Contact management system</li>
+          <li>IndexedDB persistence</li>
+          <li>PDF export with jsPDF</li>
+          <li>Invoice gallery browser</li>
+          <li>Import/Export JSON</li>
+          <li>Mobile-responsive design</li>
+        </ul>
+        <a href="./invoice-studio/" class="app-link">
+          Launch Invoice Studio →
+        </a>
+      </div>
+
+      <!-- Markdown Notes -->
+      <div class="app-card">
+        <div class="app-icon">📝</div>
+        <h2 class="app-name">Markdown Notes</h2>
+        <p class="app-description">
+          Full-featured markdown editor with live preview and file management.
+          Perfect for note-taking, documentation, and writing.
+        </p>
+        <ul class="app-features">
+          <li>Rich markdown editor with toolbar</li>
+          <li>Live preview toggle</li>
+          <li>File browser with OPFS storage</li>
+          <li>Create/rename/delete files</li>
+          <li>Keyboard shortcuts (Ctrl+S, Ctrl+N)</li>
+          <li>Export to .md files</li>
+          <li>Light/dark mode</li>
+        </ul>
+        <a href="./markdown-notes/" class="app-link">
+          Launch Markdown Notes →
+        </a>
+      </div>
+
+      <!-- Contact Manager -->
+      <div class="app-card">
+        <div class="app-icon">👥</div>
+        <h2 class="app-name">Contact Manager</h2>
+        <p class="app-description">
+          Modern contact management application with search, filtering, and persistent storage.
+          Manage your contacts with a clean, intuitive interface.
+        </p>
+        <ul class="app-features">
+          <li>Add/edit/delete contacts</li>
+          <li>Real-time search and filter</li>
+          <li>Contact detail view</li>
+          <li>Tag management</li>
+          <li>IndexedDB persistence</li>
+          <li>Import/Export CSV</li>
+          <li>Responsive card layout</li>
+        </ul>
+        <a href="./contact-manager/" class="app-link">
+          Launch Contact Manager →
+        </a>
+      </div>
+
+      <!-- Invoice Creator -->
+      <div class="app-card">
+        <div class="app-icon">🧾</div>
+        <h2 class="app-name">Invoice Creator</h2>
+        <p class="app-description">
+          Streamlined invoice creation tool for independent contractors.
+          Simpler alternative to Invoice Studio with essential features.
+        </p>
+        <ul class="app-features">
+          <li>ContentEditable invoice fields</li>
+          <li>Auto-calculating line items</li>
+          <li>Multiple invoice management</li>
+          <li>IndexedDB persistence</li>
+          <li>Export to JSON</li>
+          <li>Print-optimized layout</li>
+          <li>Auto-save</li>
+        </ul>
+        <a href="./invoice/" class="app-link">
+          Launch Invoice Creator →
+        </a>
+      </div>
+
+      <!-- Data Browser -->
+      <div class="app-card">
+        <div class="app-icon">📊</div>
+        <h2 class="app-name">Data Browser</h2>
+        <p class="app-description">
+          Browse and visualize data with interactive tables and charts.
+          Explore datasets with powerful sorting, filtering, and visualization tools.
+        </p>
+        <ul class="app-features">
+          <li>Sortable, filterable data table</li>
+          <li>Interactive data visualization</li>
+          <li>Multiple chart types</li>
+          <li>Export to CSV/JSON</li>
+          <li>Responsive design</li>
+          <li>Real-time updates</li>
+        </ul>
+        <a href="./data-browser/" class="app-link">
+          Launch Data Browser →
+        </a>
+      </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+      <h2 class="info-title">🚀 Getting Started</h2>
+      <p class="info-text">
+        All applications are built with PAN (Page Area Network) - a DOM-native message bus for web applications.
+        They work offline, require no build step, and can be deployed anywhere.
+      </p>
+      <p class="info-text">
+        <strong>To run locally:</strong>
+      </p>
+      <div class="code-block">
+# From project root<br>
+python -m http.server 8000<br>
+# Visit http://localhost:8000/apps/
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h2 class="info-title">💡 Using These Apps</h2>
+      <p class="info-text">
+        <strong>As Learning Resources:</strong> Study the code to learn PAN patterns, see component integration in action, and understand state management strategies.
+      </p>
+      <p class="info-text">
+        <strong>As Templates:</strong> Fork any app to start your own project. All code is open source and designed to be customized.
+      </p>
+      <p class="info-text">
+        <strong>As Reference:</strong> Copy patterns into your projects and learn best practices from complete, working examples.
+      </p>
+    </div>
+
+    <div class="info-section">
+      <h2 class="info-title">🛠️ Technology Stack</h2>
+      <ul class="app-features">
+        <li><strong>PAN Message Bus:</strong> DOM-native pub/sub communication</li>
+        <li><strong>Web Components:</strong> Custom elements with Shadow DOM</li>
+        <li><strong>IndexedDB / OPFS:</strong> Client-side persistent storage</li>
+        <li><strong>ES Modules:</strong> No build step, native browser support</li>
+        <li><strong>CSS Variables:</strong> Theme-aware styling</li>
+        <li><strong>Progressive Enhancement:</strong> Works everywhere</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PAN Infrastructure -->
+  <pan-theme-provider theme="auto"></pan-theme-provider>
+
+  <script type="module">
+    import '../src/components/pan-theme-provider.mjs';
+    import '../src/components/pan-theme-toggle.mjs';
+
+    console.log('📦 PAN Demo Applications Gallery');
+    console.log('🎨 Explore the apps above to see PAN in action!');
+  </script>
+</body>
+</html>
