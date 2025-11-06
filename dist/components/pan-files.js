@@ -1,44 +1,12 @@
-/**
- * File management component using the Origin Private File System (OPFS) API.
- *
- * This component provides a file browser interface for managing files in the browser's
- * private file system. It supports creating, reading, writing, renaming, and deleting files,
- * with Pan message bus integration for file operations.
- *
- * @class PanFiles
- * @extends HTMLElement
- * @fires file.created - When a file or folder is created
- * @fires file.selected - When a file is selected
- * @fires file.deleted - When a file is deleted
- * @fires file.renamed - When a file is renamed
- *
- * @example
- * <pan-files path="/" filter=".md,.txt" show-hidden="false"></pan-files>
- *
- * @example
- * // Save file via Pan bus
- * const bus = document.querySelector('pan-bus');
- * bus.publish('file.save', { path: '/notes.md', content: '# My Notes' });
- */
 class PanFiles extends HTMLElement {
-  /** @type {string[]} Observed attributes that trigger attributeChangedCallback */
   static observedAttributes = ["path", "filter", "show-hidden"];
-
-  /**
-   * Initializes the file manager with shadow DOM and default state.
-   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    /** @type {string} Current directory path */
     this._currentPath = "/";
-    /** @type {string} File extension filter (comma-separated) */
     this._filter = "";
-    /** @type {boolean} Whether to show hidden files (starting with .) */
     this._showHidden = false;
-    /** @type {Array<Object>} Array of file/directory entries */
     this._files = [];
-    /** @type {FileSystemDirectoryHandle|null} OPFS root directory handle */
     this._rootHandle = null;
   }
   async connectedCallback() {

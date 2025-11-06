@@ -1,60 +1,14 @@
-/**
- * @fileoverview Pan Framework - Main entry point
- * Combines PanBus and PanClient for convenient importing
- * @module pan
- */
-
 // src/index.js
-
-/**
- * @typedef {Object} PanMessage
- * @property {string} topic - The message topic/channel
- * @property {*} data - The message payload
- * @property {number} ts - Timestamp when message was created
- * @property {string} id - Unique message identifier
- * @property {string} [replyTo] - Topic to send replies to
- * @property {string} [correlationId] - ID to correlate request/reply pairs
- * @property {boolean} [retain] - Whether to retain this message for future subscribers
- * @property {Record<string,string>} [headers] - Optional message headers
- */
-
-/**
- * @typedef {Object} Subscription
- * @property {string} pattern - Topic pattern to match (supports wildcards)
- * @property {Element} el - The subscribing element
- * @property {string} [clientId] - Optional client identifier
- * @property {boolean} retained - Whether subscriber wants retained messages
- */
-
-/**
- * PanBus custom element - Central message bus for component communication
- * @class
- * @extends HTMLElement
- */
 var PanBus = class _PanBus extends HTMLElement {
-  /**
-   * Creates a new PanBus instance
-   */
   constructor() {
     super();
-    /**
-     * Active subscriptions
-     * @type {Subscription[]}
-     */
     this.subs = [];
-    /**
-     * Retained messages by topic
-     * @type {Map<string, PanMessage>}
-     */
     this.retained = /* @__PURE__ */ new Map();
-    /**
-     * Registered clients by ID
-     * @type {Map<string, {el: Element, caps: string[]}>}
-     */
     this.clients = /* @__PURE__ */ new Map();
   }
   /**
-   * Called when element is connected to the DOM
+   * Lifecycle method called when element is added to the DOM
+   * Sets up event listeners and announces bus readiness
    */
   connectedCallback() {
     document.addEventListener("pan:publish", this.onPublish, true);
@@ -67,7 +21,8 @@ var PanBus = class _PanBus extends HTMLElement {
     document.dispatchEvent(new CustomEvent("pan:sys.ready", { bubbles: true, composed: true }));
   }
   /**
-   * Called when element is disconnected from the DOM
+   * Lifecycle method called when element is removed from the DOM
+   * Cleans up event listeners
    */
   disconnectedCallback() {
     document.removeEventListener("pan:publish", this.onPublish, true);
@@ -78,16 +33,16 @@ var PanBus = class _PanBus extends HTMLElement {
     document.removeEventListener("pan:hello", this.onHello, true);
   }
   /**
-   * Handles client registration
-   * @param {CustomEvent} e - The pan:hello event
+   * Handle client registration
+   * @param {CustomEvent} e - Event containing client ID and capabilities
    */
   onHello = (e) => {
     const d = e.detail || {};
     if (d.id) this.clients.set(d.id, { el: this._et(e), caps: d.caps || [] });
   };
   /**
-   * Handles subscription requests
-   * @param {CustomEvent} e - The pan:subscribe event
+   * Handle subscription requests
+   * @param {CustomEvent} e - Event containing topics to subscribe to and options
    */
   onSubscribe = (e) => {
     const { topics = [], options = {}, clientId } = e.detail || {};
@@ -100,8 +55,8 @@ var PanBus = class _PanBus extends HTMLElement {
     }
   };
   /**
-   * Handles unsubscription requests
-   * @param {CustomEvent} e - The pan:unsubscribe event
+   * Handle unsubscription requests
+   * @param {CustomEvent} e - Event containing topics to unsubscribe from
    */
   onUnsubscribe = (e) => {
     const { topics = [], clientId } = e.detail || {};
@@ -112,8 +67,8 @@ var PanBus = class _PanBus extends HTMLElement {
     });
   };
   /**
-   * Handles message publication
-   * @param {CustomEvent} e - The pan:publish or pan:request event
+   * Handle message publication
+   * @param {CustomEvent} e - Event containing message to publish
    */
   onPublish = (e) => {
     const base = e.detail || {};
@@ -122,17 +77,17 @@ var PanBus = class _PanBus extends HTMLElement {
     for (const s of this.subs) if (_PanBus.matches(msg.topic, s.pattern)) this._deliver(s.el, msg);
   };
   /**
-   * Handles reply messages
-   * @param {CustomEvent} e - The pan:reply event
+   * Handle reply messages
+   * @param {CustomEvent} e - Event containing reply message
    */
   onReply = (e) => {
     const msg = e.detail || {};
     for (const s of this.subs) if (_PanBus.matches(msg.topic, s.pattern)) this._deliver(s.el, msg);
   };
   /**
-   * Delivers a message to a target element
-   * @param {Element} target - The target element
-   * @param {PanMessage} msg - The message to deliver
+   * Deliver a message to a target element
+   * @param {HTMLElement|Document} target - Target to deliver to
+   * @param {PanMessage} msg - Message to deliver
    * @private
    */
   _deliver(target, msg) {
@@ -142,20 +97,26 @@ var PanBus = class _PanBus extends HTMLElement {
     }
   }
   /**
-   * Gets the event target from a composed event
-   * @param {Event} e - The event object
-   * @returns {Element|Document} The original event target
+   * Get event target accounting for composed path
+   * @param {Event} e - Event to extract target from
+   * @returns {HTMLElement|Document} Event target
    * @private
    */
   _et(e) {
     return typeof e.composedPath === "function" ? e.composedPath()[0] : e.target || document;
   }
   /**
-   * Checks if a topic matches a subscription pattern
-   * @param {string} topic - The message topic
-   * @param {string} pattern - The subscription pattern
-   * @returns {boolean} True if the topic matches the pattern
-   * @static
+   * Check if a topic matches a subscription pattern
+   * Supports wildcards: 'user.*', '*.update', 'user.*.state'
+   *
+   * @param {string} topic - Topic to test (e.g., 'user.login')
+   * @param {string} pattern - Pattern to match against (e.g., 'user.*')
+   * @returns {boolean} True if topic matches pattern
+   *
+   * @example
+   * PanBus.matches('user.login', 'user.*')  // true
+   * PanBus.matches('user.login', '*.login') // true
+   * PanBus.matches('user.login', 'admin.*') // false
    */
   static matches(topic, pattern) {
     if (pattern === "*" || topic === pattern) return true;
@@ -172,8 +133,20 @@ if (typeof customElements !== "undefined" && !customElements.get("pan-bus")) {
 }
 var PanClient = class _PanClient {
   /**
-   * @param {HTMLElement|Document} host
-   * @param {string} busSelector css selector for the bus element (unused, for compatibility)
+   * Creates a new PAN client
+   *
+   * @param {HTMLElement|Document} [host=document] - Element to dispatch/receive events from
+   * @param {string} [busSelector='pan-bus'] - CSS selector for bus element
+   *
+   * @example
+   * // Use document as host (default)
+   * const client = new PanClient();
+   *
+   * // Use custom element as host
+   * const client = new PanClient(this);
+   *
+   * // Specify custom bus selector
+   * const client = new PanClient(document, 'my-custom-bus');
    */
   constructor(host = document, busSelector = "pan-bus") {
     this.host = host;
@@ -194,34 +167,105 @@ var PanClient = class _PanClient {
       this._dispatch("pan:hello", { id: this.clientId, caps: ["client"] });
     });
   }
+  /**
+   * Returns a promise that resolves when the PAN bus is ready
+   *
+   * Always await this before publishing or subscribing to ensure
+   * the bus is initialized and ready to handle messages.
+   *
+   * @returns {Promise<void>} Promise that resolves when bus is ready
+   *
+   * @example
+   * const client = new PanClient();
+   * await client.ready();
+   * client.pub('app.initialized', {});
+   */
   ready() {
     return this._ready;
   }
-  /** @param {string} type @param {any} detail */
+  /**
+   * Dispatch a custom event on the host element
+   * @param {string} type - Event type
+   * @param {*} detail - Event detail
+   * @private
+   */
   _dispatch(type, detail) {
     this.host.dispatchEvent(new CustomEvent(type, { detail, bubbles: true, composed: true }));
   }
   /**
-   * Publish a message
-   * @param {{topic:string,data:any,id?:string,ts?:number,replyTo?:string,correlationId?:string,retain?:boolean,headers?:Record<string,string>}} msg
+   * Publishes a message to the PAN bus
+   *
+   * The message will be routed to all matching subscribers. If `retain: true`,
+   * the message will be stored for late subscribers.
+   *
+   * @param {PanMessage} msg - Message to publish
+   *
+   * @example
+   * client.publish({
+   *   topic: 'user.login',
+   *   data: { userId: 123, username: 'alice' },
+   *   retain: true,
+   *   headers: { 'x-request-id': '123' }
+   * });
    */
   publish(msg) {
     this._dispatch("pan:publish", msg);
   }
   /**
-   * Convenience alias for publish
-   * @param {string} topic
-   * @param {any} data
-   * @param {{retain?:boolean}=} options
+   * Convenience method to publish a message
+   *
+   * Simpler API for common use cases when you just need to publish
+   * a topic and data without additional message fields.
+   *
+   * @param {string} topic - Topic identifier
+   * @param {*} [data] - Message payload
+   * @param {{retain?: boolean}} [options] - Additional options
+   *
+   * @example
+   * client.pub('user.login', { userId: 123 });
+   * client.pub('app.ready', { version: '1.0' }, { retain: true });
    */
   pub(topic, data, options = {}) {
     this.publish({ topic, data, ...options });
   }
   /**
-   * Subscribe to one or more topics. Returns an unsubscribe function.
-   * @param {string|string[]} topics
-   * @param {(m:any)=>void} handler
-   * @param {{ retained?: boolean, signal?: AbortSignal }=} opts
+   * Subscribes to one or more topic patterns
+   *
+   * Supports wildcard patterns:
+   * - `user.*` matches `user.login`, `user.logout`, etc.
+   * - `*.update` matches `user.update`, `post.update`, etc.
+   * - `user.*.state` matches `user.123.state`, `user.456.state`, etc.
+   * - `*` matches all topics (use with caution)
+   *
+   * @param {string|string[]} topics - Topic pattern(s) to subscribe to
+   * @param {MessageHandler} handler - Function to handle received messages
+   * @param {SubscribeOptions} [opts] - Subscription options
+   * @returns {UnsubscribeFunction} Function to unsubscribe
+   *
+   * @example
+   * // Subscribe to single topic
+   * const unsub = client.subscribe('user.login', (msg) => {
+   *   console.log('User logged in:', msg.data);
+   * });
+   *
+   * // Subscribe to multiple topics
+   * client.subscribe(['user.*', 'admin.*'], (msg) => {
+   *   console.log('Event:', msg.topic, msg.data);
+   * });
+   *
+   * // Get retained messages immediately
+   * client.subscribe('app.state', (msg) => {
+   *   console.log('State:', msg.data);
+   * }, { retained: true });
+   *
+   * // Auto-cleanup with AbortSignal
+   * const controller = new AbortController();
+   * client.subscribe('temp.*', handleTemp, { signal: controller.signal });
+   * // Later: controller.abort(); // automatically unsubscribes
+   *
+   * // Manual cleanup
+   * const unsub = client.subscribe('user.*', handler);
+   * unsub(); // unsubscribe
    */
   subscribe(topics, handler, opts = {}) {
     topics = Array.isArray(topics) ? topics : [topics];
@@ -247,15 +291,45 @@ var PanClient = class _PanClient {
   }
   /**
    * Convenience alias for subscribe
+   *
+   * @param {string|string[]} topics - Topic pattern(s) to subscribe to
+   * @param {MessageHandler} handler - Function to handle received messages
+   * @param {SubscribeOptions} [opts] - Subscription options
+   * @returns {UnsubscribeFunction} Function to unsubscribe
+   *
+   * @example
+   * client.sub('user.*', (msg) => console.log(msg.data));
    */
   sub(topics, handler, opts) {
     return this.subscribe(topics, handler, opts);
   }
   /**
-   * Request/Reply convenience helper. Resolves with the reply message.
-   * @param {string} topic
-   * @param {any} data
-   * @param {{ timeoutMs?: number }=} options
+   * Sends a request and waits for a reply
+   *
+   * Implements request/reply pattern using correlation IDs.
+   * Returns a promise that resolves with the reply message.
+   *
+   * @param {string} topic - Request topic
+   * @param {*} [data] - Request payload
+   * @param {RequestOptions} [options] - Request options
+   * @returns {Promise<PanMessage>} Promise that resolves with reply message
+   * @throws {Error} If request times out
+   *
+   * @example
+   * try {
+   *   const response = await client.request('api.user.get', { id: 123 });
+   *   console.log('User:', response.data);
+   * } catch (error) {
+   *   console.error('Request failed:', error);
+   * }
+   *
+   * @example
+   * // Custom timeout
+   * const response = await client.request(
+   *   'api.slow.operation',
+   *   { params: {} },
+   *   { timeoutMs: 10000 }
+   * );
    */
   request(topic, data, { timeoutMs = 5e3 } = {}) {
     const correlationId = crypto.randomUUID();
@@ -273,7 +347,25 @@ var PanClient = class _PanClient {
       this.publish({ topic, data, replyTo, correlationId });
     });
   }
-  /** topic pattern matcher: supports '*', segment wildcards (foo.*, *.bar, foo.*.baz) */
+  /**
+   * Check if a topic matches a pattern
+   *
+   * Static utility method for pattern matching. Supports wildcards:
+   * - `*` matches anything
+   * - `foo.*` matches `foo.bar`, `foo.baz`, etc.
+   * - `*.bar` matches `foo.bar`, `baz.bar`, etc.
+   * - `foo.*.baz` matches `foo.bar.baz`, `foo.qux.baz`, etc.
+   *
+   * @param {string} topic - Topic to test (e.g., 'user.login')
+   * @param {string} pattern - Pattern to match against (e.g., 'user.*')
+   * @returns {boolean} True if topic matches pattern
+   *
+   * @example
+   * PanClient.matches('user.login', 'user.*')      // true
+   * PanClient.matches('user.login', '*.login')     // true
+   * PanClient.matches('user.login', 'admin.*')     // false
+   * PanClient.matches('user.123.state', 'user.*.state') // true
+   */
   static matches(topic, pattern) {
     if (pattern === "*" || topic === pattern) return true;
     if (pattern && pattern.includes("*")) {

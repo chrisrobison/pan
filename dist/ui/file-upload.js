@@ -1,144 +1,39 @@
 import { PanClient } from "./pan-client.mjs";
-
-/**
- * FileUpload - A custom web component for uploading files with drag-and-drop support and image previews.
- *
- * @class FileUpload
- * @extends {HTMLElement}
- *
- * @fires upload.upload - Emitted when files are selected/dropped (published on PanBus)
- * @fires upload.remove - Emitted when a file is removed from the list (published on PanBus)
- * @fires upload.error - Emitted when file validation fails (published on PanBus)
- *
- * @example
- * // Basic file upload
- * <file-upload accept="image/*" multiple></file-upload>
- *
- * @example
- * // With file size limit
- * <file-upload max-size="5242880" accept=".pdf,.doc"></file-upload>
- *
- * @example
- * // Without drag-and-drop or preview
- * <file-upload drag-drop="false" preview="false"></file-upload>
- *
- * @example
- * // With custom topic
- * <file-upload topic="document" accept=".pdf"></file-upload>
- */
 class FileUpload extends HTMLElement {
-  /**
-   * Returns the list of attributes that trigger attributeChangedCallback when modified.
-   *
-   * @static
-   * @returns {string[]} Array of observed attribute names
-   */
   static get observedAttributes() {
     return ["accept", "multiple", "max-size", "topic", "preview", "drag-drop"];
   }
-
-  /**
-   * Creates an instance of FileUpload.
-   * Initializes shadow DOM, PanClient, and file storage.
-   *
-   * @constructor
-   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-
-    /**
-     * PanClient instance for pub/sub messaging.
-     * @type {PanClient}
-     */
     this.pc = new PanClient(this);
-
-    /**
-     * Array of uploaded file objects with metadata.
-     * @type {Array<{file: File, data: Object}>}
-     */
     this.files = [];
   }
-
-  /**
-   * Lifecycle callback invoked when the element is connected to the DOM.
-   */
   connectedCallback() {
     this.render();
     this.setupEvents();
   }
-
-  /**
-   * Lifecycle callback invoked when an observed attribute changes.
-   */
   attributeChangedCallback() {
     if (this.isConnected) this.render();
   }
-
-  /**
-   * Gets the accepted file types for the file input.
-   *
-   * @type {string}
-   * @returns {string} Comma-separated list of accepted file types
-   */
   get accept() {
     return this.getAttribute("accept") || "";
   }
-
-  /**
-   * Gets whether multiple file selection is allowed.
-   *
-   * @type {boolean}
-   * @returns {boolean} True if multiple files can be selected
-   */
   get multiple() {
     return this.hasAttribute("multiple");
   }
-
-  /**
-   * Gets the maximum allowed file size in bytes.
-   *
-   * @type {number}
-   * @returns {number} Maximum file size, Infinity if not set
-   */
   get maxSize() {
     return parseInt(this.getAttribute("max-size")) || Infinity;
   }
-
-  /**
-   * Gets the PanBus topic prefix for publishing events.
-   *
-   * @type {string}
-   * @returns {string} The topic prefix, defaults to "upload"
-   */
   get topic() {
     return this.getAttribute("topic") || "upload";
   }
-
-  /**
-   * Gets whether image previews should be generated.
-   *
-   * @type {boolean}
-   * @returns {boolean} True if previews are enabled (default)
-   */
   get preview() {
     return this.getAttribute("preview") !== "false";
   }
-
-  /**
-   * Gets whether drag-and-drop functionality is enabled.
-   *
-   * @type {boolean}
-   * @returns {boolean} True if drag-and-drop is enabled (default)
-   */
   get dragDrop() {
     return this.getAttribute("drag-drop") !== "false";
   }
-  /**
-   * Sets up event listeners for file input, drag-and-drop, and browse button.
-   *
-   * @private
-   */
   setupEvents() {
     const input = this.shadowRoot.querySelector(".file-input");
     const dropZone = this.shadowRoot.querySelector(".drop-zone");
@@ -172,14 +67,6 @@ class FileUpload extends HTMLElement {
       });
     }
   }
-  /**
-   * Handles selected or dropped files, validates them, and generates previews.
-   * Publishes an upload event on PanBus with file information.
-   *
-   * @async
-   * @param {FileList} fileList - The FileList object containing selected files
-   * @private
-   */
   async handleFiles(fileList) {
     const filesArray = Array.from(fileList);
     for (const file of filesArray) {
@@ -207,15 +94,6 @@ class FileUpload extends HTMLElement {
       }
     });
   }
-
-  /**
-   * Reads a file as a Data URL for preview purposes.
-   *
-   * @async
-   * @param {File} file - The file to read
-   * @returns {Promise<string|null>} Data URL string or null on error
-   * @private
-   */
   readFileAsDataURL(file) {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -224,14 +102,6 @@ class FileUpload extends HTMLElement {
       reader.readAsDataURL(file);
     });
   }
-
-  /**
-   * Removes a file from the list by index.
-   * Publishes a remove event on PanBus.
-   *
-   * @param {number} index - The index of the file to remove
-   * @public
-   */
   removeFile(index) {
     this.files.splice(index, 1);
     this.renderFileList();
@@ -240,28 +110,12 @@ class FileUpload extends HTMLElement {
       data: { index }
     });
   }
-
-  /**
-   * Publishes an error event on PanBus with error details.
-   *
-   * @param {string} error - Error message
-   * @param {File} [file] - Optional file that caused the error
-   * @private
-   */
   publishError(error, file) {
     this.pc.publish({
       topic: `${this.topic}.error`,
       data: { error, file: file ? { name: file.name, size: file.size, type: file.type } : null }
     });
   }
-
-  /**
-   * Formats a file size in bytes to human-readable format (B, KB, MB, GB).
-   *
-   * @param {number} bytes - File size in bytes
-   * @returns {string} Formatted file size string
-   * @private
-   */
   formatFileSize(bytes) {
     if (bytes === 0) return "0 B";
     const k = 1024;
@@ -269,12 +123,6 @@ class FileUpload extends HTMLElement {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
   }
-
-  /**
-   * Renders the list of uploaded files with previews and remove buttons.
-   *
-   * @private
-   */
   renderFileList() {
     const fileList = this.shadowRoot.querySelector(".file-list");
     if (!fileList) return;
@@ -309,12 +157,6 @@ class FileUpload extends HTMLElement {
       });
     });
   }
-  /**
-   * Renders the component's shadow DOM with styles and markup.
-   * Creates the drop zone, file input, and file list elements.
-   *
-   * @private
-   */
   render() {
     this.shadowRoot.innerHTML = `
       <style>

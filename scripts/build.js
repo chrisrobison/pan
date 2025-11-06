@@ -52,7 +52,7 @@ console.log('   ✓ dist/index.js\n');
 // 2. Transform individual components (no bundling)
 // ============================================================================
 async function transformComponents(sourceDir, destSubDir, label) {
-  const sourcePath = join(rootDir, 'pan', sourceDir);
+  const sourcePath = join(rootDir, 'src', sourceDir);
   if (!existsSync(sourcePath)) {
     console.log(`   ⚠ Skipping ${sourceDir}/ (not found)`);
     return;
@@ -86,6 +86,17 @@ async function transformComponents(sourceDir, destSubDir, label) {
   }
 
   console.log(`   ✓ dist/${destSubDir}/ (${files.length} files)\n`);
+
+  // Copy TypeScript definitions
+  const dtsFiles = readdirSync(sourcePath).filter(f => f.endsWith('.d.ts'));
+  for (const dtsFile of dtsFiles) {
+    const srcFile = join(sourcePath, dtsFile);
+    const destFile = join(destPath, dtsFile);
+    copyFileSync(srcFile, destFile);
+  }
+  if (dtsFiles.length > 0) {
+    console.log(`   ✓ Copied ${dtsFiles.length} .d.ts files\n`);
+  }
 }
 
 // Transform all component directories
@@ -101,7 +112,7 @@ await transformComponents('data', 'data', 'data layer');
 console.log('📦 Transforming autoload & inspector...');
 
 // Autoload
-const autoloadSource = join(rootDir, 'pan/core/pan-autoload.mjs');
+const autoloadSource = join(rootDir, 'src/core/pan-autoload.mjs');
 if (existsSync(autoloadSource)) {
   await esbuild.build({
     entryPoints: [autoloadSource],
@@ -117,7 +128,7 @@ if (existsSync(autoloadSource)) {
 }
 
 // Inspector
-const inspectorSource = join(rootDir, 'pan/app/pan-inspector.mjs');
+const inspectorSource = join(rootDir, 'src/app/pan-inspector.mjs');
 if (existsSync(inspectorSource)) {
   await esbuild.build({
     entryPoints: [inspectorSource],
@@ -164,13 +175,13 @@ if (existsSync(indexDts)) {
   console.log('   ✓ dist/index.d.ts');
 }
 
-const autoloadDts = join(rootDir, 'pan/core/pan-autoload.d.ts');
+const autoloadDts = join(rootDir, 'src/core/pan-autoload.d.ts');
 if (existsSync(autoloadDts)) {
   copyFileSync(autoloadDts, join(distDir, 'autoload.d.ts'));
   console.log('   ✓ dist/autoload.d.ts');
 }
 
-const inspectorDts = join(rootDir, 'pan/app/pan-inspector.d.ts');
+const inspectorDts = join(rootDir, 'src/app/pan-inspector.d.ts');
 if (existsSync(inspectorDts)) {
   copyFileSync(inspectorDts, join(distDir, 'inspector.d.ts'));
   console.log('   ✓ dist/inspector.d.ts');

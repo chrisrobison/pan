@@ -1,54 +1,4 @@
 import { PanClient } from "./pan-client.mjs";
-
-/**
- * @typedef {Object} SyncItemOptions
- * @property {string} [resource="items"] - The resource name for pub/sub topics
- * @property {string|number|null} [id=null] - Initial item ID to sync
- * @property {string} [key="id"] - Property name to use as the unique identifier
- * @property {boolean} [live=true] - Enable real-time synchronization
- * @property {boolean} [autoSave=true] - Automatically save changes to the store
- * @property {number} [debounceMs=300] - Debounce delay for auto-save in milliseconds
- * @property {boolean} [followSelect=true] - Follow item selection events
- */
-
-/**
- * @typedef {Object} Store
- * @property {Function} _setAll - Internal method to set all store properties
- * @property {Function} patch - Method to partially update store properties
- * @property {Function} snapshot - Method to get current store state
- * @property {Function} subscribe - Method to subscribe to store changes
- */
-
-/**
- * Synchronizes a single item between a store and the Pan message bus.
- * Handles real-time updates, auto-save with debouncing, and item selection.
- *
- * @param {Store} store - The store instance to synchronize
- * @param {SyncItemOptions} [options] - Configuration options
- * @returns {Function} Cleanup function to unsubscribe and clear timers
- *
- * @example
- * // Basic usage with a store
- * const store = createStore({ name: '', status: '' });
- * const cleanup = syncItem(store, {
- *   resource: 'tasks',
- *   id: '123',
- *   live: true,
- *   autoSave: true
- * });
- *
- * @example
- * // Following selection events
- * const cleanup = syncItem(store, {
- *   resource: 'notes',
- *   followSelect: true,
- *   debounceMs: 500
- * });
- *
- * @example
- * // Cleanup when done
- * cleanup();
- */
 function syncItem(store, { resource = "items", id = null, key = "id", live = true, autoSave = true, debounceMs = 300, followSelect = true } = {}) {
   const pc = new PanClient();
   let currentId = id;
@@ -57,12 +7,6 @@ function syncItem(store, { resource = "items", id = null, key = "id", live = tru
   let saving = false;
   let t = null;
   let applying = 0;
-
-  /**
-   * Applies an item to the store without triggering auto-save.
-   * @param {Object} item - The item data to apply
-   * @private
-   */
   function applyItem(item) {
     applying++;
     try {
@@ -71,12 +15,6 @@ function syncItem(store, { resource = "items", id = null, key = "id", live = tru
       applying--;
     }
   }
-
-  /**
-   * Subscribes to live updates for the current item.
-   * Unsubscribes from previous item if necessary.
-   * @private
-   */
   function subscribeLive() {
     try {
       offLive && offLive();
@@ -95,11 +33,6 @@ function syncItem(store, { resource = "items", id = null, key = "id", live = tru
       else if (d && typeof d === "object") store.patch(d);
     }, { retained: true });
   }
-
-  /**
-   * Handles store changes and triggers debounced auto-save.
-   * @private
-   */
   function onStoreChange() {
     if (!autoSave || !currentId) return;
     if (applying > 0) return;
@@ -153,61 +86,12 @@ function syncItem(store, { resource = "items", id = null, key = "id", live = tru
     clearTimeout(t);
   };
 }
-
-/**
- * @typedef {Object} SyncListOptions
- * @property {string} [resource="items"] - The resource name for pub/sub topics
- * @property {string} [key="id"] - Property name to use as the unique identifier
- * @property {boolean} [live=true] - Enable real-time synchronization for individual items
- */
-
-/**
- * Synchronizes a list of items between a store and the Pan message bus.
- * Handles list state updates and live item modifications.
- *
- * @param {Store} store - The store instance to synchronize
- * @param {SyncListOptions} [options] - Configuration options
- * @returns {Function} Cleanup function to unsubscribe from topics
- *
- * @example
- * // Basic usage
- * const store = createStore({ items: [] });
- * const cleanup = syncList(store, {
- *   resource: 'todos',
- *   key: 'id',
- *   live: true
- * });
- *
- * @example
- * // Without live updates
- * const cleanup = syncList(store, {
- *   resource: 'tasks',
- *   live: false
- * });
- *
- * @example
- * // Cleanup when done
- * cleanup();
- */
 function syncList(store, { resource = "items", key = "id", live = true } = {}) {
   const pc = new PanClient();
   let items = [];
-
-  /**
-   * Renders the current items array to the store.
-   * @private
-   */
   function render() {
     store._setAll({ items });
   }
-
-  /**
-   * Applies an individual item update to the items array.
-   * Handles item creation, updates, and deletion.
-   * @param {Object} d - The data containing item changes
-   * @param {string} [topic] - The topic string (used to extract ID if needed)
-   * @private
-   */
   function applyItem(d, topic) {
     let id = d?.id ?? d?.item?.[key] ?? d?.item?.id;
     if (id == null && topic) {

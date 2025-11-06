@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "sources": ["../../pan/components/x-counter.mjs"],
+  "sources": ["../../src/components/x-counter.mjs"],
   "sourcesContent": ["// Simple counter component demonstrating PAN pub/sub pattern\nimport { PanClient } from './pan-client.mjs';\n\nclass XCounter extends HTMLElement {\n  pc = new PanClient(this);\n  n = 0;\n\n  connectedCallback() {\n    this.innerHTML = `<button class=\"button-link\" style=\"font-size:1.1rem;padding:0.75rem 1.2rem;\">Clicked 0</button>`;\n\n    this.querySelector('button')?.addEventListener('click', () => {\n      this.pc.publish({\n        topic: 'demo:click',\n        data: { n: ++this.n },\n        retain: true\n      });\n    });\n\n    this.pc.subscribe('demo:click', (m) => {\n      const btn = this.querySelector('button');\n      if (btn) btn.textContent = `Clicked ${m.data.n}`;\n    }, { retained: true });\n  }\n}\n\ncustomElements.define('x-counter', XCounter);\nexport default XCounter;\n"],
   "mappings": "AACA,SAAS,iBAAiB;AAE1B,MAAM,iBAAiB,YAAY;AAAA,EACjC,KAAK,IAAI,UAAU,IAAI;AAAA,EACvB,IAAI;AAAA,EAEJ,oBAAoB;AAClB,SAAK,YAAY;AAEjB,SAAK,cAAc,QAAQ,GAAG,iBAAiB,SAAS,MAAM;AAC5D,WAAK,GAAG,QAAQ;AAAA,QACd,OAAO;AAAA,QACP,MAAM,EAAE,GAAG,EAAE,KAAK,EAAE;AAAA,QACpB,QAAQ;AAAA,MACV,CAAC;AAAA,IACH,CAAC;AAED,SAAK,GAAG,UAAU,cAAc,CAAC,MAAM;AACrC,YAAM,MAAM,KAAK,cAAc,QAAQ;AACvC,UAAI,IAAK,KAAI,cAAc,WAAW,EAAE,KAAK,CAAC;AAAA,IAChD,GAAG,EAAE,UAAU,KAAK,CAAC;AAAA,EACvB;AACF;AAEA,eAAe,OAAO,aAAa,QAAQ;AAC3C,IAAO,oBAAQ;",
   "names": []

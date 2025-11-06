@@ -1,49 +1,10 @@
 import { PanClient } from "./pan-client.mjs";
-
-/**
- * Custom element that connects pan-bus topics to a REST API.
- * Automatically handles CRUD operations for a resource via HTTP requests.
- *
- * @fires {resource}.list.state - Published with list of items from API
- * @fires {resource}.item.state.{id} - Published with individual item state
- *
- * @attr {string} resource - Resource name for pub/sub topics (default: "items")
- * @attr {string} key - Property name used as unique identifier (default: "id")
- * @attr {string} base-url - Base URL for API requests
- * @attr {string} list-path - Path for list endpoint (default: "/{resource}")
- * @attr {string} item-path - Path for item endpoint with :id placeholder (default: "/{resource}/:id")
- * @attr {string} update-method - HTTP method for updates: PUT or PATCH (default: "PUT")
- * @attr {string} credentials - Fetch credentials mode: "omit", "same-origin", or "include"
- *
- * @example
- * <pan-data-connector
- *   resource="users"
- *   base-url="https://api.example.com"
- *   list-path="/users"
- *   item-path="/users/:id"
- *   update-method="PUT">
- *   <script type="application/json">
- *     {
- *       "credentials": "include",
- *       "headers": {
- *         "Authorization": "Bearer token123"
- *       }
- *     }
- *   </script>
- * </pan-data-connector>
- */
 class PanDataConnector extends HTMLElement {
-  /**
-   * Creates a new PanDataConnector instance
-   */
   constructor() {
     super();
     this.pc = new PanClient(this);
+    this.authState = null;
   }
-  /**
-   * Lifecycle: Called when element is added to the DOM
-   * Initializes configuration and subscribes to CRUD topics
-   */
   connectedCallback() {
     this.resource = (this.getAttribute("resource") || "items").trim();
     this.key = (this.getAttribute("key") || "id").trim();
@@ -53,6 +14,9 @@ class PanDataConnector extends HTMLElement {
     this.updateMethod = (this.getAttribute("update-method") || "PUT").toUpperCase();
     this.credentials = (this.getAttribute("credentials") || "").trim();
     this.opts = this.#loadOpts();
+    this.authOff = this.pc.subscribe("auth.internal.state", (m) => {
+      this.authState = m.data;
+    }, { retained: true });
     const listGet = `${this.resource}.list.get`;
     const itemGet = `${this.resource}.item.get`;
     const itemSave = `${this.resource}.item.save`;
@@ -65,18 +29,10 @@ class PanDataConnector extends HTMLElement {
     ];
     this.#refreshList();
   }
-
-  /**
-   * Lifecycle: Called when element is removed from the DOM
-   */
   disconnectedCallback() {
     this.off?.forEach((f) => f && f());
+    this.authOff?.();
   }
-  /**
-   * Load fetch options from inline JSON script
-   * @private
-   * @returns {Object} Fetch options
-   */
   #loadOpts() {
     let o = {};
     const script = this.querySelector('script[type="application/json"]');
@@ -89,24 +45,10 @@ class PanDataConnector extends HTMLElement {
     if (this.credentials) o.credentials = this.credentials;
     return o;
   }
-
-  /**
-   * Build full URL from path
-   * @private
-   * @param {string} path - Path to append to base URL
-   * @returns {string} Full URL
-   */
   #url(path) {
     if (!path.startsWith("/")) path = "/" + path;
     return `${this.baseUrl}${path}`;
   }
-
-  /**
-   * Build query string from parameters
-   * @private
-   * @param {Object} params - Query parameters
-   * @returns {string} Query string with leading ?
-   */
   #qs(params) {
     const p = params && typeof params === "object" ? Object.entries(params).filter(([_, v]) => v !== void 0 && v !== null) : [];
     if (!p.length) return "";
@@ -117,20 +59,12 @@ class PanDataConnector extends HTMLElement {
     }
     return `?${s.toString()}`;
   }
-
-  /**
-   * Fetch JSON from URL with error handling
-   * @private
-   * @param {string} url - URL to fetch
-   * @param {Object} [options] - Fetch options
-   * @param {string} [options.method='GET'] - HTTP method
-   * @param {*} [options.body] - Request body
-   * @returns {Promise<*>} Parsed JSON response
-   * @throws {Object} Error object with status, statusText, and body
-   */
   async #fetchJson(url, { method = "GET", body } = {}) {
     const init = Object.assign({ method }, this.opts);
     init.headers = Object.assign({ "Content-Type": "application/json" }, this.opts?.headers || {});
+    if (this.authState?.authenticated && this.authState?.token) {
+      init.headers["Authorization"] = `Bearer ${this.authState.token}`;
+    }
     if (body !== void 0) init.body = typeof body === "string" ? body : JSON.stringify(body);
     const res = await fetch(url, init);
     const text = await res.text();
@@ -145,22 +79,9 @@ class PanDataConnector extends HTMLElement {
     }
     return json;
   }
-  /**
-   * Publish list state to pan-bus
-   * @private
-   * @param {Array} items - Array of items
-   */
   #publishListState(items) {
     this.pc.publish({ topic: `${this.resource}.list.state`, data: { items: Array.isArray(items) ? items : [] }, retain: true });
   }
-
-  /**
-   * Publish item state to pan-bus
-   * @private
-   * @param {Object|*} item - Item object or ID
-   * @param {Object} [opts={}] - Options
-   * @param {boolean} [opts.deleted] - Whether item was deleted
-   */
   #publishItemState(item, opts = {}) {
     try {
       const id = item && typeof item === "object" ? item[this.key] ?? item.id : item;
@@ -173,13 +94,6 @@ class PanDataConnector extends HTMLElement {
     } catch {
     }
   }
-
-  /**
-   * Fetch list from API and publish state
-   * @private
-   * @param {Object} [params] - Query parameters
-   * @returns {Promise<Array>} Array of items
-   */
   async #refreshList(params) {
     try {
       const url = this.#url(this.listPath) + this.#qs(params);
@@ -192,22 +106,10 @@ class PanDataConnector extends HTMLElement {
       return [];
     }
   }
-
-  /**
-   * Handle list.get message
-   * @private
-   * @param {Object} m - Message with optional query parameters
-   */
   async #onListGet(m) {
     const items = await this.#refreshList(m?.data);
     if (m?.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: true, items } });
   }
-
-  /**
-   * Handle item.get message
-   * @private
-   * @param {Object} m - Message with item ID
-   */
   async #onItemGet(m) {
     const id = m?.data?.[this.key] ?? m?.data?.id ?? m?.data;
     const url = this.#url(this.itemPath.replace(":id", encodeURIComponent(String(id))));
@@ -219,12 +121,6 @@ class PanDataConnector extends HTMLElement {
       if (m?.replyTo) this.pc.publish({ topic: m.replyTo, correlationId: m.correlationId, data: { ok: false, error: err } });
     }
   }
-
-  /**
-   * Handle item.save message - creates or updates item
-   * @private
-   * @param {Object} m - Message with item data
-   */
   async #onItemSave(m) {
     let item = m?.data?.item ?? m?.data;
     if (!item || typeof item !== "object") item = {};
@@ -242,12 +138,6 @@ class PanDataConnector extends HTMLElement {
     }
     await this.#refreshList();
   }
-
-  /**
-   * Handle item.delete message
-   * @private
-   * @param {Object} m - Message with item ID
-   */
   async #onItemDelete(m) {
     const id = m?.data?.[this.key] ?? m?.data?.id ?? m?.data;
     const url = this.#url(this.itemPath.replace(":id", encodeURIComponent(String(id))));

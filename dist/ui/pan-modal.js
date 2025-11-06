@@ -1,146 +1,42 @@
 import { PanClient } from "./pan-client.mjs";
-
-/**
- * PanModal - A modal dialog component with backdrop, keyboard controls, and PanBus integration.
- *
- * @class PanModal
- * @extends {HTMLElement}
- *
- * @fires modal.{id}.opened - Emitted when the modal is shown (published on PanBus)
- * @fires modal.{id}.closed - Emitted when the modal is hidden (published on PanBus)
- *
- * @example
- * // Basic modal
- * <pan-modal modal-id="confirm" title="Confirm Action">
- *   <p>Are you sure you want to proceed?</p>
- *   <div slot="footer">
- *     <button>Cancel</button>
- *     <button>Confirm</button>
- *   </div>
- * </pan-modal>
- *
- * @example
- * // Large modal with custom header
- * <pan-modal size="lg" closable="false">
- *   <div slot="header"><h2>Custom Header</h2></div>
- *   <p>Modal content</p>
- * </pan-modal>
- */
 class PanModal extends HTMLElement {
-  /**
-   * Returns the list of attributes that trigger attributeChangedCallback when modified.
-   *
-   * @static
-   * @returns {string[]} Array of observed attribute names
-   */
   static get observedAttributes() {
     return ["topic", "modal-id", "title", "size", "closable"];
   }
-
-  /**
-   * Creates an instance of PanModal.
-   * Initializes shadow DOM, PanClient, and modal state.
-   *
-   * @constructor
-   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-
-    /**
-     * PanClient instance for pub/sub messaging.
-     * @type {PanClient}
-     */
     this.pc = new PanClient(this);
-
-    /**
-     * Flag indicating if the modal is currently open.
-     * @type {boolean}
-     */
     this.isOpen = false;
   }
-  /**
-   * Lifecycle callback invoked when the element is connected to the DOM.
-   */
   connectedCallback() {
     this.render();
     this.setupTopics();
     this.setupEvents();
   }
-
-  /**
-   * Lifecycle callback invoked when an observed attribute changes.
-   */
   attributeChangedCallback() {
     if (this.isConnected) this.render();
   }
-
-  /**
-   * Gets the unique identifier for this modal.
-   *
-   * @type {string}
-   * @returns {string} The modal ID, defaults to "default"
-   */
   get modalId() {
     return this.getAttribute("modal-id") || "default";
   }
-
-  /**
-   * Gets the PanBus topic prefix for publishing events.
-   *
-   * @type {string}
-   * @returns {string} The topic prefix, defaults to "modal.{modalId}"
-   */
   get topic() {
     return this.getAttribute("topic") || `modal.${this.modalId}`;
   }
-
-  /**
-   * Gets the modal title text.
-   *
-   * @type {string}
-   * @returns {string} The modal title
-   */
   get title() {
     return this.getAttribute("title") || "";
   }
-
-  /**
-   * Gets the modal size (sm, md, lg, xl, full).
-   *
-   * @type {string}
-   * @returns {string} The size variant, defaults to "md"
-   */
   get size() {
     return this.getAttribute("size") || "md";
   }
-
-  /**
-   * Gets whether the modal can be closed by clicking backdrop or escape key.
-   *
-   * @type {boolean}
-   * @returns {boolean} True if closable (default)
-   */
   get closable() {
     return this.getAttribute("closable") !== "false";
   }
-
-  /**
-   * Subscribes to PanBus topics for show/hide/toggle commands.
-   *
-   * @private
-   */
   setupTopics() {
     this.pc.subscribe(`${this.topic}.show`, () => this.show());
     this.pc.subscribe(`${this.topic}.hide`, () => this.hide());
     this.pc.subscribe(`${this.topic}.toggle`, () => this.toggle());
   }
-
-  /**
-   * Sets up event listeners for backdrop clicks, close button, and keyboard.
-   *
-   * @private
-   */
   setupEvents() {
     const backdrop = this.shadowRoot.querySelector(".modal-backdrop");
     const closeBtn = this.shadowRoot.querySelector(".close-btn");
@@ -161,21 +57,9 @@ class PanModal extends HTMLElement {
     };
     document.addEventListener("keydown", this.handleKeydown);
   }
-
-  /**
-   * Lifecycle callback invoked when the element is disconnected from the DOM.
-   * Cleans up keyboard event listener.
-   */
   disconnectedCallback() {
     document.removeEventListener("keydown", this.handleKeydown);
   }
-
-  /**
-   * Shows the modal and publishes an opened event.
-   * Disables body scrolling while modal is open.
-   *
-   * @public
-   */
   show() {
     if (this.isOpen) return;
     this.isOpen = true;
@@ -189,13 +73,6 @@ class PanModal extends HTMLElement {
       data: { modalId: this.modalId }
     });
   }
-
-  /**
-   * Hides the modal and publishes a closed event.
-   * Re-enables body scrolling.
-   *
-   * @public
-   */
   hide() {
     if (!this.isOpen) return;
     this.isOpen = false;
@@ -209,22 +86,9 @@ class PanModal extends HTMLElement {
       data: { modalId: this.modalId }
     });
   }
-
-  /**
-   * Toggles the modal between open and closed states.
-   *
-   * @public
-   */
   toggle() {
     this.isOpen ? this.hide() : this.show();
   }
-
-  /**
-   * Renders the component's shadow DOM with styles and markup.
-   * Supports header, body, and footer content slots.
-   *
-   * @private
-   */
   render() {
     this.shadowRoot.innerHTML = `
       <style>

@@ -1,129 +1,33 @@
 import { PanClient } from "./pan-client.mjs";
-
-/**
- * PanDropdown - A dropdown menu component with customizable items and positioning.
- *
- * @class PanDropdown
- * @extends {HTMLElement}
- *
- * @fires dropdown.opened - Emitted when the dropdown is opened (published on PanBus)
- * @fires dropdown.closed - Emitted when the dropdown is closed (published on PanBus)
- * @fires dropdown.select - Emitted when an item is selected (published on PanBus)
- *
- * @example
- * // Basic dropdown with JSON items
- * <pan-dropdown
- *   label="Select Option"
- *   items='[{"label":"Option 1","value":"1"},{"label":"Option 2","value":"2"}]'>
- * </pan-dropdown>
- *
- * @example
- * // Dropdown with custom trigger and content slots
- * <pan-dropdown position="bottom-right">
- *   <button slot="trigger">Custom Trigger</button>
- *   <div data-value="action1">Action 1</div>
- *   <div data-value="action2">Action 2</div>
- * </pan-dropdown>
- *
- * @example
- * // Dropdown with icons and dividers
- * <pan-dropdown
- *   items='[{"label":"Edit","value":"edit","icon":"✏️"},{"divider":true},{"label":"Delete","value":"delete","icon":"🗑️"}]'>
- * </pan-dropdown>
- */
 class PanDropdown extends HTMLElement {
-  /**
-   * Returns the list of attributes that trigger attributeChangedCallback when modified.
-   *
-   * @static
-   * @returns {string[]} Array of observed attribute names
-   */
   static get observedAttributes() {
     return ["label", "position", "topic", "items"];
   }
-
-  /**
-   * Creates an instance of PanDropdown.
-   * Initializes shadow DOM, PanClient, and dropdown state.
-   *
-   * @constructor
-   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-
-    /**
-     * PanClient instance for pub/sub messaging.
-     * @type {PanClient}
-     */
     this.pc = new PanClient(this);
-
-    /**
-     * Flag indicating if the dropdown is currently open.
-     * @type {boolean}
-     */
     this.isOpen = false;
   }
-
-  /**
-   * Lifecycle callback invoked when the element is connected to the DOM.
-   */
   connectedCallback() {
     this.render();
     this.setupEvents();
   }
-
-  /**
-   * Lifecycle callback invoked when the element is disconnected from the DOM.
-   * Cleans up the outside click listener.
-   */
   disconnectedCallback() {
     document.removeEventListener("click", this.handleOutsideClick);
   }
-
-  /**
-   * Lifecycle callback invoked when an observed attribute changes.
-   */
   attributeChangedCallback() {
     if (this.isConnected) this.render();
   }
-
-  /**
-   * Gets the dropdown trigger button label.
-   *
-   * @type {string}
-   * @returns {string} The button label, defaults to "Menu"
-   */
   get label() {
     return this.getAttribute("label") || "Menu";
   }
-
-  /**
-   * Gets the dropdown menu position (bottom-left, bottom-right, top-left, top-right).
-   *
-   * @type {string}
-   * @returns {string} The position, defaults to "bottom-left"
-   */
   get position() {
     return this.getAttribute("position") || "bottom-left";
   }
-
-  /**
-   * Gets the PanBus topic prefix for publishing events.
-   *
-   * @type {string}
-   * @returns {string} The topic prefix, defaults to "dropdown"
-   */
   get topic() {
     return this.getAttribute("topic") || "dropdown";
   }
-
-  /**
-   * Gets the dropdown items array from JSON attribute.
-   *
-   * @type {Array<{label: string, value: string, icon?: string, disabled?: boolean, divider?: boolean}>}
-   * @returns {Array} Array of menu items, empty array if invalid JSON
-   */
   get items() {
     const attr = this.getAttribute("items");
     if (!attr) return [];
@@ -133,12 +37,6 @@ class PanDropdown extends HTMLElement {
       return [];
     }
   }
-
-  /**
-   * Sets up event listeners for trigger clicks, item selection, and outside clicks.
-   *
-   * @private
-   */
   setupEvents() {
     const trigger = this.shadowRoot.querySelector(".dropdown-trigger");
     const menu = this.shadowRoot.querySelector(".dropdown-menu");
@@ -165,21 +63,9 @@ class PanDropdown extends HTMLElement {
     };
     document.addEventListener("click", this.handleOutsideClick);
   }
-
-  /**
-   * Toggles the dropdown between open and closed states.
-   *
-   * @public
-   */
   toggle() {
     this.isOpen ? this.close() : this.open();
   }
-
-  /**
-   * Opens the dropdown menu and publishes an opened event.
-   *
-   * @public
-   */
   open() {
     if (this.isOpen) return;
     this.isOpen = true;
@@ -190,12 +76,6 @@ class PanDropdown extends HTMLElement {
       data: {}
     });
   }
-
-  /**
-   * Closes the dropdown menu and publishes a closed event.
-   *
-   * @public
-   */
   close() {
     if (!this.isOpen) return;
     this.isOpen = false;
@@ -206,14 +86,6 @@ class PanDropdown extends HTMLElement {
       data: {}
     });
   }
-
-  /**
-   * Handles item selection, publishes a select event, and closes the dropdown.
-   *
-   * @param {string} value - The selected item's value
-   * @param {string} label - The selected item's label
-   * @public
-   */
   selectItem(value, label) {
     this.pc.publish({
       topic: `${this.topic}.select`,
@@ -221,13 +93,6 @@ class PanDropdown extends HTMLElement {
     });
     this.close();
   }
-
-  /**
-   * Renders the component's shadow DOM with styles and markup.
-   * Supports custom trigger slot and item slots.
-   *
-   * @private
-   */
   render() {
     const hasTriggerSlot = this.querySelector('[slot="trigger"]');
     const hasDefaultSlot = this.querySelector(":not([slot])");
@@ -352,7 +217,7 @@ class PanDropdown extends HTMLElement {
         ` : `
           <button class="dropdown-trigger ${this.isOpen ? "open" : ""}">
             ${this.label}
-            <span class="dropdown-arrow">▼</span>
+            <span class="dropdown-arrow">\u25BC</span>
           </button>
         `}
 

@@ -1,125 +1,32 @@
-/**
- * PanCard - A customizable card component with header, footer, actions slots, and various styling variants.
- *
- * @class PanCard
- * @extends {HTMLElement}
- *
- * @example
- * // Basic card with header
- * <pan-card header="My Card">
- *   Content goes here
- * </pan-card>
- *
- * @example
- * // Card with custom slots
- * <pan-card variant="primary" elevation="2" hoverable>
- *   <div slot="header">Custom Header</div>
- *   <p>Card content</p>
- *   <div slot="actions">
- *     <button>Action 1</button>
- *     <button>Action 2</button>
- *   </div>
- *   <div slot="footer">Footer text</div>
- * </pan-card>
- *
- * @example
- * // Danger variant card
- * <pan-card variant="danger" header="Error" footer="Please fix">
- *   An error occurred
- * </pan-card>
- */
 class PanCard extends HTMLElement {
-  /**
-   * Returns the list of attributes that trigger attributeChangedCallback when modified.
-   *
-   * @static
-   * @returns {string[]} Array of observed attribute names
-   */
   static get observedAttributes() {
     return ["header", "footer", "variant", "elevation", "hoverable"];
   }
-
-  /**
-   * Creates an instance of PanCard.
-   * Initializes shadow DOM.
-   *
-   * @constructor
-   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
   }
-
-  /**
-   * Lifecycle callback invoked when the element is connected to the DOM.
-   */
   connectedCallback() {
     this.render();
   }
-
-  /**
-   * Lifecycle callback invoked when an observed attribute changes.
-   */
   attributeChangedCallback() {
     if (this.isConnected) this.render();
   }
-
-  /**
-   * Gets the card header text.
-   *
-   * @type {string}
-   * @returns {string} The header text
-   */
   get header() {
     return this.getAttribute("header") || "";
   }
-
-  /**
-   * Gets the card footer text.
-   *
-   * @type {string}
-   * @returns {string} The footer text
-   */
   get footer() {
     return this.getAttribute("footer") || "";
   }
-
-  /**
-   * Gets the card variant style (default, primary, secondary, danger, success).
-   *
-   * @type {string}
-   * @returns {string} The variant name, defaults to "default"
-   */
   get variant() {
     return this.getAttribute("variant") || "default";
   }
-
-  /**
-   * Gets the card elevation level (0-3) for shadow depth.
-   *
-   * @type {string}
-   * @returns {string} The elevation level, defaults to "1"
-   */
   get elevation() {
     return this.getAttribute("elevation") || "1";
   }
-
-  /**
-   * Gets whether the card has hover effects.
-   *
-   * @type {boolean}
-   * @returns {boolean} True if hoverable effects are enabled
-   */
   get hoverable() {
     return this.hasAttribute("hoverable");
   }
-
-  /**
-   * Renders the component's shadow DOM with styles and markup.
-   * Supports header, footer, actions, and default content slots.
-   *
-   * @private
-   */
   render() {
     const hasHeaderSlot = this.querySelector('[slot="header"]');
     const hasFooterSlot = this.querySelector('[slot="footer"]');

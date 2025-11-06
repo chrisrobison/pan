@@ -1,78 +1,24 @@
 import { PanClient } from "./pan-client.mjs";
-
-/**
- * Chart visualization component that integrates with Chart.js library.
- *
- * This component renders interactive charts using Chart.js (must be loaded separately).
- * Supports line, bar, pie, doughnut, radar, and other chart types. Provides Pan message bus
- * integration for dynamic data updates, click/hover events, and real-time chart manipulation.
- *
- * @class PanChart
- * @extends HTMLElement
- * @fires Publishes to topic: `{topic}.ready` when chart is initialized
- * @fires Publishes to topic: `{topic}.click` when chart element is clicked
- * @fires Publishes to topic: `{topic}.hover` when chart element is hovered
- *
- * @example
- * <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- * <pan-chart
- *   type="line"
- *   data='{"labels":["Jan","Feb"], "datasets":[{"data":[10,20]}]}'
- *   width="600px"
- *   height="400px">
- * </pan-chart>
- *
- * @example
- * // Dynamic updates via Pan bus
- * const bus = document.querySelector('pan-bus');
- * bus.publish('chart.update', {
- *   data: { labels: ['A', 'B'], datasets: [{ data: [5, 15] }] }
- * });
- */
 class PanChart extends HTMLElement {
-  /**
-   * Defines which attributes trigger attributeChangedCallback when modified.
-   * @returns {string[]} Array of observed attribute names
-   */
   static get observedAttributes() {
     return ["type", "data", "options", "topic", "library", "width", "height"];
   }
-
-  /**
-   * Initializes the chart with shadow DOM and PanClient connection.
-   */
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    /** @type {PanClient} Pan message bus client instance */
     this.pc = new PanClient(this);
-    /** @type {Chart|null} Chart.js instance */
     this.chart = null;
   }
-  /**
-   * Called when element is added to the DOM. Initializes rendering and chart.
-   */
   connectedCallback() {
     this.render();
     this.setupTopics();
     this.initChart();
   }
-
-  /**
-   * Called when element is removed from the DOM. Destroys the chart instance.
-   */
   disconnectedCallback() {
     if (this.chart && this.chart.destroy) {
       this.chart.destroy();
     }
   }
-
-  /**
-   * Called when observed attributes change. Updates or re-renders the chart.
-   * @param {string} name - The attribute name
-   * @param {string} oldVal - Previous attribute value
-   * @param {string} newVal - New attribute value
-   */
   attributeChangedCallback(name, oldVal, newVal) {
     if (!this.isConnected) return;
     if (name === "data" || name === "options" || name === "type") {
@@ -81,19 +27,9 @@ class PanChart extends HTMLElement {
       this.render();
     }
   }
-
-  /**
-   * Gets the chart type (line, bar, pie, etc.).
-   * @returns {string} Chart type, defaults to "line"
-   */
   get type() {
     return this.getAttribute("type") || "line";
   }
-
-  /**
-   * Gets the chart data from the data attribute or returns default data.
-   * @returns {Object} Chart.js data object with labels and datasets
-   */
   get data() {
     const dataAttr = this.getAttribute("data");
     if (!dataAttr) return this.getDefaultData();
@@ -104,11 +40,6 @@ class PanChart extends HTMLElement {
       return this.getDefaultData();
     }
   }
-
-  /**
-   * Gets the chart options from the options attribute or returns default options.
-   * @returns {Object} Chart.js options object
-   */
   get options() {
     const optionsAttr = this.getAttribute("options");
     if (!optionsAttr) return this.getDefaultOptions();
@@ -119,42 +50,18 @@ class PanChart extends HTMLElement {
       return this.getDefaultOptions();
     }
   }
-  /**
-   * Gets the topic name for Pan message bus events.
-   * @returns {string} Topic name, defaults to "chart"
-   */
   get topic() {
     return this.getAttribute("topic") || "chart";
   }
-
-  /**
-   * Gets the chart library to use.
-   * @returns {string} Library name, defaults to "chart-js"
-   */
   get library() {
     return this.getAttribute("library") || "chart-js";
   }
-
-  /**
-   * Gets the chart width.
-   * @returns {string} Width CSS value, defaults to "100%"
-   */
   get width() {
     return this.getAttribute("width") || "100%";
   }
-
-  /**
-   * Gets the chart height.
-   * @returns {string} Height CSS value, defaults to "300px"
-   */
   get height() {
     return this.getAttribute("height") || "300px";
   }
-
-  /**
-   * Returns default sample chart data.
-   * @returns {Object} Default Chart.js data object
-   */
   getDefaultData() {
     return {
       labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -167,10 +74,6 @@ class PanChart extends HTMLElement {
       }]
     };
   }
-  /**
-   * Returns default chart options with click and hover handlers.
-   * @returns {Object} Default Chart.js options object
-   */
   getDefaultOptions() {
     return {
       responsive: true,
@@ -207,10 +110,6 @@ class PanChart extends HTMLElement {
       }
     };
   }
-  /**
-   * Sets up Pan message bus topic subscriptions for dynamic chart updates.
-   * Listens for update, addData, and removeData events.
-   */
   setupTopics() {
     this.pc.subscribe(`${this.topic}.update`, (msg) => {
       if (msg.data.data) {
@@ -240,11 +139,6 @@ class PanChart extends HTMLElement {
       }
     });
   }
-  /**
-   * Initializes the chart by creating a Chart.js instance or dispatching custom render event.
-   * @fires Publishes to topic: `{topic}.ready` when chart is initialized
-   * @fires custom-render - When using custom library mode
-   */
   async initChart() {
     const canvas = this.shadowRoot.querySelector("canvas");
     if (!canvas) return;
@@ -281,10 +175,6 @@ class PanChart extends HTMLElement {
       }));
     }
   }
-  /**
-   * Updates the existing chart with new data and options.
-   * @fires custom-update - When using custom library mode
-   */
   updateChart() {
     if (!this.chart) {
       this.initChart();
@@ -303,9 +193,6 @@ class PanChart extends HTMLElement {
       }));
     }
   }
-  /**
-   * Renders the chart container with canvas element and styling.
-   */
   render() {
     this.shadowRoot.innerHTML = `
       <style>

@@ -1,9 +1,10 @@
 {
   "name": "larc",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "LARC (Lightweight Asynchronous Relay Core) — PAN (Page Area Network) zero-build, framework-agnostic message bus for web component coordination",
   "type": "module",
   "main": "./index.js",
+  "types": "./index.d.ts",
   "exports": {
     ".": {
       "import": "./index.js",
