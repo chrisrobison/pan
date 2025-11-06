@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>📄 PAN Invoice Studio · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - 📄 PAN Invoice Studio">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">apps</a> / <a href="#">invoice-studio</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>📄 PAN Invoice Studio</h1>
+<p>A professional, local-first invoice creator built with PAN (Page Area Network). Create, manage, and export invoices with a beautiful contenteditable UX.</p>
+<strong>Live Demo:</strong> Open <code>index.html</code> in your browser (requires local server for modules)
+<hr>
+<h2>✨ Features</h2>
+<h3>Core Functionality</h3>
+<ul><li>✅ <strong>Contenteditable UX</strong> - Fluid editing with dotted borders (no clunky forms!)</li>
+<li>✅ <strong>Auto-calculations</strong> - Automatic subtotals, tax, and totals</li>
+<li>✅ <strong>Auto-save</strong> - Debounced auto-saving to IndexedDB</li>
+<li>✅ <strong>Local-first</strong> - All data stored locally in IndexedDB</li>
+<li>✅ <strong>Offline-capable</strong> - Works without internet connection</li>
+<li>✅ <strong>Privacy-focused</strong> - No accounts, no servers, no tracking</li>
+</ul>
+<h3>Invoice Management</h3>
+<ul><li>✅ <strong>Create invoices</strong> - Simple, clean invoice layout</li>
+<li>✅ <strong>Edit invoices</strong> - Load and edit past invoices</li>
+<li>✅ <strong>Browse invoices</strong> - Visual grid view with search/filter</li>
+<li>✅ <strong>Delete invoices</strong> - Remove invoices you no longer need</li>
+</ul>
+<h3>Contact Management</h3>
+<ul><li>✅ <strong>Contact picker</strong> - Select from saved contacts</li>
+<li>✅ <strong>Add contacts</strong> - Quick-add new contacts inline</li>
+<li>✅ <strong>Manage contacts</strong> - Full contact CRUD operations</li>
+<li>✅ <strong>Search contacts</strong> - Find contacts quickly</li>
+</ul>
+<h3>Export Options</h3>
+<ul><li>✅ <strong>Print</strong> - Native browser print (Cmd/Ctrl+P)</li>
+<li>✅ <strong>Export PDF</strong> - Generate PDF using jsPDF</li>
+<li>✅ <strong>Export JSON</strong> - Backup all data as JSON</li>
+<li>✅ <strong>Import JSON</strong> - Restore from backup</li>
+</ul>
+<h3>Mobile Responsive</h3>
+<ul><li>✅ <strong>Works on mobile</strong> - Fully responsive design</li>
+<li>✅ <strong>Touch-friendly</strong> - Optimized for touch interfaces</li>
+<li>✅ <strong>Adaptive layout</strong> - Stacks beautifully on small screens</li>
+</ul>
+<hr>
+<h2>🏗️ Architecture</h2>
+<p>Built using <strong>PAN messaging patterns</strong> with pure Web Components.</p>
+<h3>Components</h3>
+<li><strong>pan-invoice-toolbar</strong> - Action buttons (New, Save, Browse, Print, PDF, Import/Export)</li>
+<li><strong>pan-invoice-editor</strong> - Main invoice layout with contenteditable fields</li>
+<li><strong>pan-invoice-line-items</strong> - Editable line items table with auto-calculations</li>
+<li><strong>pan-contact-manager</strong> - Modal dialog for managing contacts</li>
+<li><strong>pan-invoice-browser</strong> - Modal dialog for browsing past invoices</li>
+<li><strong>pan-toast</strong> - Toast notifications for user feedback</li>
+<h3>Services</h3>
+<li><strong>invoice-db.mjs</strong> - IndexedDB wrapper for data persistence</li>
+<li><strong>data-handler.mjs</strong> - Import/export and PDF generation service</li>
+<h3>PAN Message Topics</h3>
+<p>#### Invoice Operations
+<ul><li><code>invoice.new</code> - Create new invoice</li>
+<li><code>invoice.save</code> - Save current invoice</li>
+<li><code>invoice.load</code> - Load specific invoice</li>
+<li><code>invoice.load.latest</code> - Load most recent invoice</li>
+<li><code>invoice.state</code> - Current invoice state (retained)</li>
+<li><code>invoice.saved</code> - Invoice save confirmation</li>
+<li><code>invoice.error</code> - Error occurred</li>
+</ul>
+#### Line Items
+<ul><li><code>invoice.items.update</code> - Update line items</li>
+<li><code>invoice.items.clear</code> - Clear all items</li>
+<li><code>invoice.items.load</code> - Load items for invoice</li>
+<li><code>invoice.totals.updated</code> - Totals recalculated</li>
+</ul>
+#### Contacts
+<ul><li><code>contacts.manager.show</code> - Show contact manager</li>
+<li><code>contacts.picker.show</code> - Show contact picker</li>
+<li><code>contacts.selected</code> - Contact selected</li>
+</ul>
+#### Browser
+<ul><li><code>invoice.browser.show</code> - Show invoice browser</li>
+</ul>
+#### Data Operations
+<ul><li><code>invoice.data.export</code> - Export all data as JSON</li>
+<li><code>invoice.data.import</code> - Import data from JSON</li>
+<li><code>invoice.export.pdf</code> - Export current invoice as PDF</li>
+</ul>
+#### UI
+<ul><li><code>ui.toast.show</code> - Show toast notification</li>
+</ul>
+<hr></p>
+<h2>🚀 Getting Started</h2>
+<h3>Prerequisites</h3>
+<ul><li>Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+<li>Local web server (for ES modules)</li>
+</ul>
+<h3>Running Locally</h3>
+<pre><code class="language-bash"># From project root
+cd demos/invoice-studio
+
+# Start a local server (choose one):
+python3 -m http.server 8000
+# or
+npx serve
+# or
+php -S localhost:8000
+
+# Open in browser
+open http://localhost:8000</code></pre>
+<hr>
+<h2>💡 Usage</h2>
+<h3>Creating an Invoice</h3>
+<li>Click <strong>"+ New"</strong> to start fresh</li>
+<li>Edit fields by clicking on dotted borders:</li>
+   - Invoice number and dates
+   - Your business info (FROM section)
+   - Client info (BILL TO section)
+<li>Add line items:</li>
+   - Click <strong>"+ Add Item"</strong>
+   - Fill in description, quantity, rate
+   - Amount calculates automatically
+<li>Adjust tax rate (default 8%)</li>
+<li>Add notes (optional)</li>
+<li>Click <strong>"💾 Save"</strong></li>
+<h3>Using Contacts</h3>
+<li>Click <strong>"👥"</strong> button next to "Bill To"</li>
+<li>Select from existing contacts or add new</li>
+<li>Contact info fills automatically</li>
+<h3>Managing Past Invoices</h3>
+<li>Click <strong>"📂 Browse"</strong></li>
+<li>Search/filter/sort invoices</li>
+<li>Click invoice card to load and edit</li>
+<li>Delete unwanted invoices</li>
+<h3>Exporting</h3>
+<strong>Print:</strong>
+<ul><li>Click <strong>"🖨️ Print"</strong> or press Cmd/Ctrl+P</li>
+<li>Uses native browser print dialog</li>
+</ul>
+<strong>PDF:</strong>
+<ul><li>Click <strong>"📄 PDF"</strong></li>
+<li>Downloads PDF file using jsPDF</li>
+</ul>
+<strong>Backup:</strong>
+<ul><li>Click <strong>"📤 Export"</strong></li>
+<li>Downloads JSON file with all data</li>
+</ul>
+<strong>Restore:</strong>
+<ul><li>Click <strong>"📥 Import"</strong></li>
+<li>Select previously exported JSON file</li>
+</ul>
+<hr>
+<h2>🎨 Design Philosophy</h2>
+<h3>ContentEditable UX</h3>
+<p>Unlike traditional form-based invoice tools, Invoice Studio uses contenteditable fields with visual cues (dotted borders) to create a fluid, natural editing experience:</p>
+<ul><li><strong>No mode switching</strong> - Edit inline, see results immediately</li>
+<li><strong>Visual feedback</strong> - Dotted borders show editable areas</li>
+<li><strong>Print-ready</strong> - What you see is what prints</li>
+<li><strong>Touch-friendly</strong> - Works great on mobile</li>
+</ul>
+<h3>Local-First Architecture</h3>
+<ul><li><strong>No accounts</strong> - Start using immediately</li>
+<li><strong>No servers</strong> - All data stays on your device</li>
+<li><strong>No tracking</strong> - Complete privacy</li>
+<li><strong>Offline-capable</strong> - Works without internet</li>
+<li><strong>Fast</strong> - No network latency</li>
+</ul>
+<h3>PAN Messaging</h3>
+<p>All components communicate via PAN messages:</p>
+<ul><li><strong>Loose coupling</strong> - Components don't know about each other</li>
+<li><strong>Easy testing</strong> - Mock messages for testing</li>
+<li><strong>Composable</strong> - Add/remove components easily</li>
+<li><strong>Debuggable</strong> - Inspect messages in DevTools</li>
+</ul>
+<hr>
+<h2>🔧 Technical Details</h2>
+<h3>Data Storage</h3>
+<strong>IndexedDB Stores:</strong>
+<li><strong>invoices</strong> - Invoice documents</li>
+<li><strong>contacts</strong> - Contact information</li>
+<li><strong>settings</strong> - User preferences</li>
+<strong>Indexes:</strong>
+<ul><li>Invoice number (unique)</li>
+<li>Date, client name, status (non-unique)</li>
+<li>Contact email (unique)</li>
+</ul>
+<h3>Auto-save</h3>
+<ul><li>Debounced 500ms after last edit</li>
+<li>Saves to IndexedDB automatically</li>
+<li>No "unsaved changes" warnings needed</li>
+</ul>
+<h3>PDF Generation</h3>
+<p>Uses jsPDF to generate PDFs from invoice data:
+<ul><li>Clean, professional layout</li>
+<li>Includes all invoice details</li>
+<li>Properly formatted totals</li>
+<li>Optional notes section</li>
+</ul>
+<h3>Browser Compatibility</h3></p>
+<strong>Tested:</strong>
+<ul><li>✅ Chrome (latest)</li>
+</ul>
+<strong>Should work:</strong>
+<ul><li>Firefox, Safari, Edge (untested)</li>
+</ul>
+<strong>Requires:</strong>
+<ul><li>ES modules support</li>
+<li>IndexedDB support</li>
+<li>CustomEvent support</li>
+</ul>
+<hr>
+<h2>📚 Code Structure</h2>
+<p>```
+demos/invoice-studio/
+├── index.html                 # Main entry point
+├── styles.css                 # Global styles
+├── README.md                  # This file
+├── components/
+│   ├── pan-invoice-toolbar.mjs
+│   ├── pan-invoice-editor.mjs
+│   ├── pan-invoice-line-items.mjs
+│   ├── pan-contact-manager.mjs
+│   ├── pan-invoice-browser.mjs
+│   └── pan-toast.mjs
+└── lib/
+    ├── invoice-db.mjs         # IndexedDB wrapper
+    └── data-handler.mjs       # Import/export/PDF</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/apps/invoice-studio/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- PAN Icon - Network/Message Bus -->
+  <rect width="128" height="128" rx="24" fill="#1a73e8"/>
+
+  <!-- Central node -->
+  <circle cx="64" cy="64" r="12" fill="white"/>
+
+  <!-- Connected nodes -->
+  <circle cx="32" cy="32" r="8" fill="white" opacity="0.9"/>
+  <circle cx="96" cy="32" r="8" fill="white" opacity="0.9"/>
+  <circle cx="32" cy="96" r="8" fill="white" opacity="0.9"/>
+  <circle cx="96" cy="96" r="8" fill="white" opacity="0.9"/>
+
+  <!-- Connection lines -->
+  <line x1="64" y1="64" x2="32" y2="32" stroke="white" stroke-width="2" opacity="0.7"/>
+  <line x1="64" y1="64" x2="96" y2="32" stroke="white" stroke-width="2" opacity="0.7"/>
+  <line x1="64" y1="64" x2="32" y2="96" stroke="white" stroke-width="2" opacity="0.7"/>
+  <line x1="64" y1="64" x2="96" y2="96" stroke="white" stroke-width="2" opacity="0.7"/>
+
+  <!-- Signal waves -->
+  <circle cx="64" cy="64" r="24" stroke="white" stroke-width="1.5" fill="none" opacity="0.3"/>
+  <circle cx="64" cy="64" r="36" stroke="white" stroke-width="1" fill="none" opacity="0.2"/>
+</svg>

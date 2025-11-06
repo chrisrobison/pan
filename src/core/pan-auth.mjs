@@ -31,12 +31,13 @@ class PanAuth extends HTMLElement {
     this.pc = new PanClient(this);
     this.authState = {
       authenticated: false,
-      token: null,
-      refreshToken: null,
+      token: null, // Token is in HttpOnly cookie, this is just for state tracking
+      refreshToken: null, // Refresh token is in HttpOnly cookie
       user: null,
       expiresAt: null
     };
     this.refreshTimer = null;
+    this.useHttpOnlyCookies = true; // Use HttpOnly cookies for security
   }
 
   connectedCallback() {
@@ -358,6 +359,33 @@ class PanAuth extends HTMLElement {
   }
 
   loadTokens() {
+    // SECURITY: When using HttpOnly cookies, tokens are not accessible from JavaScript
+    // Check authentication status via API call instead
+    if (this.useHttpOnlyCookies) {
+      // Token is in HttpOnly cookie, check auth status via API
+      fetch(this.config.loginEndpoint.replace('/login', '/check'), {
+        credentials: 'include'
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.authenticated) {
+            this.authState = {
+              authenticated: true,
+              token: null, // Not accessible from JS (in HttpOnly cookie)
+              refreshToken: null, // Not accessible from JS
+              user: data.user,
+              expiresAt: null // Set by server
+            };
+            this.publishAuthState();
+          }
+        })
+        .catch(err => {
+          console.error('Failed to check auth status:', err);
+        });
+      return;
+    }
+
+    // Legacy: localStorage (NOT RECOMMENDED)
     const storage = this.getStorage();
     if (!storage) return;
 
@@ -383,19 +411,30 @@ class PanAuth extends HTMLElement {
         user: decoded,
         expiresAt
       };
+      console.warn('⚠ Loading tokens from localStorage - vulnerable to XSS');
     }
   }
 
   storeTokens() {
+    // SECURITY: When using HttpOnly cookies, tokens are stored server-side in cookies
+    // Do NOT store in localStorage as it's vulnerable to XSS
+    if (this.useHttpOnlyCookies) {
+      console.log('✓ Tokens stored in HttpOnly cookies (server-side)');
+      return;
+    }
+
+    // Legacy: localStorage storage (NOT RECOMMENDED - vulnerable to XSS)
     const storage = this.getStorage();
     if (!storage) return;
 
     if (this.authState.token) {
       storage.setItem(this.config.tokenKey, this.authState.token);
+      console.warn('⚠ Token stored in localStorage - vulnerable to XSS. Use HttpOnly cookies instead.');
     }
 
     if (this.authState.refreshToken) {
       storage.setItem(this.config.refreshKey, this.authState.refreshToken);
+      console.warn('⚠ Refresh token stored in localStorage - vulnerable to XSS. Use HttpOnly cookies instead.');
     }
   }
 
@@ -413,22 +452,32 @@ class PanAuth extends HTMLElement {
   }
 
   publishAuthState() {
-    // Publish retained auth state (without token for security)
+    // Publish retained auth state (NEVER include tokens for security)
     this.pc.publish({
       topic: 'auth.state',
       data: {
         authenticated: this.authState.authenticated,
         user: this.authState.user,
         expiresAt: this.authState.expiresAt,
-        hasRefreshToken: !!this.authState.refreshToken
+        hasRefreshToken: !!this.authState.refreshToken,
+        useHttpOnlyCookies: this.useHttpOnlyCookies
       },
       retain: true
     });
 
-    // Publish internal auth state with token (for connectors)
+    // SECURITY: Do NOT publish tokens over the bus
+    // Tokens are in HttpOnly cookies and sent automatically with fetch()
+    // Legacy connectors that need tokens should use fetch with credentials: 'include'
     this.pc.publish({
       topic: 'auth.internal.state',
-      data: this.authState,
+      data: {
+        authenticated: this.authState.authenticated,
+        user: this.authState.user,
+        expiresAt: this.authState.expiresAt,
+        // NEVER include token/refreshToken here - use HttpOnly cookies
+        token: null,
+        refreshToken: null
+      },
       retain: true
     });
   }

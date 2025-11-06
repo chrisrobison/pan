@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application Components · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Application Components">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">src</a> / <a href="#">app</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>Application Components</h1>
+<p>Domain-specific components built for particular applications. These components are tightly coupled to specific use cases and business logic.</p>
+<h2>Structure</h2>
+<p>Application components are organized by application:</p>
+<pre><code class="language-plaintext">app/
+├── invoice/         # Invoice application components
+├── devtools/        # Developer tools components
+└── ...              # Other application-specific components</code></pre>
+<h2>Invoice Application</h2>
+<strong>Location:</strong> <code>app/invoice/</code>
+<p>Components for the invoice creator demo app:</p>
+<h3>pan-invoice-header.mjs</h3>
+Invoice header with from/to customer information.
+<ul><li>Contenteditable fields</li>
+<li>Customer selection integration</li>
+<li>Invoice metadata (number, dates)</li>
+</ul>
+<h3>pan-invoice-items.mjs</h3>
+Line items grid with automatic calculations.
+<ul><li>Contenteditable cells</li>
+<li>Auto-calculate totals (hours × rate)</li>
+<li>Click to add rows</li>
+<li>Delete items</li>
+</ul>
+<h3>pan-invoice-totals.mjs</h3>
+Invoice totals and calculations.
+<ul><li>Auto-updates from line items</li>
+<li>Editable tax rate</li>
+<li>Subtotal, tax, total calculations</li>
+<li>Notes/payment terms</li>
+</ul>
+<strong>Data Management:</strong> See <code>data/pan-invoice-store.mjs</code>
+<h2>DevTools Application</h2>
+<strong>Location:</strong> <code>app/devtools/</code>
+<p>Components for developer tools and debugging:</p>
+<h3>pan-inspector.mjs</h3>
+Real-time PAN message inspector.
+<ul><li>Monitor all PAN messages</li>
+<li>Filter by topic</li>
+<li>View payload details</li>
+<li>Message history</li>
+</ul>
+<h3>pan-demo-viewer.mjs</h3>
+Component demo viewer with live code.
+<ul><li>Display component examples</li>
+<li>Live code editing</li>
+<li>Preview window</li>
+</ul>
+<h3>pan-demo-nav.mjs</h3>
+Navigation for demo pages.
+<ul><li>Example navigation</li>
+<li>Category filtering</li>
+</ul>
+<h2>Design Philosophy</h2>
+<p>App components are:
+<ul><li><strong>Domain-specific</strong> - Built for particular use cases</li>
+<li><strong>Tightly coupled</strong> - May depend on other app components</li>
+<li><strong>Feature-complete</strong> - Solve specific problems end-to-end</li>
+<li><strong>Not reusable</strong> - Not intended for general use outside their app</li>
+<li><strong>Business logic</strong> - Contain domain rules and workflows</li>
+</ul>
+<h2>When to Create App Components</h2></p>
+<p>Create application-specific components when:
+<ul><li>Building a complete application/demo</li>
+<li>Need domain-specific functionality</li>
+<li>Components are tightly coupled to business logic</li>
+<li>Not intended for reuse across multiple apps</li>
+<li>Implementing specific workflows</li>
+</ul>
+<h2>Difference from Other Components</h2></p>
+<p>| Directory | Purpose | Reusability | Complexity |
+|-----------|---------|-------------|------------|
+| <code>core/</code> | Infrastructure | Required | Low |
+| <code>ui/</code> | Building blocks | High | Low |
+| <code>components/</code> | Widgets | High | Medium-High |
+| <code>data/</code> | State management | Medium | Medium |
+| <code>app/</code> | Domain-specific | Low | Variable |</p>
+<h2>Creating a New App</h2>
+<p>To create a new application:</p>
+<li>Create a directory: <code>app/my-app/</code></li>
+<li>Add components specific to that app</li>
+<li>Create corresponding demo in <code>apps/my-app.html</code></li>
+<li>Add data component in <code>data/</code> if needed</li>
+<p>Example structure:
+<pre><code class="language-plaintext">app/my-app/
+├── pan-my-app-header.mjs
+├── pan-my-app-sidebar.mjs
+├── pan-my-app-content.mjs
+└── pan-my-app-footer.mjs
+
+data/
+└── pan-my-app-store.mjs
+
+apps/
+└── my-app.html</code></pre></p>
+<h2>Dependencies</h2>
+<p>App components may depend on:
+<ul><li>Core: pan-bus, pan-client</li>
+<li>UI: Simple building blocks</li>
+<li>Components: Complex widgets</li>
+<li>Data: State management components</li>
+<li>Other app components in same directory</li>
+</ul>
+<h2>Examples</h2></p>
+<p>See the full applications:
+<ul><li><code>apps/invoice.html</code> - Invoice creator demo</li>
+<li><code>apps/markdown-notes.html</code> - Markdown editor demo (uses components from <code>components/</code>)</li>
+<li><code>demos.html</code> - Component gallery (uses devtools components)</li>
+</ul>
+<h2>Guidelines</h2></p>
+<p>When creating app components:
+<ul><li>✅ Use clear, descriptive names with app prefix</li>
+<li>✅ Keep related components together in app directory</li>
+<li>✅ Document dependencies and integration points</li>
+<li>✅ Consider extracting reusable parts to <code>components/</code></li>
+<li>✅ Use PAN bus for component communication</li>
+<li>❌ Don't try to make them generic (that's what <code>components/</code> is for)</li>
+<li>❌ Don't mix multiple apps in one directory</li>
+</ul></p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/src/app/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

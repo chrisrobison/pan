@@ -43,11 +43,18 @@ class PanFetch {
     // Merge headers
     options.headers = new Headers(options.headers || {});
 
-    // Auto-inject Authorization header if auth token is available
+    // SECURITY: Use HttpOnly cookies for auth (credentials: 'include')
+    // Tokens are sent automatically in cookies, no need to expose in JS
+    if (!options.credentials) {
+      options.credentials = 'include'; // Send cookies with request
+    }
+
+    // Legacy: Manual Authorization header (NOT RECOMMENDED - use HttpOnly cookies)
     if (this.authState?.authenticated && this.authState?.token) {
       // Only add if not already present
       if (!options.headers.has('Authorization')) {
         options.headers.set('Authorization', `Bearer ${this.authState.token}`);
+        console.warn('⚠ Using token from localStorage - vulnerable to XSS. Use HttpOnly cookies instead.');
       }
     }
 

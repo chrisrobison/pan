@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Theme System · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Theme System">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>THEME_SYSTEM</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Theme System</h1>
+<p>A comprehensive light/dark mode theme system built with PAN components that automatically respects system preferences.</p>
+<h2>Overview</h2>
+<p>The PAN theme system provides:
+<ul><li>🎨 <strong>Sky Blue Color Scheme</strong> (#006699) - Clean, professional color palette</li>
+<li>🌗 <strong>Automatic Light/Dark Mode</strong> - Respects system preferences via <code>prefers-color-scheme</code></li>
+<li>🔧 <strong>Manual Override</strong> - Users can choose light, dark, or auto mode</li>
+<li>🚌 <strong>PAN Integration</strong> - Theme changes broadcast via PAN message bus</li>
+<li>🎯 <strong>Web Components</strong> - Zero-dependency, framework-agnostic</li>
+<li>📦 <strong>CSS Variables</strong> - Easy customization and theming</li>
+</ul>
+<h2>Quick Start</h2></p>
+<h3>1. Include Theme CSS</h3>
+<p>Add the theme stylesheet to your HTML:</p>
+<pre><code class="language-html">&lt;link rel=&quot;stylesheet&quot; href=&quot;assets/theme.css&quot;&gt;</code></pre>
+<p>For files in subdirectories, adjust the path:
+<pre><code class="language-html">&lt;link rel=&quot;stylesheet&quot; href=&quot;../assets/theme.css&quot;&gt;</code></pre></p>
+<h3>2. Add Theme Provider</h3>
+<p>Add the theme provider component before closing <code></body></code>:</p>
+<pre><code class="language-html">&lt;!-- Theme System --&gt;
+&lt;pan-theme-provider theme=&quot;auto&quot;&gt;&lt;/pan-theme-provider&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import &#039;./components/pan-theme-provider.mjs&#039;;
+  import &#039;./components/pan-theme-toggle.mjs&#039;;
+&lt;/script&gt;</code></pre>
+<h3>3. Add Theme Toggle (Optional)</h3>
+<p>Add a theme toggle button to your navigation:</p>
+<pre><code class="language-html">&lt;pan-theme-toggle variant=&quot;icon&quot;&gt;&lt;/pan-theme-toggle&gt;</code></pre>
+<h2>Components</h2>
+<h3><code><pan-theme-provider></code></h3>
+<p>Manages theme state and broadcasts changes via PAN.</p>
+<strong>Attributes:</strong>
+<ul><li><code>theme</code>: <code>'light'</code> | <code>'dark'</code> | <code>'auto'</code> (default: <code>'auto'</code>)</li>
+</ul>
+<strong>PAN Events:</strong>
+<ul><li><code>theme.changed</code>: Emitted when theme changes</li>
+</ul>  <pre><code class="language-js">{ theme: &#039;auto&#039;, effective: &#039;dark&#039; }</code></pre>
+<ul><li><code>theme.system-changed</code>: Emitted when system preference changes</li>
+</ul>  <pre><code class="language-js">{ theme: &#039;dark&#039; }</code></pre>
+<strong>API:</strong>
+<pre><code class="language-js">const provider = document.querySelector(&#039;pan-theme-provider&#039;);
+
+// Set theme
+provider.setTheme(&#039;dark&#039;);
+
+// Get current theme setting
+provider.getTheme(); // &#039;auto&#039;, &#039;light&#039;, or &#039;dark&#039;
+
+// Get effective theme (resolves &#039;auto&#039;)
+provider.getEffectiveTheme(); // &#039;light&#039; or &#039;dark&#039;
+
+// Get system preference
+provider.getSystemTheme(); // &#039;light&#039; or &#039;dark&#039;</code></pre>
+<h3><code><pan-theme-toggle></code></h3>
+<p>Interactive theme switcher button.</p>
+<strong>Attributes:</strong>
+<ul><li><code>variant</code>: <code>'icon'</code> | <code>'button'</code> | <code>'dropdown'</code> (default: <code>'icon'</code>)</li>
+<li><code>label</code>: Optional label text (only for <code>button</code> variant)</li>
+</ul>
+<strong>Variants:</strong>
+<li><strong>Icon</strong> - Simple icon button that cycles through modes</li>
+   <pre><code class="language-html">&lt;pan-theme-toggle variant=&quot;icon&quot;&gt;&lt;/pan-theme-toggle&gt;</code></pre>
+<li><strong>Button</strong> - Icon with label</li>
+   <pre><code class="language-html">&lt;pan-theme-toggle variant=&quot;button&quot; label=&quot;Theme&quot;&gt;&lt;/pan-theme-toggle&gt;</code></pre>
+<li><strong>Dropdown</strong> - Dropdown menu with all options</li>
+   <pre><code class="language-html">&lt;pan-theme-toggle variant=&quot;dropdown&quot;&gt;&lt;/pan-theme-toggle&gt;</code></pre>
+<h2>Color Palette</h2>
+<h3>Primary Colors</h3>
+<p>| Variable | Light Mode | Dark Mode |
+|----------|------------|-----------|
+| <code>--color-primary</code> | #006699 | #0099dd |
+| <code>--color-primary-dark</code> | #004d73 | #0077bb |
+| <code>--color-primary-light</code> | #0088cc | #33aaee |
+| <code>--color-primary-soft</code> | #cce6f5 | rgba(0, 153, 221, 0.15) |</p>
+<h3>Semantic Colors</h3>
+<p>| Variable | Purpose |
+|----------|---------|
+| <code>--color-success</code> | Success states, positive actions |
+| <code>--color-warning</code> | Warnings, caution states |
+| <code>--color-danger</code> | Errors, destructive actions |
+| <code>--color-info</code> | Informational messages |</p>
+<h3>Surface & Background</h3>
+<p>| Variable | Usage |
+|----------|-------|
+| <code>--color-bg</code> | Page background |
+| <code>--color-bg-alt</code> | Alternate background (sections) |
+| <code>--color-surface</code> | Card/panel backgrounds |
+| <code>--color-surface-alt</code> | Alternate surface color |</p>
+<h3>Text Colors</h3>
+<p>| Variable | Usage |
+|----------|-------|
+| <code>--color-text</code> | Primary text |
+| <code>--color-text-muted</code> | Secondary/muted text |
+| <code>--color-text-subtle</code> | Subtle/placeholder text |</p>
+<h3>Borders</h3>
+<p>| Variable | Usage |
+|----------|-------|
+| <code>--color-border</code> | Default borders |
+| <code>--color-border-strong</code> | Emphasized borders |</p>
+<h2>Usage Examples</h2>
+<h3>Basic Theme-Aware Component</h3>
+<pre><code class="language-css">.my-component {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+}</code></pre>
+<h3>Primary Action Button</h3>
+<pre><code class="language-css">.button-primary {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s ease;
+}
+
+.button-primary:hover {
+  background: var(--color-primary-dark);
+}</code></pre>
+<h3>Status Badges</h3>
+<pre><code class="language-css">.badge-success {
+  background: var(--color-success-light);
+  color: var(--color-success);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+}</code></pre>
+<h3>Shadow DOM Components</h3>
+<p>For web components with shadow DOM, inherit theme variables:</p>
+<pre><code class="language-js">this.shadowRoot.innerHTML = `
+  &lt;style&gt;
+    :host {
+      display: block;
+    }
+
+    .container {
+      background: var(--color-surface, #ffffff);
+      color: var(--color-text, #1e293b);
+      border: 1px solid var(--color-border, #e2e8f0);
+    }
+  &lt;/style&gt;
+  &lt;div class=&quot;container&quot;&gt;
+    &lt;slot&gt;&lt;/slot&gt;
+  &lt;/div&gt;
+`;</code></pre>
+<p>Note: Always provide fallback colors for shadow DOM components.</p>
+<h2>PAN Integration</h2>
+<p>Listen to theme changes in your components:</p>
+<pre><code class="language-js">const bus = document.querySelector(&#039;pan-bus&#039;);
+if (bus) {
+  bus.subscribe(&#039;theme.changed&#039;, (data) =&gt; {
+    console.log(&#039;Theme changed to:&#039;, data.effective);
+    // Update component state
+  });
+}</code></pre>
+<p>Or use the theme provider directly:</p>
+<pre><code class="language-js">const provider = document.querySelector(&#039;pan-theme-provider&#039;);
+provider.addEventListener(&#039;theme-change&#039;, (e) =&gt; {
+  const { theme, effective } = e.detail;
+  console.log(`Theme: ${theme}, Effective: ${effective}`);
+});</code></pre>
+<h2>Migration Guide</h2>
+<h3>Updating Existing Pages</h3>
+<li><strong>Replace color variable definitions</strong></li>
+   <pre><code class="language-diff">- :root {
+   -   --color-primary: #6366f1;
+   -   --color-bg: #ffffff;
+   -   /* ... */
+   - }
+   + &lt;link rel=&quot;stylesheet&quot; href=&quot;assets/theme.css&quot;&gt;</code></pre>
+<li><strong>Replace hardcoded colors</strong></li>
+   <pre><code class="language-diff">- background: white;
+   + background: var(--color-surface);
+
+   - color: #1e293b;
+   + color: var(--color-text);
+
+   - border: 1px solid #e2e8f0;
+   + border: 1px solid var(--color-border);</code></pre>
+<li><strong>Add theme components</strong></li>
+   <pre><code class="language-html">&lt;pan-theme-provider theme=&quot;auto&quot;&gt;&lt;/pan-theme-provider&gt;
+   &lt;script type=&quot;module&quot;&gt;
+     import &#039;./components/pan-theme-provider.mjs&#039;;
+     import &#039;./components/pan-theme-toggle.mjs&#039;;
+   &lt;/script&gt;</code></pre>
+<h3>Automated Migration</h3>
+<p>Use the provided script to update multiple files:</p>
+<pre><code class="language-bash">node scripts/add-theme-support.mjs</code></pre>
+<p>This script:
+<ul><li>Adds theme.css link</li>
+<li>Removes old color variable definitions</li>
+<li>Replaces hardcoded colors</li>
+<li>Adds theme provider and toggle</li>
+</ul>
+<h2>Customization</h2></p>
+<h3>Override Colors</h3>
+<p>You can override theme colors by defining variables after importing theme.css:</p>
+<pre><code class="language-css">:root {
+  --color-primary: #0077cc;
+  --color-primary-dark: #005599;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #00aaff;
+  }
+}</code></pre>
+<h3>Component-Specific Themes</h3>
+<pre><code class="language-css">.my-card {
+  --card-bg: var(--color-surface);
+  --card-border: var(--color-border);
+  --card-text-color: var(--color-text);
+}</code></pre>
+<h2>Browser Support</h2>
+<ul><li>✅ Chrome 76+</li>
+<li>✅ Firefox 67+</li>
+<li>✅ Safari 12.1+</li>
+<li>✅ Edge 79+</li>
+</ul>
+Requires support for:
+<ul><li>CSS Custom Properties</li>
+<li>Web Components (Custom Elements)</li>
+<li><code>prefers-color-scheme</code> media query</li>
+<li>ES6 Modules</li>
+</ul>
+<h2>Best Practices</h2>
+<li><strong>Always use theme variables</strong> instead of hardcoded colors</li>
+<li><strong>Provide fallback colors</strong> in shadow DOM components</li>
+<li><strong>Test in both modes</strong> - Light and dark mode</li>
+<li><strong>Use semantic colors</strong> for consistent meaning</li>
+<li><strong>Respect user preferences</strong> - Default to <code>auto</code> mode</li>
+<li><strong>Consider contrast</strong> - Ensure readable text in both modes</li>
+<li><strong>Test transitions</strong> - Ensure smooth theme switching</li>
+<h2>Troubleshooting</h2>
+<h3>Theme not applying</h3>
+<li>Check that theme.css is loaded: <code><link rel="stylesheet" href="assets/theme.css"></code></li>
+<li>Verify theme provider is present: <code><pan-theme-provider></code></li>
+<li>Check console for import errors</li>
+<li>Ensure components are imported: <code>import './components/pan-theme-provider.mjs'</code></li>
+<h3>Colors not changing</h3>
+<li>Make sure you're using CSS variables: <code>var(--color-primary)</code></li>
+<li>Check for hardcoded colors in inline styles</li>
+<li>For shadow DOM, ensure variables are inherited with fallbacks</li>
+<h3>Toggle not working</h3>
+<li>Verify pan-theme-toggle is imported</li>
+<li>Check that pan-theme-provider is on the page</li>
+<li>Look for JavaScript errors in console</li>
+<h2>Demo</h2>
+<p>See <code>theme-demo.html</code> for a comprehensive demonstration of all theme colors and components.</p>
+<h2>Resources</h2>
+<ul><li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/--*">CSS Custom Properties (MDN)</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme">prefers-color-scheme (MDN)</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components">Web Components (MDN)</a></li>
+</ul>
+<h2>Support</h2>
+<p>For issues or questions about the theme system, please open an issue on GitHub.</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/THEME_SYSTEM.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

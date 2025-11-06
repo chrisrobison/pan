@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Authentication System · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Authentication System">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>AUTHENTICATION</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Authentication System</h1>
+<p>Complete JWT authentication with automatic header injection - <strong>zero manual header management required</strong>.</p>
+<h2>🎯 Key Features</h2>
+<ul><li>✅ <strong>Automatic header injection</strong> - Developers never write <code>Authorization: Bearer ${token}</code></li>
+<li>✅ <strong>Declarative setup</strong> - Drop <code><pan-auth></code> on the page, done</li>
+<li>✅ <strong>Auto-refresh tokens</strong> - Refresh before expiry, no expired token errors</li>
+<li>✅ <strong>Works everywhere</strong> - REST, GraphQL, custom fetches</li>
+<li>✅ <strong>Zero build</strong> - Plain JavaScript, no configuration</li>
+<li>✅ <strong>Loose coupling</strong> - Components don't know auth exists</li>
+</ul>
+<h2>Quick Start</h2>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+
+&lt;!-- 1. Auth Manager --&gt;
+&lt;pan-auth storage=&quot;localStorage&quot; auto-refresh=&quot;true&quot;&gt;&lt;/pan-auth&gt;
+
+&lt;!-- 2. Data Connector (auto-adds auth headers!) --&gt;
+&lt;pan-data-connector resource=&quot;users&quot; base-url=&quot;/api&quot;&gt;&lt;/pan-data-connector&gt;
+
+&lt;!-- 3. Your components (don&#039;t know about auth!) --&gt;
+&lt;user-list&gt;&lt;/user-list&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  const pc = new PanClient();
+
+  // Login - that&#039;s it!
+  await pc.request(&#039;auth.login&#039;, {
+    email: &#039;user@example.com&#039;,
+    password: &#039;password123&#039;
+  });
+
+  // Now all requests automatically include auth header
+  pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+&lt;/script&gt;</code></pre>
+<h2>Architecture</h2>
+<pre><code class="language-plaintext">┌─────────────────┐
+│   &lt;pan-auth&gt;    │  ← Manages JWT tokens, login/logout, auto-refresh
+│   Auth Manager  │     Publishes: auth.state (retained)
+└────────┬────────┘
+         │
+         ▼ (listens to auth.internal.state)
+┌─────────────────┐
+│&lt;pan-connector&gt;  │  ← Auto-injects Authorization: Bearer ${token}
+│ Data Connector  │     Works with ANY HTTP request
+└─────────────────┘</code></pre>
+<h3>How It Works</h3>
+<li><strong><code><pan-auth></code></strong> manages token lifecycle</li>
+   - Stores tokens in localStorage/sessionStorage/memory
+   - Publishes <code>auth.internal.state</code> with token (for connectors)
+   - Publishes <code>auth.state</code> without token (for UI components)
+<li><strong>Connectors</strong> (<code>pan-data-connector</code>, <code>pan-graphql-connector</code>)</li>
+   - Subscribe to <code>auth.internal.state</code>
+   - Automatically inject <code>Authorization</code> header if token exists
+   - Developers never touch headers!
+<li><strong>Components</strong> work as normal</li>
+   - Just publish/subscribe topics
+   - Don't know auth exists
+   - No imports, no config
+<hr>
+<h2>Components</h2>
+<h3><code><pan-auth></code> - Authentication Manager</h3>
+<p>Manages JWT authentication state via PAN message bus.</p>
+<p>#### Attributes</p>
+<pre><code class="language-html">&lt;pan-auth
+  storage=&quot;localStorage&quot;          &lt;!-- localStorage | sessionStorage | memory --&gt;
+  token-key=&quot;pan_jwt&quot;              &lt;!-- Key for storing token --&gt;
+  refresh-key=&quot;pan_refresh_jwt&quot;   &lt;!-- Key for storing refresh token --&gt;
+  auto-refresh=&quot;true&quot;              &lt;!-- Enable automatic token refresh --&gt;
+  refresh-before=&quot;300&quot;             &lt;!-- Refresh N seconds before expiry --&gt;
+  login-endpoint=&quot;/api/auth/login&quot;    &lt;!-- Login API endpoint --&gt;
+  refresh-endpoint=&quot;/api/auth/refresh&quot; &lt;!-- Refresh API endpoint --&gt;
+  logout-endpoint=&quot;/api/auth/logout&quot;&gt;  &lt;!-- Logout API endpoint --&gt;
+&lt;/pan-auth&gt;</code></pre>
+<p>#### Topics</p>
+<strong>Commands (publish these):</strong>
+<pre><code class="language-javascript">// Login
+await pc.request(&#039;auth.login&#039;, {
+  email: &#039;user@example.com&#039;,
+  password: &#039;password123&#039;
+});
+// Response: { ok: true, user: {...} }
+
+// Logout
+pc.publish({ topic: &#039;auth.logout&#039;, data: {} });
+
+// Refresh token (usually automatic)
+pc.publish({ topic: &#039;auth.refresh&#039;, data: {} });
+
+// Set token directly (external login)
+pc.publish({
+  topic: &#039;auth.setToken&#039;,
+  data: {
+    token: &#039;eyJhbGc...&#039;,
+    refreshToken: &#039;refresh...&#039;,
+    user: { id: 1, email: &#039;user@example.com&#039; }
+  }
+});
+
+// Check current auth state
+pc.publish({ topic: &#039;auth.check&#039;, data: {} });</code></pre>
+<strong>Events (subscribe to these):</strong>
+<pre><code class="language-javascript">// Auth state changed (retained)
+pc.subscribe(&#039;auth.state&#039;, msg =&gt; {
+  console.log(&#039;Authenticated:&#039;, msg.data.authenticated);
+  console.log(&#039;User:&#039;, msg.data.user);
+  console.log(&#039;Expires at:&#039;, msg.data.expiresAt);
+}, { retained: true });
+
+// Login events
+pc.subscribe(&#039;auth.login.success&#039;, msg =&gt; {
+  console.log(&#039;Login successful:&#039;, msg.data.user);
+});
+
+pc.subscribe(&#039;auth.login.error&#039;, msg =&gt; {
+  console.error(&#039;Login failed:&#039;, msg.data.error);
+});
+
+// Logout event
+pc.subscribe(&#039;auth.logout.success&#039;, () =&gt; {
+  console.log(&#039;Logged out&#039;);
+});
+
+// Refresh events
+pc.subscribe(&#039;auth.refresh.success&#039;, () =&gt; {
+  console.log(&#039;Token refreshed&#039;);
+});
+
+pc.subscribe(&#039;auth.refresh.error&#039;, msg =&gt; {
+  console.error(&#039;Refresh failed:&#039;, msg.data.error);
+});</code></pre>
+<strong>Published State:</strong>
+<pre><code class="language-javascript">// auth.state (public - for UI components)
+{
+  authenticated: true,
+  user: {
+    id: 1,
+    email: &#039;user@example.com&#039;,
+    name: &#039;John Doe&#039;,
+    role: &#039;admin&#039;
+  },
+  expiresAt: 1234567890000,
+  hasRefreshToken: true
+}
+
+// auth.internal.state (internal - for connectors)
+{
+  authenticated: true,
+  token: &#039;eyJhbGc...&#039;, // &lt;-- Includes actual token!
+  refreshToken: &#039;refresh...&#039;,
+  user: {...},
+  expiresAt: 1234567890000
+}</code></pre>
+<hr>
+<h3>Enhanced Connectors</h3>
+<p>All connectors automatically inject auth headers when available.</p>
+<p>#### <code><pan-data-connector></code> (REST)</p>
+<pre><code class="language-html">&lt;pan-data-connector
+  resource=&quot;users&quot;
+  base-url=&quot;/api&quot;&gt;
+&lt;/pan-data-connector&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  const pc = new PanClient();
+
+  // This request automatically includes:
+  // Authorization: Bearer eyJhbGc...
+  pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+&lt;/script&gt;</code></pre>
+<p>#### <code><pan-graphql-connector></code></p>
+<pre><code class="language-html">&lt;pan-graphql-connector
+  resource=&quot;users&quot;
+  endpoint=&quot;/api/graphql&quot;&gt;
+  &lt;script type=&quot;application/graphql&quot; data-op=&quot;list&quot;&gt;
+    query GetUsers {
+      users { id name email role }
+    }
+  &lt;/script&gt;
+&lt;/pan-graphql-connector&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  const pc = new PanClient();
+
+  // GraphQL request automatically includes:
+  // Authorization: Bearer eyJhbGc...
+  pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+&lt;/script&gt;</code></pre>
+<hr>
+<h3><code>panFetch</code> - Authenticated Fetch Utility</h3>
+<p>For custom API calls, use <code>panFetch</code> - a drop-in replacement for <code>fetch()</code> that auto-injects auth headers.</p>
+<pre><code class="language-javascript">import { panFetch } from &#039;./pan/core/pan-fetch.mjs&#039;;
+
+// Automatically includes Authorization header if logged in
+const response = await panFetch.fetch(&#039;/api/users&#039;);
+const data = await response.json();
+
+// Convenience methods
+const users = await panFetch.get(&#039;/api/users&#039;);
+const newUser = await panFetch.post(&#039;/api/users&#039;, { name: &#039;John&#039; });
+const updated = await panFetch.put(&#039;/api/users/1&#039;, { name: &#039;Jane&#039; });
+await panFetch.delete(&#039;/api/users/1&#039;);
+
+// Check auth status
+if (panFetch.isAuthenticated()) {
+  console.log(&#039;User is logged in&#039;);
+}</code></pre>
+<strong>API:</strong>
+<pre><code class="language-javascript">panFetch.fetch(url, options)       // Drop-in replacement for fetch()
+panFetch.fetchJson(url, options)   // Fetch + auto JSON parse + error handling
+panFetch.get(url, options)         // GET with JSON
+panFetch.post(url, body, options)  // POST with JSON
+panFetch.put(url, body, options)   // PUT with JSON
+panFetch.patch(url, body, options) // PATCH with JSON
+panFetch.delete(url, options)      // DELETE with JSON
+panFetch.isAuthenticated()         // Check if logged in
+panFetch.getAuthState()            // Get current auth state</code></pre>
+<hr>
+<h2>Complete Example</h2>
+<h3>Login Component</h3>
+<pre><code class="language-javascript">customElements.define(&#039;login-form&#039;, class extends HTMLElement {
+  connectedCallback() {
+    this.pc = new PanClient(this);
+
+    this.innerHTML = `
+      &lt;form id=&quot;login&quot;&gt;
+        &lt;input name=&quot;email&quot; type=&quot;email&quot; required&gt;
+        &lt;input name=&quot;password&quot; type=&quot;password&quot; required&gt;
+        &lt;button&gt;Login&lt;/button&gt;
+      &lt;/form&gt;
+    `;
+
+    this.querySelector(&#039;#login&#039;).addEventListener(&#039;submit&#039;, async (e) =&gt; {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      try {
+        const response = await this.pc.request(&#039;auth.login&#039;, {
+          email: formData.get(&#039;email&#039;),
+          password: formData.get(&#039;password&#039;)
+        });
+
+        if (response.data.ok) {
+          console.log(&#039;Logged in!&#039;, response.data.user);
+        }
+      } catch (error) {
+        console.error(&#039;Login failed:&#039;, error);
+      }
+    });
+
+    // Listen for login events
+    this.pc.subscribe(&#039;auth.login.success&#039;, msg =&gt; {
+      alert(`Welcome, ${msg.data.user.name}!`);
+    });
+
+    this.pc.subscribe(&#039;auth.login.error&#039;, msg =&gt; {
+      alert(`Login failed: ${msg.data.error}`);
+    });
+  }
+});</code></pre>
+<h3>Protected Component</h3>
+<pre><code class="language-javascript">customElements.define(&#039;user-list&#039;, class extends HTMLElement {
+  connectedCallback() {
+    this.pc = new PanClient(this);
+
+    // Subscribe to auth state
+    this.pc.subscribe(&#039;auth.state&#039;, msg =&gt; {
+      if (msg.data.authenticated) {
+        // User logged in - fetch data
+        // Auth header automatically injected by connector!
+        this.pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+      } else {
+        // User logged out - show login prompt
+        this.innerHTML = &#039;&lt;p&gt;Please log in to view users.&lt;/p&gt;&#039;;
+      }
+    }, { retained: true });
+
+    // Subscribe to users data
+    this.pc.subscribe(&#039;users.list.state&#039;, msg =&gt; {
+      this.renderUsers(msg.data.items);
+    }, { retained: true });
+  }
+
+  renderUsers(users) {
+    this.innerHTML = `
+      &lt;ul&gt;
+        ${users.map(u =&gt; `&lt;li&gt;${u.name} (${u.email})&lt;/li&gt;`).join(&#039;&#039;)}
+      &lt;/ul&gt;
+    `;
+  }
+});</code></pre>
+<hr>
+<h2>Token Refresh</h2>
+<h3>Automatic Refresh</h3>
+<code><pan-auth></code> automatically refreshes tokens before they expire:
+<pre><code class="language-html">&lt;pan-auth
+  auto-refresh=&quot;true&quot;
+  refresh-before=&quot;300&quot;&gt;  &lt;!-- Refresh 5 minutes before expiry --&gt;
+&lt;/pan-auth&gt;</code></pre>
+<strong>How it works:</strong>
+<li><code>pan-auth</code> decodes JWT to get expiration time</li>
+<li>Schedules refresh 5 minutes (300 seconds) before expiry</li>
+<li>Calls <code>refresh-endpoint</code> with current token</li>
+<li>Updates token silently</li>
+<li>Publishes updated <code>auth.state</code></li>
+<h3>Manual Refresh</h3>
+<pre><code class="language-javascript">// Manually trigger refresh
+pc.publish({ topic: &#039;auth.refresh&#039;, data: {} });
+
+// Listen for refresh events
+pc.subscribe(&#039;auth.refresh.success&#039;, () =&gt; {
+  console.log(&#039;Token refreshed successfully&#039;);
+});
+
+pc.subscribe(&#039;auth.refresh.error&#039;, msg =&gt; {
+  console.error(&#039;Refresh failed:&#039;, msg.data.error);
+  // Token expired - redirect to login
+  window.location.href = &#039;/login&#039;;
+});</code></pre>
+<hr>
+<h2>Storage Options</h2>
+<h3>localStorage (default)</h3>
+<p>Tokens persist across browser restarts.</p>
+<pre><code class="language-html">&lt;pan-auth storage=&quot;localStorage&quot;&gt;&lt;/pan-auth&gt;</code></pre>
+<h3>sessionStorage</h3>
+<p>Tokens cleared when browser tab closes.</p>
+<pre><code class="language-html">&lt;pan-auth storage=&quot;sessionStorage&quot;&gt;&lt;/pan-auth&gt;</code></pre>
+<h3>memory</h3>
+<p>Tokens only in memory - cleared on page refresh.</p>
+<pre><code class="language-html">&lt;pan-auth storage=&quot;memory&quot;&gt;&lt;/pan-auth&gt;</code></pre>
+<hr>
+<h2>Backend Integration</h2>
+<h3>Expected API Endpoints</h3>
+<p>#### Login: <code>POST /api/auth/login</code></p>
+<strong>Request:</strong>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;password&quot;: &quot;password123&quot;
+}</code></pre>
+<strong>Response (200 OK):</strong>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;,
+  &quot;refreshToken&quot;: &quot;refresh_token_here&quot;,
+  &quot;user&quot;: {
+    &quot;id&quot;: 1,
+    &quot;email&quot;: &quot;user@example.com&quot;,
+    &quot;name&quot;: &quot;John Doe&quot;,
+    &quot;role&quot;: &quot;admin&quot;
+  }
+}</code></pre>
+<strong>Response (401 Unauthorized):</strong>
+<pre><code class="language-json">{
+  &quot;error&quot;: &quot;Invalid email or password&quot;
+}</code></pre>
+<p>#### Refresh: <code>POST /api/auth/refresh</code></p>
+<strong>Request Headers:</strong>
+<pre><code class="language-plaintext">Authorization: Bearer refresh_token_here</code></pre>
+<strong>Request Body:</strong>
+<pre><code class="language-json">{
+  &quot;refreshToken&quot;: &quot;refresh_token_here&quot;
+}</code></pre>
+<strong>Response (200 OK):</strong>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;new_access_token&quot;,
+  &quot;refreshToken&quot;: &quot;new_refresh_token&quot;,
+  &quot;user&quot;: {
+    &quot;id&quot;: 1,
+    &quot;email&quot;: &quot;user@example.com&quot;,
+    &quot;name&quot;: &quot;John Doe&quot;,
+    &quot;role&quot;: &quot;admin&quot;
+  }
+}</code></pre>
+<p>#### Logout: <code>POST /api/auth/logout</code></p>
+<strong>Request Headers:</strong>
+<pre><code class="language-plaintext">Authorization: Bearer access_token_here</code></pre>
+<strong>Response (200 OK):</strong>
+<pre><code class="language-json">{
+  &quot;ok&quot;: true
+}</code></pre>
+<h3>Protected Endpoints</h3>
+<p>All requests automatically include <code>Authorization</code> header:</p>
+<pre><code class="language-plaintext">GET /api/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+<p>Backend should:
+<li>Extract token from <code>Authorization: Bearer <token></code></li>
+<li>Validate token (signature, expiration)</li>
+<li>Return 401 if invalid/expired</li>
+<li>Return data if valid</li></p>
+<hr>
+<h2>Security Best Practices</h2>
+<h3>1. Token Storage</h3>
+<ul><li>✅ <strong>Use <code>localStorage</code></strong> for persistent sessions</li>
+<li>✅ <strong>Use <code>sessionStorage</code></strong> for temporary sessions</li>
+<li>✅ <strong>Use <code>memory</code></strong> for maximum security (no persistence)</li>
+<li>❌ <strong>Never</strong> store tokens in cookies (CSRF risk)</li>
+</ul>
+<h3>2. Token Expiration</h3>
+<ul><li>✅ Keep access tokens short-lived (15-60 minutes)</li>
+<li>✅ Keep refresh tokens longer (7-30 days)</li>
+<li>✅ Enable auto-refresh to avoid expired token errors</li>
+</ul>
+<h3>3. HTTPS Only</h3>
+<ul><li>✅ Always use HTTPS in production</li>
+<li>✅ Tokens should never be sent over HTTP</li>
+</ul>
+<h3>4. Token Validation</h3>
+<p>Backend must:
+<ul><li>✅ Validate JWT signature</li>
+<li>✅ Check expiration time</li>
+<li>✅ Validate token hasn't been revoked</li>
+<li>✅ Return 401 for invalid tokens</li>
+</ul>
+<h3>5. Sensitive Data</h3></p>
+<ul><li>✅ <code>auth.state</code> is public - safe for UI</li>
+<li>⚠️ <code>auth.internal.state</code> includes token - only for connectors</li>
+<li>❌ Never expose tokens to console.log in production</li>
+</ul>
+<hr>
+<h2>Examples</h2>
+<h3>📁 <code>/examples/auth-demo.html</code></h3>
+<p>Complete authentication demo with:
+<ul><li>Login form</li>
+<li>Protected user list</li>
+<li>Auto-header injection</li>
+<li>Mock backend API</li>
+</ul>
+<pre><code class="language-bash"># Open in browser
+open examples/auth-demo.html</code></pre></p>
+<h3>📁 <code>/examples/mock-auth-api.mjs</code></h3>
+<p>Client-side JWT simulator for testing:
+<ul><li>Intercepts <code>/api/*</code> requests</li>
+<li>Simulates login/refresh/logout</li>
+<li>Validates tokens</li>
+<li>Test credentials included</li>
+</ul>
+<strong>Test Credentials:</strong>
+<ul><li><code>admin@example.com</code> / <code>admin123</code></li>
+<li><code>user@example.com</code> / <code>user123</code></li>
+<li><code>demo@example.com</code> / <code>demo</code></li>
+</ul>
+<hr></p>
+<h2>Migration Guide</h2>
+<h3>From Manual Headers</h3>
+<strong>Before:</strong>
+<pre><code class="language-javascript">const response = await fetch(&#039;/api/users&#039;, {
+  headers: {
+    &#039;Authorization&#039;: `Bearer ${token}` // Manual!
+  }
+});</code></pre>
+<strong>After:</strong>
+<pre><code class="language-javascript">// Just use the connector - header automatically added!
+pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+
+// Or use panFetch for custom calls
+const response = await panFetch.fetch(&#039;/api/users&#039;);</code></pre>
+<h3>From External Auth</h3>
+<p>If you have an existing auth system:</p>
+<pre><code class="language-javascript">// After login with your system, set the token
+pc.publish({
+  topic: &#039;auth.setToken&#039;,
+  data: {
+    token: yourAccessToken,
+    refreshToken: yourRefreshToken,
+    user: { id: 1, email: &#039;user@example.com&#039;, name: &#039;John&#039; }
+  }
+});
+
+// Now all PAN requests include the token automatically</code></pre>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>Tokens not being sent</h3>
+<strong>Check:</strong>
+<li>Is <code><pan-auth></code> on the page?</li>
+<li>Is user logged in? Check <code>auth.state</code></li>
+<li>Are connectors after <code><pan-auth></code> in HTML?</li>
+<pre><code class="language-javascript">// Debug auth state
+pc.subscribe(&#039;auth.state&#039;, msg =&gt; {
+  console.log(&#039;Auth State:&#039;, msg.data);
+}, { retained: true });
+
+pc.publish({ topic: &#039;auth.check&#039;, data: {} });</code></pre>
+<h3>401 Errors after login</h3>
+<strong>Check:</strong>
+<li>Token format correct? Should be JWT</li>
+<li>Backend validating token correctly?</li>
+<li>Token not expired?</li>
+<pre><code class="language-javascript">// Check token expiration
+pc.subscribe(&#039;auth.state&#039;, msg =&gt; {
+  const exp = new Date(msg.data.expiresAt);
+  console.log(&#039;Token expires:&#039;, exp);
+  console.log(&#039;Time until expiry:&#039;, Math.floor((msg.data.expiresAt - Date.now()) / 1000), &#039;seconds&#039;);
+}, { retained: true });</code></pre>
+<h3>Auto-refresh not working</h3>
+<strong>Check:</strong>
+<li><code>auto-refresh="true"</code> on <code><pan-auth></code>?</li>
+<li><code>refresh-endpoint</code> correct?</li>
+<li>Refresh token available?</li>
+<pre><code class="language-javascript">// Monitor refresh events
+pc.subscribe(&#039;auth.refresh.success&#039;, () =&gt; {
+  console.log(&#039;✓ Token refreshed&#039;);
+});
+
+pc.subscribe(&#039;auth.refresh.error&#039;, msg =&gt; {
+  console.error(&#039;✗ Refresh failed:&#039;, msg.data.error);
+});</code></pre>
+<hr>
+<h2>FAQ</h2>
+<strong>Q: Do I need to import anything in my components?</strong>
+A: No! Components just publish/subscribe topics. Auth is completely transparent.
+<strong>Q: What if I need a different auth header format?</strong>
+A: Connectors use <code>Authorization: Bearer ${token}</code> by default. For custom formats, modify the connector or use <code>panFetch</code> with custom headers.
+<strong>Q: Can I use this with OAuth/SSO?</strong>
+A: Yes! After OAuth callback, use <code>auth.setToken</code> to inject the token into PAN.
+<strong>Q: Does this work with GraphQL?</strong>
+A: Yes! <code><pan-graphql-connector></code> auto-injects headers just like REST connector.
+<strong>Q: How do I handle token expiration?</strong>
+A: Enable <code>auto-refresh="true"</code>. Tokens refresh automatically before expiry.
+<strong>Q: Can I test without a backend?</strong>
+A: Yes! Use <code>/examples/mock-auth-api.mjs</code> - a client-side JWT simulator.
+<hr>
+<h2>Summary</h2>
+<strong>Zero manual header management:</strong>
+<li>Drop <code><pan-auth></code> on page</li>
+<li>Use connectors or <code>panFetch</code></li>
+<li>That's it!</li>
+<strong>Benefits:</strong>
+<ul><li>✅ Developers never write <code>Authorization: Bearer ${token}</code></li>
+<li>✅ Components don't know auth exists</li>
+<li>✅ Auto-refresh prevents expired tokens</li>
+<li>✅ Works with REST, GraphQL, custom APIs</li>
+<li>✅ Zero build, zero config</li>
+</ul>
+<strong>Philosophy:</strong>
+<p>Auth should be <strong>invisible infrastructure</strong>, not something developers think about on every request.</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/AUTHENTICATION.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

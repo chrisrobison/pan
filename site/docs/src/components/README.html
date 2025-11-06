@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Components · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Components">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">src</a> / <a href="#">components</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>Components</h1>
+<p>Complex, feature-rich components that provide substantial functionality. These are widgets that combine multiple features into cohesive tools.</p>
+<h2>Components</h2>
+<h3>Markdown System</h3>
+<strong>pan-markdown-editor.mjs</strong> - Full-featured markdown editor
+<ul><li>Rich formatting toolbar</li>
+<li>Keyboard shortcuts (Ctrl+B, Ctrl+I, etc.)</li>
+<li>Live preview toggle</li>
+<li>Auto-save support</li>
+<li>Word/character count</li>
+<li>Smart list continuation</li>
+</ul>
+<strong>pan-markdown-renderer.mjs</strong> - Markdown to HTML renderer
+<ul><li>GitHub-flavored markdown</li>
+<li>Tables, task lists, code blocks</li>
+<li>Syntax highlighting</li>
+<li>Safe HTML sanitization</li>
+<li>Custom styling via CSS variables</li>
+</ul>
+<h3>File Management</h3>
+<strong>pan-files.mjs</strong> - File system manager for OPFS
+<ul><li>File browser UI</li>
+<li>Create/rename/delete operations</li>
+<li>File filtering by extension</li>
+<li>Search functionality</li>
+<li>Read/write file contents</li>
+<li>Persistent browser storage (OPFS)</li>
+</ul>
+<h3>Forms & Data</h3>
+<strong>pan-data-table.mjs</strong> - Feature-rich data table
+<ul><li>Sorting and filtering</li>
+<li>Pagination</li>
+<li>Column customization</li>
+<li>Row selection</li>
+<li>Export functionality</li>
+</ul>
+<strong>pan-schema-form.mjs</strong> - Schema-driven form generator
+<ul><li>JSON Schema support</li>
+<li>Automatic field generation</li>
+<li>Validation</li>
+<li>Custom field types</li>
+</ul>
+<strong>pan-form.mjs</strong> - Generic form component
+<ul><li>Form state management</li>
+<li>Validation</li>
+<li>Submit handling</li>
+<li>PAN event integration</li>
+</ul>
+<strong>pan-date-picker.mjs</strong> - Date selection widget
+<ul><li>Calendar interface</li>
+<li>Date range selection</li>
+<li>Min/max date constraints</li>
+<li>Custom formatting</li>
+</ul>
+<h3>Data Visualization</h3>
+<strong>pan-chart.mjs</strong> - Charting component
+<ul><li>Multiple chart types (line, bar, pie)</li>
+<li>Responsive design</li>
+<li>Data updates via PAN</li>
+<li>Interactive tooltips</li>
+</ul>
+<h3>Theme System</h3>
+<strong>pan-theme-provider.mjs</strong> - Theme state management
+<ul><li>System preference detection</li>
+<li>Manual theme override</li>
+<li>PAN event broadcasting</li>
+<li>Light/dark mode support</li>
+</ul>
+<strong>pan-theme-toggle.mjs</strong> - Theme switcher UI
+<ul><li>Multiple variants (icon, button, dropdown)</li>
+<li>Integrates with theme provider</li>
+<li>Automatic state updates</li>
+</ul>
+<h3>Utility Components</h3>
+<strong>todo-list.mjs</strong> - Todo list widget
+<ul><li>Add/remove/edit items</li>
+<li>Persistence</li>
+<li>Complete/incomplete state</li>
+</ul>
+<strong>drag-drop-list.mjs</strong> - Sortable list with drag-drop
+<ul><li>Reorderable items</li>
+<li>Touch support</li>
+<li>Visual feedback</li>
+</ul>
+<h2>Usage</h2>
+<p>Import components as needed:</p>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./components/pan-markdown-editor.mjs&quot;&gt;&lt;/script&gt;
+
+&lt;pan-markdown-editor
+  value=&quot;# Hello World&quot;
+  preview=&quot;true&quot;
+  autosave=&quot;true&quot;&gt;
+&lt;/pan-markdown-editor&gt;</code></pre>
+<h2>Design Philosophy</h2>
+<p>Components are:
+<ul><li><strong>Feature-rich</strong> - Substantial functionality out of the box</li>
+<li><strong>Self-contained</strong> - Complete solutions for specific needs</li>
+<li><strong>Configurable</strong> - Many options and customization points</li>
+<li><strong>Integrated</strong> - Work seamlessly with PAN bus</li>
+<li><strong>Production-ready</strong> - Suitable for real applications</li>
+</ul>
+<h2>Dependencies</h2></p>
+<ul><li>Core: pan-bus, pan-client</li>
+<li>UI: May use UI components internally</li>
+<li>Theme: Respect theme CSS variables</li>
+</ul>
+<h2>When to Use</h2>
+<p>Use components from this directory when you need:
+<ul><li>Complete, ready-to-use functionality</li>
+<li>Rich feature sets</li>
+<li>Production-grade widgets</li>
+<li>Complex interactions</li>
+</ul>
+For simpler building blocks, see <code>ui/</code> directory.
+For domain-specific tools, see <code>app/</code> directory.</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/src/components/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

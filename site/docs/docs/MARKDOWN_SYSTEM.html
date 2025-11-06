@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MARKDOWN_SYSTEM · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - MARKDOWN_SYSTEM">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>MARKDOWN_SYSTEM</span>
+      </div>
+      <article class="docs-content">
+        <h2>PAN Markdown System</h2>
+<p>A complete markdown editing and file management system built with PAN components. Create, edit, and manage markdown documents with a rich editing experience and persistent storage.</p>
+<h2>Components</h2>
+<h3>1. <code><pan-markdown-renderer></code></h3>
+<p>Renders markdown content to styled HTML.</p>
+<strong>Features:</strong>
+<ul><li>Complete GitHub-flavored markdown support</li>
+<li>Tables, task lists, code blocks</li>
+<li>Syntax highlighting</li>
+<li>Blockquotes, links, images</li>
+<li>Safe HTML sanitization</li>
+<li>Customizable styling via CSS variables</li>
+</ul>
+<strong>Usage:</strong>
+<pre><code class="language-html">&lt;pan-markdown-renderer content=&quot;# Hello World
+
+This is **bold** and *italic*.&quot;&gt;&lt;/pan-markdown-renderer&gt;</code></pre>
+<strong>Attributes:</strong>
+<ul><li><code>content</code>: Markdown content to render</li>
+<li><code>sanitize</code>: Enable HTML sanitization (default: true)</li>
+</ul>
+<strong>Public API:</strong>
+<pre><code class="language-javascript">const renderer = document.querySelector(&#039;pan-markdown-renderer&#039;);
+
+// Set content
+renderer.setContent(&#039;# New Content&#039;);
+
+// Get rendered HTML
+const html = renderer.getHtml();</code></pre>
+<strong>PAN Events:</strong>
+<ul><li>Subscribes: <code>markdown.render</code> - Trigger render with content</li>
+</ul>
+<strong>Supported Markdown:</strong>
+<ul><li>Headers: <code># H1</code> through <code>###### H6</code></li>
+<li>Bold: <code><strong>bold</strong></code> or <code>__bold__</code></li>
+<li>Italic: <code><em>italic</em></code> or <code>_italic_</code></li>
+<li>Strikethrough: <code>~~strikethrough~~</code></li>
+<li>Links: <code><a href="url">text</a></code></li>
+<li>Images: <code>!<a href="url">alt</a></code></li>
+<li>Code: `<code> </code>inline<code> </code><code> or </code> ``<code> code blocks </code>`<code> </code></li>
+<li>Lists: <code>- unordered</code> or <code>1. ordered</code></li>
+<li>Task lists: <code>- [ ] task</code> or <code>- [x] done</code></li>
+<li>Blockquotes: <code>> quote</code></li>
+<li>Tables: <code>| col1 | col2 |</code></li>
+<li>Horizontal rules: <code>---</code>, <code><em>*</em></code>, or <code>___</code></li>
+</ul>
+<hr>
+<h3>2. <code><pan-markdown-editor></code></h3>
+<p>Rich markdown editor with formatting toolbar and live preview.</p>
+<strong>Features:</strong>
+<ul><li>Visual formatting toolbar</li>
+<li>Keyboard shortcuts (Ctrl+B, Ctrl+I, Ctrl+K, etc.)</li>
+<li>Live preview toggle</li>
+<li>Auto-indent for lists</li>
+<li>Tab support</li>
+<li>Word/character count</li>
+<li>Auto-save support</li>
+<li>Natural editing experience</li>
+</ul>
+<strong>Usage:</strong>
+<pre><code class="language-html">&lt;pan-markdown-editor
+  value=&quot;# Start writing...&quot;
+  preview=&quot;true&quot;
+  autosave=&quot;false&quot;
+  placeholder=&quot;Your content here...&quot;&gt;
+&lt;/pan-markdown-editor&gt;</code></pre>
+<strong>Attributes:</strong>
+<ul><li><code>value</code>: Initial markdown content</li>
+<li><code>placeholder</code>: Placeholder text (default: "Start writing...")</li>
+<li><code>preview</code>: Show split preview panel (default: false)</li>
+<li><code>autosave</code>: Enable auto-save events (default: false)</li>
+</ul>
+<strong>Toolbar Actions:</strong>
+<ul><li><strong>Bold</strong> (<code>Ctrl+B</code>): <code><strong>text</strong></code></li>
+<li><strong>Italic</strong> (<code>Ctrl+I</code>): <code><em>text</em></code></li>
+<li><strong>Strikethrough</strong>: <code>~~text~~</code></li>
+<li><strong>H1/H2/H3</strong>: Insert heading</li>
+<li><strong>Bullet List</strong>: Insert <code>* item</code></li>
+<li><strong>Numbered List</strong>: Insert <code>1. item</code></li>
+<li><strong>Task List</strong>: Insert <code>- [ ] task</code></li>
+<li><strong>Link</strong> (<code>Ctrl+K</code>): Insert <code><a href="url">text</a></code></li>
+<li><strong>Image</strong>: Insert <code>!<a href="url">alt</a></code></li>
+<li><strong>Code</strong>: Insert `<code> </code>code<code> </code><code></li>
+<li><strong>Code Block</strong>: Insert </code> ``<code> block </code>`<code> </code></li>
+<li><strong>Quote</strong>: Insert <code>> quote</code></li>
+<li><strong>Horizontal Rule</strong>: Insert <code>---</code></li>
+<li><strong>Table</strong>: Insert table template</li>
+<li><strong>Preview</strong>: Toggle preview pane</li>
+</ul>
+<strong>Keyboard Shortcuts:</strong>
+<ul><li><code>Ctrl/Cmd + B</code>: Bold</li>
+<li><code>Ctrl/Cmd + I</code>: Italic</li>
+<li><code>Ctrl/Cmd + K</code>: Insert link</li>
+<li><code>Ctrl/Cmd + S</code>: Save (if autosave enabled)</li>
+<li><code>Tab</code>: Insert spaces (not lost to browser)</li>
+<li><code>Enter</code>: Auto-continue lists</li>
+</ul>
+<strong>Public API:</strong>
+<pre><code class="language-javascript">const editor = document.querySelector(&#039;pan-markdown-editor&#039;);
+
+// Get/Set content
+editor.setValue(&#039;# New content&#039;);
+const content = editor.getValue();
+
+// Insert text at cursor
+editor.insertText(&#039;inserted text&#039;);
+
+// Focus editor
+editor.focus();</code></pre>
+<strong>PAN Events:</strong>
+<ul><li>Publishes:</li>
+</ul>  - <code>markdown.changed</code>: <code>{ content, wordCount, charCount }</code>
+  - <code>markdown.saved</code>: <code>{ content }</code> (when autosave triggers)
+<ul><li>Subscribes:</li>
+</ul>  - <code>markdown.set-content</code>: Set editor content
+  - <code>markdown.get-content</code>: Request current content (responds with <code>markdown.content-response</code>)
+<hr>
+<h3>3. <code><pan-files></code></h3>
+<p>File system manager for browser's Origin Private File System (OPFS).</p>
+<strong>Features:</strong>
+<ul><li>List files and directories</li>
+<li>Create/rename/delete operations</li>
+<li>File filtering by extension</li>
+<li>Search functionality</li>
+<li>Read/write file contents</li>
+<li>Persistent storage (survives page refresh)</li>
+<li>No permission prompts (OPFS is origin-private)</li>
+<li>Drag-friendly interface</li>
+</ul>
+<strong>Usage:</strong>
+<pre><code class="language-html">&lt;pan-files
+  path=&quot;/&quot;
+  filter=&quot;.md,.txt&quot;
+  show-hidden=&quot;false&quot;&gt;
+&lt;/pan-files&gt;</code></pre>
+<strong>Attributes:</strong>
+<ul><li><code>path</code>: Current directory path (default: "/")</li>
+<li><code>filter</code>: Comma-separated file extensions (e.g., ".md,.txt")</li>
+<li><code>show-hidden</code>: Show files starting with "." (default: false)</li>
+</ul>
+<strong>Public API:</strong>
+<pre><code class="language-javascript">const files = document.querySelector(&#039;pan-files&#039;);
+
+// File operations
+await files.writeFile(&#039;/document.md&#039;, &#039;# Content&#039;);
+const content = await files.readFile(&#039;/document.md&#039;);
+await files.deleteFile(&#039;/document.md&#039;);
+
+// Get file list
+const fileList = await files.listFiles();
+
+// Refresh display
+await files.refresh();</code></pre>
+<strong>PAN Events:</strong>
+<ul><li>Publishes:</li>
+</ul>  - <code>file.selected</code>: <code>{ path, name, isDirectory }</code>
+  - <code>file.created</code>: <code>{ path, name }</code>
+  - <code>file.deleted</code>: <code>{ path }</code>
+  - <code>file.renamed</code>: <code>{ oldPath, newPath }</code>
+  - <code>file.content-loaded</code>: <code>{ path, content }</code>
+<ul><li>Subscribes:</li>
+</ul>  - <code>file.save</code>: <code>{ path, content }</code>
+  - <code>file.load</code>: <code>{ path }</code> (triggers <code>file.content-loaded</code>)
+  - <code>file.delete</code>: <code>{ path }</code>
+  - <code>file.create</code>: <code>{ path, content }</code>
+<strong>OPFS Details:</strong>
+<ul><li>Storage: Origin Private File System (part of File System Access API)</li>
+<li>Permissions: No user prompts required</li>
+<li>Persistence: Survives browser restarts</li>
+<li>Isolation: Sandboxed per origin</li>
+<li>Quota: Subject to browser storage quotas</li>
+<li>Support: Chrome 86+, Edge 86+, Safari 15.2+, Firefox (partial)</li>
+</ul>
+<hr>
+<h2>Demo App: Markdown Notes</h2>
+<p>A full-featured markdown note-taking application.</p>
+<strong>Features:</strong>
+<ul><li>✍️ Rich markdown editing with toolbar</li>
+<li>👁️ Live preview toggle</li>
+<li>💾 Persistent file storage (OPFS)</li>
+<li>📂 File browser sidebar</li>
+<li>🎨 Light/dark mode support</li>
+<li>⌨️ Keyboard shortcuts</li>
+<li>⚡ Auto-save support</li>
+<li>📤 Export to file</li>
+</ul>
+<strong>File:</strong> <code>demo-apps/markdown-notes.html</code>
+<strong>Keyboard Shortcuts:</strong>
+<ul><li><code>Ctrl/Cmd + S</code>: Save current file</li>
+<li><code>Ctrl/Cmd + N</code>: Create new file</li>
+<li><code>Ctrl/Cmd + B</code>: Toggle sidebar</li>
+<li>Editor shortcuts (Bold, Italic, etc.) also work</li>
+</ul>
+<hr>
+<h2>Integration Examples</h2>
+<h3>Example 1: Simple Renderer</h3>
+<pre><code class="language-html">&lt;pan-markdown-renderer content=&quot;# Hello World&quot;&gt;&lt;/pan-markdown-renderer&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import &#039;./components/pan-markdown-renderer.mjs&#039;;
+&lt;/script&gt;</code></pre>
+<h3>Example 2: Editor with Auto-Save</h3>
+<pre><code class="language-html">&lt;pan-markdown-editor
+  value=&quot;# My Document&quot;
+  preview=&quot;true&quot;
+  autosave=&quot;true&quot;&gt;
+&lt;/pan-markdown-editor&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import &#039;./components/pan-markdown-editor.mjs&#039;;
+  import &#039;./components/pan-markdown-renderer.mjs&#039;;
+
+  const bus = document.querySelector(&#039;pan-bus&#039;);
+
+  // Listen for auto-saves
+  bus.subscribe(&#039;markdown.saved&#039;, (data) =&gt; {
+    console.log(&#039;Auto-saved:&#039;, data.content.length, &#039;characters&#039;);
+    // Save to backend, localStorage, etc.
+  });
+&lt;/script&gt;</code></pre>
+<h3>Example 3: File Manager with Editor</h3>
+<pre><code class="language-html">&lt;div style=&quot;display: grid; grid-template-columns: 300px 1fr; gap: 1rem;&quot;&gt;
+  &lt;pan-files filter=&quot;.md&quot;&gt;&lt;/pan-files&gt;
+  &lt;pan-markdown-editor preview=&quot;true&quot;&gt;&lt;/pan-markdown-editor&gt;
+&lt;/div&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import &#039;./components/pan-files.mjs&#039;;
+  import &#039;./components/pan-markdown-editor.mjs&#039;;
+
+  const bus = document.querySelector(&#039;pan-bus&#039;);
+  const files = document.querySelector(&#039;pan-files&#039;);
+  const editor = document.querySelector(&#039;pan-markdown-editor&#039;);
+
+  let currentFile = null;
+
+  // Load file when selected
+  bus.subscribe(&#039;file.selected&#039;, async (data) =&gt; {
+    if (!data.isDirectory) {
+      const content = await files.readFile(data.path);
+      editor.setValue(content);
+      currentFile = data.path;
+    }
+  });
+
+  // Save on editor change
+  bus.subscribe(&#039;markdown.changed&#039;, async (data) =&gt; {
+    if (currentFile) {
+      await files.writeFile(currentFile, data.content);
+    }
+  });
+&lt;/script&gt;</code></pre>
+<h3>Example 4: Custom Toolbar Integration</h3>
+<pre><code class="language-html">&lt;div&gt;
+  &lt;button onclick=&quot;insertTemplate()&quot;&gt;Insert Template&lt;/button&gt;
+  &lt;button onclick=&quot;exportMarkdown()&quot;&gt;Export&lt;/button&gt;
+  &lt;pan-markdown-editor id=&quot;editor&quot;&gt;&lt;/pan-markdown-editor&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  function insertTemplate() {
+    const editor = document.getElementById(&#039;editor&#039;);
+    const template = `# Project Name
+
+## Overview
+
+Brief description here.
+
+## Features
+
+- Feature 1
+- Feature 2
+
+## Installation
+
+\`\`\`bash
+npm install
+\`\`\`
+`;
+    editor.setValue(template);
+  }
+
+  function exportMarkdown() {
+    const editor = document.getElementById(&#039;editor&#039;);
+    const content = editor.getValue();
+    const blob = new Blob([content], { type: &#039;text/markdown&#039; });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement(&#039;a&#039;);
+    a.href = url;
+    a.download = &#039;document.md&#039;;
+    a.click();
+  }
+&lt;/script&gt;</code></pre>
+<hr>
+<h2>Styling & Customization</h2>
+<h3>CSS Variables</h3>
+<p>All components respect theme CSS variables:</p>
+<pre><code class="language-css">:root {
+  /* Text colors */
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+
+  /* Background colors */
+  --color-surface: #ffffff;
+  --color-bg-alt: #f8fafc;
+
+  /* Primary color */
+  --color-primary: #006699;
+  --color-primary-soft: #e0f2fe;
+
+  /* Code blocks */
+  --color-code-bg: #1e293b;
+  --color-code-text: #e2e8f0;
+
+  /* Borders */
+  --color-border: #e2e8f0;
+
+  /* Typography */
+  --font-mono: &#039;Courier New&#039;, monospace;
+  --font-sans: system-ui, sans-serif;
+}</code></pre>
+<h3>Custom Renderer Styles</h3>
+<p>Override markdown rendering styles in your CSS:</p>
+<pre><code class="language-css">pan-markdown-renderer::part(markdown-body) {
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+/* Note: Shadow DOM styles are encapsulated.
+   Use CSS variables instead for theming. */</code></pre>
+<hr>
+<h2>Architecture</h2>
+<h3>Component Communication</h3>
+<pre><code class="language-plaintext">User Action → Editor → PAN Event → File Manager → OPFS
+                 ↓                        ↓
+            UI Update ← PAN Event ← Save Complete</code></pre>
+<h3>Data Flow Example</h3>
+<li>User edits markdown in editor</li>
+<li>Editor emits <code>markdown.changed</code> via PAN</li>
+<li>App saves content via <code>file.save</code> PAN event</li>
+<li>Files component writes to OPFS</li>
+<li>Files component emits <code>file.content-loaded</code></li>
+<li>App updates UI state</li>
+<h3>Event-Driven Architecture</h3>
+<p>All components are loosely coupled via PAN:</p>
+<pre><code class="language-javascript">// Component A (Editor)
+bus.publish(&#039;markdown.changed&#039;, { content });
+
+// Component B (Auto-saver)
+bus.subscribe(&#039;markdown.changed&#039;, (data) =&gt; {
+  localStorage.setItem(&#039;backup&#039;, data.content);
+});
+
+// Component C (Analytics)
+bus.subscribe(&#039;markdown.changed&#039;, (data) =&gt; {
+  trackUsage({ words: data.wordCount });
+});</code></pre>
+<hr>
+<h2>Browser Support</h2>
+<p>| Feature | Chrome | Firefox | Safari | Edge |
+|---------|--------|---------|--------|------|
+| Markdown Renderer | ✅ 90+ | ✅ 88+ | ✅ 14+ | ✅ 90+ |
+| Markdown Editor | ✅ 90+ | ✅ 88+ | ✅ 14+ | ✅ 90+ |
+| OPFS (pan-files) | ✅ 86+ | ⚠️ Partial | ✅ 15.2+ | ✅ 86+ |</p>
+<strong>Requirements:</strong>
+<ul><li>ES6 Modules</li>
+<li>Web Components (Custom Elements, Shadow DOM)</li>
+<li>File System Access API (for pan-files)</li>
+<li>CSS Custom Properties</li>
+</ul>
+<hr>
+<h2>Performance</h2>
+<h3>Renderer</h3>
+<ul><li>Fast parsing (pure JS, no dependencies)</li>
+<li>Efficient re-renders (only updates changed content)</li>
+<li>< 5KB gzipped</li>
+</ul>
+<h3>Editor</h3>
+<ul><li>Lightweight (< 8KB gzipped)</li>
+<li>Debounced auto-save prevents excessive writes</li>
+<li>Efficient shadow DOM updates</li>
+</ul>
+<h3>Files</h3>
+<ul><li>OPFS is fast (direct file system access)</li>
+<li>Lazy loading (files loaded on demand)</li>
+<li>Efficient directory traversal</li>
+</ul>
+<hr>
+<h2>Security</h2>
+<h3>Markdown Rendering</h3>
+<ul><li>HTML sanitization enabled by default</li>
+<li>No script execution from user content</li>
+<li>Safe rendering in shadow DOM</li>
+</ul>
+<h3>File System</h3>
+<ul><li>OPFS is origin-isolated (sandboxed)</li>
+<li>No access to user's actual file system</li>
+<li>No permission prompts needed</li>
+<li>Quota-limited (prevents abuse)</li>
+</ul>
+<h3>XSS Protection</h3>
+<ul><li>Content is sanitized before rendering</li>
+<li>Event handlers stripped from markdown</li>
+<li>Shadow DOM isolation</li>
+</ul>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>"OPFS not supported"</h3>
+<ul><li>Check browser version (need Chrome 86+, Safari 15.2+)</li>
+<li>Ensure HTTPS (required for OPFS)</li>
+<li>Check Feature Policy headers</li>
+</ul>
+<h3>Files not persisting</h3>
+<ul><li>Check available storage quota</li>
+<li>Verify OPFS is enabled in browser</li>
+<li>Clear site data if corrupted</li>
+</ul>
+<h3>Editor lag with large files</h3>
+<ul><li>Files > 100KB may cause slowdown</li>
+<li>Consider pagination or virtual scrolling</li>
+<li>Disable live preview for very large documents</li>
+</ul>
+<h3>Markdown not rendering correctly</h3>
+<ul><li>Check console for errors</li>
+<li>Verify markdown syntax</li>
+<li>Test with simple content first</li>
+</ul>
+<hr>
+<h2>Examples</h2>
+<p>See <code>examples/markdown-components.html</code> for interactive demonstrations of:
+<ul><li>Basic rendering</li>
+<li>Editor with toolbar</li>
+<li>File management</li>
+<li>Integrated editor + files</li>
+<li>Programmatic control</li>
+</ul>
+<hr></p>
+<h2>Future Enhancements</h2>
+<p>Potential additions:</p>
+<li><strong>Collaborative editing</strong> - Real-time multi-user editing via WebRTC</li>
+<li><strong>Version history</strong> - Track document changes over time</li>
+<li><strong>Plugin system</strong> - Custom markdown extensions</li>
+<li><strong>Cloud sync</strong> - Optional backend synchronization</li>
+<li><strong>PDF export</strong> - Export to PDF directly from browser</li>
+<li><strong>Image upload</strong> - Drag-drop image support</li>
+<li><strong>Vim/Emacs modes</strong> - Advanced editing modes</li>
+<li><strong>Folder navigation</strong> - Multi-level directory support</li>
+<li><strong>Git integration</strong> - Commit changes to Git</li>
+<li><strong>Search & replace</strong> - Advanced find/replace</li>
+<hr>
+<h2>Resources</h2>
+<ul><li><a href="https://www.markdownguide.org/">Markdown Guide</a></li>
+<li><a href="https://github.github.com/gfm/">GitHub Flavored Markdown</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API">File System Access API</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/Web_Components">Web Components</a></li>
+<li><a href="../README.md">PAN Documentation</a></li>
+</ul>
+<hr>
+<h2>License</h2>
+<p>Part of the PAN (Page Area Network) project - MIT License</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/MARKDOWN_SYSTEM.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

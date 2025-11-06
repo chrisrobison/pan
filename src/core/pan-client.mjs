@@ -122,7 +122,7 @@ export class PanClient {
      * @type {string}
      * @private
      */
-    this.clientId = `${tag}#${Math.random().toString(36).slice(2, 8)}`;
+    this.clientId = `${tag}#${crypto.randomUUID()}`;
 
     /**
      * Promise that resolves when PAN bus is ready

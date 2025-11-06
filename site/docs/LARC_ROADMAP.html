@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LARC Roadmap (PAN) · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - LARC Roadmap (PAN)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>LARC_ROADMAP</span>
+      </div>
+      <article class="docs-content">
+        <h1>LARC Roadmap (PAN)</h1>
+<p>Vision: deliver a lightweight, standards‑based alternative to heavy SPA frameworks using Web Components + PAN as the decoupled communication backbone. Components interoperate with vanilla JS or frameworks (React/Vue/Lit) without build steps, JSX, or globals. Heavy work runs in Web Workers to keep the UI snappy.</p>
+<p>Principles</p>
+<ul><li>Lightweight: pure ESM, no build required, no JSX in core.</li>
+<li>Modular: many small web components composed via PAN topics.</li>
+<li>Interop: adapters optional; core stays framework‑agnostic.</li>
+<li>Opinionated simplicity: clear topic contracts; predictable defaults.</li>
+<li>Performance: offload compute/fetch to Workers; retain state for late joiners.</li>
+</ul>
+Scope & Parity Goals (sans SSR)
+<ul><li>Components: custom elements with Shadow DOM, slots, CSS parts/vars.</li>
+<li>State: PAN <code>*.state</code> topics as stores; retained snapshots.</li>
+<li>Effects: subscribe/unsubscribe in component lifecycle.</li>
+<li>Routing: <code><pan-router></code> publishes <code>nav.state</code>; link helpers.</li>
+<li>Forms: <code><pan-form></code> + <code><pan-schema-form></code> (JSON Schema).</li>
+<li>Tables/Lists: <code><pan-data-table></code> + query orchestration.</li>
+<li>Data: REST/GraphQL connectors, IndexedDB cache, WebSocket/SSE bridge.</li>
+<li>DevTools: <code><pan-inspector></code> traffic console, export/import, replay.</li>
+<li>Workers: <code><pan-worker></code> and worker RPC for heavy/long tasks.</li>
+</ul>
+Proposed Next Steps
+<p>1) Workers & Query Orchestration
+<ul><li>Implement <code><pan-worker></code> (topic bridge to a Worker; publish results as PAN messages).</li>
+<li>Add example offloading filter/sort/paginate of 10k rows to a Worker.</li>
+<li>Publish computed <code>${resource}.list.state</code> from worker; accept <code>${resource}.query.set</code>.</li>
+</ul>
+2) Query Orchestrator
+<ul><li><code><pan-query></code> retains <code>filter/sort/page</code> as <code>${resource}.query.state</code> (retained).</li>
+<li>Issues <code>${resource}.list.get</code> with params; listens to URL params via <code><pan-router></code>.</li>
+</ul>
+3) Schema‑Driven Form
+<ul><li><code><pan-schema-form></code> renders from JSON Schema; validates and displays errors.</li>
+<li>Publishes <code>${resource}.item.save</code>/<code>.patch</code>; subscribes to replies and errors.</li>
+</ul>
+4) Router
+<ul><li><code><pan-router></code> syncs URL ↔ <code>nav.state</code>; link component publishes <code>nav.goto</code>.</li>
+<li>Guards integrate with retained <code>auth.state</code>.</li>
+</ul>
+5) Connectors & Cache
+<ul><li>GraphQL connector; IndexedDB cache layer for offline/low‑latency snapshots.</li>
+<li>WebSocket/SSE bridge to stream <code>*.state</code> updates in real time.</li>
+</ul>
+6) Inspector Enhancements
+<ul><li>Recorder/replayer (export/import traces), time travel, per‑topic latency.</li>
+</ul>
+Security & Configuration</p>
+<ul><li>Mirror only explicit, non‑sensitive topics across tabs.</li>
+<li>Optional JSON Schema validation on publish with standardized <code>pan:sys.error</code>.</li>
+</ul>
+Milestones
+<ul><li>M1: pan-worker + workers demo + query orchestrator (basic).</li>
+<li>M2: schema form + router + GraphQL connector.</li>
+<li>M3: IndexedDB cache + SSE/WebSocket bridge + Inspector Pro.</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/LARC_ROADMAP.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

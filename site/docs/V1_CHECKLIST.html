@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN v1.0 Release Checklist · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN v1.0 Release Checklist">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>V1_CHECKLIST</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN v1.0 Release Checklist</h1>
+<p>Quick reference checklist for tracking v1.0 progress. See <a href="docs/V1_ROADMAP.md">docs/V1_ROADMAP.md</a> for detailed information.</p>
+<hr>
+<h2>🔴 CRITICAL (Must Have)</h2>
+<h3>Core Stability</h3>
+<ul><li>[x] Lock down PanClient API (no breaking changes)</li>
+<li>[x] Lock down PanMessage format (envelope)</li>
+<li>[x] Lock down core topic conventions</li>
+<li>[x] Lock down pan-bus CustomEvent names</li>
+<li>[x] Document semantic versioning policy</li>
+</ul>
+<h3>Testing</h3>
+<ul><li>[x] Core tests: pan-bus message delivery</li>
+<li>[x] Core tests: Topic matching (exact, wildcard)</li>
+<li>[x] Core tests: Retained messages</li>
+<li>[x] Core tests: Request/reply pattern</li>
+<li>[x] Core tests: Error handling</li>
+<li>[x] Core tests: Memory leak prevention</li>
+<li>[x] Target: 80%+ core coverage (achieved: 85 tests covering 1,054 lines)</li>
+</ul>
+<h3>Browser Compatibility</h3>
+<ul><li>[x] Test on Chrome/Edge (latest 2 versions) - Chrome tested, v1.0 ships Chrome-only</li>
+<li>[ ] Test on Firefox (latest 2 versions) - Post-v1.0 (v1.1)</li>
+<li>[ ] Test on Safari (latest 2 versions) - Post-v1.0 (v1.1)</li>
+<li>[ ] Test on mobile browsers - Post-v1.0 (v1.1)</li>
+<li>[x] Document browser support matrix - Chrome-only for v1.0</li>
+<li>[ ] Document required polyfills (if any) - TBD in v1.1</li>
+</ul>
+<h3>Security</h3>
+<ul><li>[ ] Security audit: pan-markdown-renderer (XSS) - Post-v1.0 (v1.1), component experimental</li>
+<li>[ ] Security audit: pan-files (path traversal) - Post-v1.0 (v1.1), component experimental</li>
+<li>[ ] Security audit: user input handling - Post-v1.0 (v1.1)</li>
+<li>[x] Write security guidelines doc - Best practices documented, full audit v1.1</li>
+<li>[x] Add Content Security Policy notes - Included in guidelines</li>
+<li>[x] Document localStorage security - Included in guidelines</li>
+</ul>
+<h3>API Documentation</h3>
+<ul><li>[x] Complete API reference for PanClient</li>
+<li>[x] Complete API reference for PanMessage</li>
+<li>[x] Document all core topic conventions</li>
+<li>[x] Document component props/attributes</li>
+<li>[x] Document CustomEvent names</li>
+<li>[x] Add code examples for all APIs</li>
+</ul>
+<hr>
+<h2>🟡 HIGH PRIORITY (Should Have)</h2>
+<h3>Component Testing</h3>
+<ul><li>[ ] Tests: pan-markdown-editor</li>
+<li>[ ] Tests: pan-files (OPFS)</li>
+<li>[ ] Tests: pan-theme-provider</li>
+<li>[ ] Tests: pan-data-table</li>
+<li>[ ] Integration tests: Invoice app</li>
+<li>[ ] Integration tests: Markdown notes</li>
+<li>[ ] Target: 60%+ component coverage</li>
+</ul>
+<h3>Performance</h3>
+<ul><li>[x] Benchmark: Message throughput (300,300 msg/sec - 30x threshold)</li>
+<li>[x] Benchmark: Subscribe/unsubscribe speed (434,783 / 114,943 ops/sec)</li>
+<li>[x] Benchmark: Retained message retrieval (9,814 msg/sec - 19x threshold)</li>
+<li>[x] Benchmark: Large dataset handling (10k items, 2.93 MB < 1ms)</li>
+<li>[x] Benchmark: Memory usage over time (0 MB leak after 30s)</li>
+<li>[x] Document performance characteristics (docs/PERFORMANCE.md)</li>
+<li>[x] Wildcard subscription performance (291,545 msg/sec)</li>
+<li>[x] Request/reply performance (103,093 req/sec sequential)</li>
+</ul>
+<h3>Developer Experience</h3>
+<ul><li>[x] JSDoc comments in pan-bus.mjs (all methods)</li>
+<li>[x] JSDoc comments in pan-client.mjs (all methods)</li>
+<li>[x] JSDoc comments in pan-autoload.mjs (all methods)</li>
+<li>[x] JSDoc for PanMessage envelope format</li>
+<li>[x] JSDoc for common topic patterns</li>
+<li>[ ] Improve error messages (clear, actionable)</li>
+<li>[ ] Write debugging guide</li>
+<li>[ ] Create VS Code snippets</li>
+</ul>
+<h3>Accessibility</h3>
+<ul><li>[ ] Audit all UI components for ARIA labels</li>
+<li>[ ] Test keyboard navigation</li>
+<li>[ ] Test screen reader support</li>
+<li>[ ] Document accessibility guidelines</li>
+<li>[ ] Add automated a11y tests</li>
+<li>[ ] Target: WCAG 2.1 Level AA</li>
+</ul>
+<h3>Package Distribution</h3>
+<ul><li>[ ] Create @larc/pan-bus package</li>
+<li>[ ] Create @larc/pan-client package</li>
+<li>[ ] Publish to npm</li>
+<li>[ ] Setup CDN distribution (unpkg/jsdelivr)</li>
+<li>[ ] Document installation methods</li>
+<li>[ ] Create tree-shakeable builds</li>
+</ul>
+<h3>Documentation</h3>
+<ul><li>[ ] Write "Getting Started" tutorial</li>
+<li>[ ] Write "Building Your First App" guide</li>
+<li>[ ] Write "State Management Patterns" guide</li>
+<li>[ ] Write "Testing PAN Apps" guide</li>
+<li>[ ] Create component catalog (visual)</li>
+<li>[ ] Write troubleshooting guide</li>
+<li>[ ] Create FAQ</li>
+</ul>
+<hr>
+<h2>🟢 NICE TO HAVE (Optional)</h2>
+<h3>Production Examples</h3>
+<ul><li>[ ] Production starter template</li>
+<li>[ ] Authentication example</li>
+<li>[ ] API integration example</li>
+<li>[ ] Error handling patterns</li>
+<li>[ ] Loading states example</li>
+</ul>
+<h3>Framework Integration</h3>
+<ul><li>[ ] React wrapper example</li>
+<li>[ ] Vue wrapper example</li>
+<li>[ ] Svelte wrapper example</li>
+<li>[ ] Angular wrapper example</li>
+</ul>
+<h3>TypeScript Support</h3>
+<ul><li>[ ] TypeScript definitions (.d.ts) for PanClient</li>
+<li>[ ] TypeScript definitions (.d.ts) for PanMessage</li>
+<li>[ ] TypeScript definitions (.d.ts) for topic patterns</li>
+<li>[ ] Type-safe component props</li>
+</ul>
+<h3>Developer Tools</h3>
+<ul><li>[ ] Enhanced inspector (time travel)</li>
+<li>[ ] Chrome DevTools extension</li>
+<li>[ ] Export/import message traces</li>
+<li>[ ] Replay functionality</li>
+</ul>
+<h3>Community</h3>
+<ul><li>[ ] CONTRIBUTING.md</li>
+<li>[ ] CODE_OF_CONDUCT.md</li>
+<li>[ ] Issue templates</li>
+<li>[ ] PR templates</li>
+<li>[ ] Public roadmap</li>
+</ul>
+<hr>
+<h2>Pre-Release Checklist</h2>
+<p>Before releasing v1.0.0:</p>
+<ul><li>[ ] All CRITICAL items complete</li>
+<li>[ ] All HIGH PRIORITY items complete (or documented as post-1.0)</li>
+<li>[ ] All tests passing</li>
+<li>[ ] All demos working</li>
+<li>[ ] Documentation reviewed and updated</li>
+<li>[ ] CHANGELOG.md updated</li>
+<li>[ ] Migration guide written (if needed)</li>
+<li>[ ] Release notes drafted</li>
+<li>[ ] Version bumped to 1.0.0 in package.json</li>
+<li>[ ] Git tag created</li>
+<li>[ ] npm packages published</li>
+<li>[ ] Announcement prepared</li>
+</ul>
+<hr>
+<h2>Current Progress</h2>
+<strong>Version:</strong> 0.1.0 → 1.0.0
+<strong>Completed:</strong>
+<ul><li>✅ Core infrastructure (pan-bus, pan-client, pan-autoload)</li>
+<li>✅ 40+ components organized by layer</li>
+<li>✅ Clean project structure</li>
+<li>✅ Demo applications</li>
+<li>✅ Basic documentation</li>
+<li>✅ PAN_SPEC.v1.md</li>
+<li>✅ JSDoc comments (all core files)</li>
+<li>✅ Critical v1.0 tests (16 tests: error handling, memory leaks, edge cases, concurrency)</li>
+<li>✅ Test infrastructure with HTTP server</li>
+</ul>
+<strong>Ready for v1.0 Release:</strong>
+<ul><li>✅ Testing coverage (85 tests, 80%+ coverage achieved)</li>
+<li>✅ API documentation (complete JSDoc + comprehensive docs)</li>
+<li>✅ Browser testing (Chrome tested, multi-browser in v1.1)</li>
+<li>✅ Security guidelines (best practices documented, audit in v1.1)</li>
+<li>✅ Performance benchmarks (exceptional results, all pass)</li>
+<li>✅ Core APIs locked (API_STABILITY.md)</li>
+</ul>
+<strong>v1.0 Release Strategy:</strong>
+<ul><li><strong>CORE</strong> (pan-bus, pan-client, pan-autoload): Production-ready</li>
+<li><strong>Components</strong>: Marked as experimental, full audit in v1.1</li>
+<li><strong>Browser Support</strong>: Chrome-only for v1.0, expand in v1.1</li>
+</ul>
+<hr>
+<h2>Quick Start Priorities</h2>
+<p>Next steps to reach v1.0 (in priority order):</p>
+<li><strong>✅ DONE: Write core tests</strong> - 26 tests passing including critical v1.0 tests</li>
+<li><strong>✅ DONE: Add JSDoc comments to core</strong> - All core files documented</li>
+<li><strong>Lock down APIs</strong> - Finalize PanClient, PanMessage, topic conventions (no breaking changes after)</li>
+<li><strong>API Documentation</strong> - Complete reference docs for all public APIs</li>
+<li><strong>Browser compatibility</strong> - Test on Chrome, Firefox, Safari (latest 2 versions)</li>
+<li><strong>Security audit</strong> - Review markdown renderer, file manager, user input handling</li>
+<li><strong>Increase test coverage</strong> - Add more tests to reach 80%+ (currently ~50%)</li>
+<li><strong>Performance benchmarks</strong> - Establish baseline for message throughput, memory usage</li>
+<hr>
+<strong>Last Updated:</strong> November 2024
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/V1_CHECKLIST.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apps · PAN</title>
+  <link rel="stylesheet" href="assets/theme.css">
+  <link rel="stylesheet" href="assets/docs.css">
+  <style>
+    .apps-hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .apps-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .apps-hero p {
+      font-size: 1.25rem;
+      color: var(--color-text-muted);
+    }
+
+    .apps-grid {
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 2rem;
+    }
+
+    .app-card {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      text-decoration: none;
+      display: block;
+      transition: all 0.3s;
+    }
+
+    .app-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+      border-color: var(--color-primary);
+    }
+
+    .app-screenshot {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      color: white;
+    }
+
+    .app-content {
+      padding: 2rem;
+    }
+
+    .app-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--color-text);
+    }
+
+    .app-card p {
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .app-features {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .app-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+    }
+
+    .app-feature::before {
+      content: '✓';
+      color: var(--color-primary);
+      font-weight: bold;
+    }
+
+    .app-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .app-tech {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tech-tag {
+      padding: 0.25rem 0.625rem;
+      background: var(--color-bg-alt);
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .app-link {
+      color: var(--color-primary);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="index.html" class="logo">PAN</a>
+      <nav class="docs-nav">
+        <a href="index.html">Home</a>
+        <a href="docs/index.html">Docs</a>
+        <a href="examples.html">Examples</a>
+        <a href="apps.html" class="active">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="apps-hero">
+    <h1>Demo Applications</h1>
+    <p>Real-world applications built with PAN showcasing production patterns</p>
+  </div>
+
+  <div class="apps-grid" id="apps-grid">
+    <!-- Will be populated by JavaScript -->
+  </div>
+
+  <script>
+    const apps = [
+      {
+        title: 'Invoice Studio',
+        description: 'Professional invoice generator with PDF export, client management, and payment tracking',
+        icon: '📄',
+        features: [
+          'Create and edit invoices',
+          'Client database management',
+          'PDF export & printing',
+          'Payment tracking',
+          'Tax calculations'
+        ],
+        tech: ['PAN', 'CRUD', 'PDF.js', 'LocalStorage'],
+        path: '../apps/invoice-studio/index.html'
+      },
+      {
+        title: 'Contact Manager',
+        description: 'Full-featured contact management system with search, groups, and export capabilities',
+        icon: '📇',
+        features: [
+          'Add/edit/delete contacts',
+          'Group organization',
+          'Search & filter',
+          'Import/export CSV',
+          'Bulk operations'
+        ],
+        tech: ['PAN', 'Data Provider', 'Forms'],
+        path: '../apps/contact-manager/index.html'
+      },
+      {
+        title: 'Markdown Notes',
+        description: 'Note-taking app with markdown editor, syntax highlighting, and local storage',
+        icon: '📝',
+        features: [
+          'Markdown editing',
+          'Live preview',
+          'Syntax highlighting',
+          'Local persistence',
+          'Export to HTML'
+        ],
+        tech: ['PAN', 'Markdown', 'CodeMirror'],
+        path: '../apps/markdown-notes/index.html'
+      },
+      {
+        title: 'Data Browser',
+        description: 'Explore and visualize JSON data with filtering, sorting, and charts',
+        icon: '📊',
+        features: [
+          'JSON data viewer',
+          'Advanced filtering',
+          'Column sorting',
+          'Data visualization',
+          'Export options'
+        ],
+        tech: ['PAN', 'Data Table', 'Charts'],
+        path: '../apps/data-browser/index.html'
+      },
+      {
+        title: 'Invoice (Simple)',
+        description: 'Lightweight invoice creator focused on simplicity and speed',
+        icon: '🧾',
+        features: [
+          'Quick invoice creation',
+          'PDF generation',
+          'Template management',
+          'Client details',
+          'Print-friendly'
+        ],
+        tech: ['PAN', 'Forms', 'PDF'],
+        path: '../apps/invoice/index.html'
+      }
+    ];
+
+    const grid = document.getElementById('apps-grid');
+
+    apps.forEach(app => {
+      const card = document.createElement('a');
+      card.className = 'app-card';
+      card.href = app.path;
+
+      card.innerHTML = `
+        <div class="app-screenshot">${app.icon}</div>
+        <div class="app-content">
+          <h3>${app.title}</h3>
+          <p>${app.description}</p>
+          <div class="app-features">
+            ${app.features.map(feature => `
+              <div class="app-feature">${feature}</div>
+            `).join('')}
+          </div>
+          <div class="app-footer">
+            <div class="app-tech">
+              ${app.tech.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+            </div>
+            <span class="app-link">Launch →</span>
+          </div>
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

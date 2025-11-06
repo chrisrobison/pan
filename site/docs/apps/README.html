@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Applications · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Demo Applications">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">apps</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>Demo Applications</h1>
+<p>Complete, working applications built with PAN components. These demos showcase real-world usage and serve as templates for building your own apps.</p>
+<h2>Applications</h2>
+<h3>invoice.html</h3>
+<strong>Invoice Creator</strong> - Professional invoice creation tool for independent contractors.
+<strong>Features:</strong>
+<ul><li>Contenteditable invoice fields (no forms!)</li>
+<li>Auto-calculating line items</li>
+<li>Multiple invoice management</li>
+<li>LocalStorage persistence</li>
+<li>Export to JSON</li>
+<li>Print-optimized layout</li>
+<li>Auto-save</li>
+</ul>
+<strong>Components Used:</strong>
+<ul><li><code>app/invoice/pan-invoice-header.mjs</code></li>
+<li><code>app/invoice/pan-invoice-items.mjs</code></li>
+<li><code>app/invoice/pan-invoice-totals.mjs</code></li>
+<li><code>data/pan-invoice-store.mjs</code></li>
+</ul>
+<strong>Documentation:</strong> See <code>INVOICE_README.md</code>
+<hr>
+<h3>markdown-notes.html</h3>
+<strong>Markdown Notes</strong> - Full-featured markdown editor with file management.
+<strong>Features:</strong>
+<ul><li>Rich markdown editor with toolbar</li>
+<li>Live preview toggle</li>
+<li>File browser with OPFS storage</li>
+<li>Create/rename/delete files</li>
+<li>Persistent storage</li>
+<li>Light/dark mode</li>
+<li>Keyboard shortcuts</li>
+<li>Export to .md files</li>
+</ul>
+<strong>Components Used:</strong>
+<ul><li><code>components/pan-markdown-editor.mjs</code></li>
+<li><code>components/pan-markdown-renderer.mjs</code></li>
+<li><code>components/pan-files.mjs</code></li>
+</ul>
+<strong>Documentation:</strong> See <code>docs/MARKDOWN_SYSTEM.md</code>
+<hr>
+<h3>data-browser.html</h3>
+<strong>Data Browser</strong> - Browse and visualize data with tables and charts.
+<strong>Features:</strong>
+<ul><li>Sortable, filterable data table</li>
+<li>Data visualization charts</li>
+<li>Export to CSV/JSON</li>
+<li>Responsive design</li>
+</ul>
+<strong>Components Used:</strong>
+<ul><li><code>components/pan-data-table.mjs</code></li>
+<li><code>components/pan-chart.mjs</code></li>
+</ul>
+<hr>
+<h3>contact-manager.html</h3>
+<strong>Contact Manager</strong> - Simple contact management application.
+<strong>Features:</strong>
+<ul><li>Add/edit/delete contacts</li>
+<li>Search and filter</li>
+<li>Persistent storage</li>
+<li>Contact cards with avatars</li>
+</ul>
+<strong>Components Used:</strong>
+<ul><li><code>ui/pan-card.mjs</code></li>
+<li><code>ui/pan-modal.mjs</code></li>
+<li><code>ui/user-avatar.mjs</code></li>
+</ul>
+<hr>
+<h2>Using These Demos</h2>
+<h3>As Learning Resources</h3>
+<ul><li>Study the code to learn PAN patterns</li>
+<li>See component integration in action</li>
+<li>Understand state management strategies</li>
+</ul>
+<h3>As Templates</h3>
+<ul><li>Fork a demo to start your own app</li>
+<li>Modify to fit your use case</li>
+<li>Add your own components</li>
+</ul>
+<h3>As Reference</h3>
+<ul><li>See complete, working examples</li>
+<li>Copy patterns into your projects</li>
+<li>Learn best practices</li>
+</ul>
+<h2>Common Patterns</h2>
+<h3>1. Application Structure</h3>
+<pre><code class="language-html">&lt;!-- Toolbar --&gt;
+&lt;div class=&quot;toolbar&quot;&gt;
+  &lt;button&gt;Actions&lt;/button&gt;
+  &lt;pan-theme-toggle&gt;&lt;/pan-theme-toggle&gt;
+&lt;/div&gt;
+
+&lt;!-- Main Content --&gt;
+&lt;div class=&quot;main-content&quot;&gt;
+  &lt;pan-app-component&gt;&lt;/pan-app-component&gt;
+&lt;/div&gt;
+
+&lt;!-- Infrastructure --&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;pan-theme-provider theme=&quot;auto&quot;&gt;&lt;/pan-theme-provider&gt;</code></pre>
+<h3>2. State Management</h3>
+<pre><code class="language-javascript">// Central store coordinates state
+&lt;pan-data-store&gt;&lt;/pan-data-store&gt;
+
+// Components communicate via PAN
+bus.subscribe(&#039;data.loaded&#039;, (msg) =&gt; {
+  updateUI(msg.data);
+});
+
+bus.publish(&#039;data.save&#039;, { item: {...} });</code></pre>
+<h3>3. File Operations</h3>
+<pre><code class="language-javascript">const files = document.querySelector(&#039;pan-files&#039;);
+
+// Save
+await files.writeFile(&#039;/document.md&#039;, content);
+
+// Load
+const content = await files.readFile(&#039;/document.md&#039;);
+
+// Delete
+await files.deleteFile(&#039;/document.md&#039;);</code></pre>
+<h3>4. Theme Integration</h3>
+<pre><code class="language-html">&lt;!-- Theme provider manages state --&gt;
+&lt;pan-theme-provider theme=&quot;auto&quot;&gt;&lt;/pan-theme-provider&gt;
+
+&lt;!-- Toggle button --&gt;
+&lt;pan-theme-toggle variant=&quot;icon&quot;&gt;&lt;/pan-theme-toggle&gt;
+
+&lt;!-- All components automatically adapt --&gt;</code></pre>
+<h2>Creating Your Own App</h2>
+<h3>Step 1: Choose a Template</h3>
+Pick the demo closest to your needs:
+<ul><li><strong>Forms/CRUD</strong> → invoice.html or contact-manager.html</li>
+<li><strong>Editor</strong> → markdown-notes.html</li>
+<li><strong>Data viz</strong> → data-browser.html</li>
+</ul>
+<h3>Step 2: Customize</h3>
+<li>Copy the HTML file</li>
+<li>Replace components with your own</li>
+<li>Update styling and branding</li>
+<li>Add your business logic</li>
+<h3>Step 3: Add Components</h3>
+Create app-specific components in <code>app/your-app/</code>:
+<pre><code class="language-javascript">export class PanYourComponent extends HTMLElement {
+  // Your component code
+}</code></pre>
+<h3>Step 4: Add State Management</h3>
+Create a store in <code>data/</code> if needed:
+<pre><code class="language-javascript">export class PanYourStore extends HTMLElement {
+  // State management code
+}</code></pre>
+<h2>Deployment</h2>
+<p>All demos are static HTML/JS and can be deployed anywhere:
+<ul><li>GitHub Pages</li>
+<li>Netlify</li>
+<li>Vercel</li>
+<li>Any static host</li>
+<li>Or run locally with <code>python -m http.server</code></li>
+</ul>
+No build step required! 🎉</p>
+<h2>Testing</h2>
+<p>Open any <code>.html</code> file in your browser:
+<pre><code class="language-bash"># From project root
+python -m http.server 8000
+# Then visit http://localhost:8000/apps/invoice.html</code></pre></p>
+<p>Or use the VS Code Live Server extension.</p>
+<h2>Contributing</h2>
+<p>To add a new demo app:
+<li>Create <code>apps/your-app.html</code></li>
+<li>Create components in <code>app/your-app/</code></li>
+<li>Add data store in <code>data/</code> if needed</li>
+<li>Update this README</li>
+<li>Add to gallery.html</li></p>
+<h2>Best Practices</h2>
+<p>✅ <strong>Do:</strong>
+<ul><li>Use semantic HTML</li>
+<li>Follow PAN event patterns</li>
+<li>Respect theme CSS variables</li>
+<li>Add keyboard shortcuts</li>
+<li>Handle errors gracefully</li>
+<li>Provide user feedback</li>
+<li>Test light/dark modes</li>
+</ul>
+❌ <strong>Don't:</strong>
+<ul><li>Hardcode colors (use CSS variables)</li>
+<li>Skip error handling</li>
+<li>Forget mobile responsiveness</li>
+<li>Mix multiple apps in one file</li>
+<li>Ignore accessibility</li>
+</ul>
+<h2>Support</h2></p>
+<p>For questions or issues:
+<ul><li>Check component documentation in respective README files</li>
+<li>See main PAN documentation</li>
+<li>Look at other demo apps for examples</li>
+<li>Open an issue on GitHub</li>
+</ul></p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/apps/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test System Migration: TypeScript → Plain JavaScript · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Test System Migration: TypeScript → Plain JavaScript">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">tests</a> / <span>MIGRATION</span>
+      </div>
+      <article class="docs-content">
+        <h1>Test System Migration: TypeScript → Plain JavaScript</h1>
+<h2>What We Built</h2>
+<p>We've created a <strong>zero-build, TypeScript-free testing system</strong> that aligns perfectly with LARC's philosophy of simplicity.</p>
+<h3>Components</h3>
+<li><strong>Custom Test Runner</strong> (<code>tests/lib/test-runner.mjs</code>)</li>
+   - Lightweight, ~300 lines of code
+   - Zero dependencies beyond Playwright
+   - Works in both Node.js and browser
+   - API: <code>describe</code>, <code>test</code>/<code>it</code>, <code>expect</code>, <code>beforeAll</code>, <code>afterAll</code>, <code>beforeEach</code>, <code>afterEach</code>
+<li><strong>CLI Test Runner</strong> (<code>tests/lib/cli-runner.mjs</code>)</li>
+   - Runs tests from command line
+   - Auto-discovers <code>*.test.mjs</code> files
+   - Colorized output
+   - Supports <code>--headed</code> mode for debugging
+<li><strong>HTML Test Runner</strong> (<code>tests/index.html</code>)</li>
+   - Open directly in browser
+   - Visual test results
+   - Filter/search functionality
+   - Real-time updates
+<li><strong>Test Utilities</strong> (<code>tests/lib/test-utils.mjs</code>)</li>
+   - Helper functions for common test operations
+   - Playwright integration helpers
+   - File URL conversion
+   - PAN message testing utilities
+<h2>Running Tests</h2>
+<h3>Command Line</h3>
+<pre><code class="language-bash"># Using npm
+npm test                          # Run all tests
+npm run test:headed               # Run with visible browser
+npm run test:file tests/simple.test.mjs  # Run specific file
+
+# Using make
+make test                         # Run all tests
+make test-headed                  # Run with visible browser
+make test-file FILE=tests/simple.test.mjs
+
+# Direct
+node tests/lib/cli-runner.mjs     # Run all
+node tests/lib/cli-runner.mjs tests/simple.test.mjs  # Run one</code></pre>
+<h3>Browser</h3>
+<pre><code class="language-bash"># Serve locally
+python3 -m http.server 8000
+
+# Open http://localhost:8000/tests/</code></pre>
+<h2>Example Tests</h2>
+<h3>Simple Unit Test</h3>
+<pre><code class="language-javascript">// tests/simple.test.mjs
+import { describe, test, expect } from &#039;./lib/test-runner.mjs&#039;;
+
+describe(&#039;my feature&#039;, () =&gt; {
+  test(&#039;does something&#039;, () =&gt; {
+    expect(1 + 1).toBe(2);
+  });
+
+  test(&#039;handles async&#039;, async () =&gt; {
+    const result = await Promise.resolve(42);
+    expect(result).toBe(42);
+  });
+});</code></pre>
+<h3>Playwright Integration Test</h3>
+<pre><code class="language-javascript">// tests/core/pan-bus.test.mjs
+import { chromium } from &#039;playwright&#039;;
+import { describe, test, expect, beforeAll, afterAll } from &#039;../lib/test-runner.mjs&#039;;
+import { fileUrl } from &#039;../lib/test-utils.mjs&#039;;
+
+describe(&#039;pan-bus&#039;, () =&gt; {
+  let browser, page;
+
+  beforeAll(async () =&gt; {
+    browser = await chromium.launch({ headless: true });
+    page = await browser.newPage();
+  });
+
+  afterAll(async () =&gt; {
+    await browser.close();
+  });
+
+  test(&#039;loads and becomes ready&#039;, async () =&gt; {
+    await page.goto(fileUrl(&#039;examples/01-hello.html&#039;));
+
+    await page.waitForFunction(() =&gt; customElements.get(&#039;pan-bus&#039;) !== undefined);
+
+    const busExists = await page.evaluate(() =&gt; {
+      return document.querySelector(&#039;pan-bus&#039;) !== null;
+    });
+    expect(busExists).toBeTruthy();
+  });
+});</code></pre>
+<h2>Assertion API</h2>
+<pre><code class="language-javascript">expect(value).toBe(expected)              // Strict equality
+expect(value).toEqual(expected)           // Deep equality (JSON)
+expect(value).toBeTruthy()                // Truthy check
+expect(value).toBeFalsy()                 // Falsy check
+expect(value).toBeNull()                  // Null check
+expect(value).toBeUndefined()             // Undefined check
+expect(array).toContain(item)             // Array/string contains
+expect(string).toMatch(/pattern/)         // Regex match
+expect(fn).toThrow(&#039;message&#039;)             // Function throws
+expect(value).toBeGreaterThan(n)          // Comparison
+expect(value).toBeLessThan(n)             // Comparison
+expect(array).toHaveLength(n)             // Length check
+expect(obj).toHaveProperty(&#039;key&#039;, value)  // Property check</code></pre>
+<h2>What Changed</h2>
+<h3>Before (TypeScript)</h3>
+<ul><li>❌ Required TypeScript transpilation</li>
+<li>❌ Used <code>@playwright/test</code> framework</li>
+<li>❌ <code>.spec.ts</code> files</li>
+<li>❌ Build step before testing</li>
+</ul>
+<h3>After (Plain JavaScript)</h3>
+<ul><li>✅ Zero build step</li>
+<li>✅ Plain JavaScript <code>.test.mjs</code> files</li>
+<li>✅ Custom lightweight test runner</li>
+<li>✅ Playwright used directly for browser automation</li>
+<li>✅ Runs in both CLI and browser</li>
+</ul>
+<h2>Migration Status</h2>
+<h3>Completed</h3>
+<ul><li>✅ Core test runner library</li>
+<li>✅ CLI test runner</li>
+<li>✅ HTML test runner</li>
+<li>✅ Test utilities</li>
+<li>✅ Example tests converted:</li>
+</ul>  - <code>tests/simple.test.mjs</code> - Basic unit tests
+  - <code>tests/core/pan-bus.test.mjs</code> - Integration tests
+  - <code>tests/examples/02-todos.test.mjs</code> - Full app tests
+<h3>Remaining Work</h3>
+<li><strong>Convert remaining TypeScript tests</strong> (17 files)</li>
+   - <code>tests/core/pan-client.spec.ts</code>
+   - <code>tests/ui/*.spec.ts</code> (10 files)
+   - <code>tests/components/*.spec.ts</code> (6 files)
+<li><strong>Debug Playwright integration</strong></li>
+   - The pan-bus test runs but may hang on browser launch
+   - May need to install <code>playwright</code> separately or use <code>@playwright/test</code> browser instance
+<li><strong>Add to HTML test runner</strong></li>
+   - Update <code>tests/index.html</code> TEST_FILES array as tests are converted
+<li><strong>Remove old files</strong></li>
+   - Delete <code>.spec.ts</code> files after conversion
+   - Remove <code>playwright.config.ts</code>
+   - Remove TypeScript from devDependencies
+<h2>Next Steps</h2>
+<h3>To convert a test file:</h3>
+<li>Rename <code>.spec.ts</code> → <code>.test.mjs</code></li>
+<li>Replace imports:</li>
+   <pre><code class="language-javascript">// Before
+   import { test, expect } from &#039;@playwright/test&#039;;
+
+   // After
+   import { chromium } from &#039;playwright&#039;;
+   import { describe, test, expect, beforeAll, afterAll } from &#039;../lib/test-runner.mjs&#039;;</code></pre>
+<li>Move hooks inside describe:</li>
+   <pre><code class="language-javascript">describe(&#039;my-component&#039;, () =&gt; {
+     let browser, page;
+
+     beforeAll(async () =&gt; {
+       browser = await chromium.launch({ headless: true });
+       page = await browser.newPage();
+     });
+
+     afterAll(async () =&gt; {
+       await browser.close();
+     });
+
+     test(&#039;does something&#039;, async () =&gt; {
+       // test code
+     });
+   });</code></pre>
+<li>Replace Playwright-specific assertions with our expect API</li>
+<li>Test it: <code>node tests/lib/cli-runner.mjs tests/path/to/test.mjs</code></li>
+<h3>To add test to HTML runner:</h3>
+<p>Edit <code>tests/index.html</code> and add to TEST_FILES array:
+<pre><code class="language-javascript">const TEST_FILES = [
+  &#039;core/pan-bus.test.mjs&#039;,
+  &#039;core/pan-client.test.mjs&#039;,  // ← Add here
+  // ...
+];</code></pre></p>
+<h2>Philosophy Alignment</h2>
+<p>This new testing system embodies LARC's core principles:</p>
+<li><strong>Zero build</strong> - Drop a test file, run it immediately</li>
+<li><strong>No dependencies</strong> - Just Playwright for browser automation</li>
+<li><strong>Plain JavaScript</strong> - No TypeScript, no transpilation</li>
+<li><strong>Works from file://</strong> - Tests can load local HTML examples directly</li>
+<li><strong>Transparent</strong> - ~300 lines of code, easy to understand and modify</li>
+<li><strong>Flexible</strong> - Works in CLI, browser, CI/CD</li>
+<h2>Troubleshooting</h2>
+<h3>"playwright" module not found</h3>
+<pre><code class="language-bash"># Install playwright directly
+npm install -D playwright</code></pre>
+<h3>Tests hang on browser launch</h3>
+<ul><li>Check if Playwright browsers are installed: <code>npx playwright install</code></li>
+<li>Try running with <code>--headed</code> to see what's happening</li>
+<li>Check if port 9222 (Chrome DevTools) is blocked</li>
+</ul>
+<h3>Tests not found</h3>
+<ul><li>Ensure files end with <code>.test.mjs</code></li>
+<li>Check file paths in CLI runner discovery</li>
+<li>Verify files are not in <code>lib/</code> directory (excluded)</li>
+</ul>
+<h2>Success Metrics</h2>
+<p>✅ <strong>Zero build step</strong> - Tests run with <code>node tests/lib/cli-runner.mjs</code>
+✅ <strong>No TypeScript</strong> - All <code>.test.mjs</code> files are plain JavaScript
+✅ <strong>Browser testable</strong> - Open <code>tests/index.html</code> to run tests visually
+✅ <strong>CI ready</strong> - <code>npm test</code> exits with proper code (0 = pass, 1 = fail)
+✅ <strong>Fast</strong> - Simple tests run in < 1 second
+✅ <strong>Maintainable</strong> - Test runner is < 500 lines total</p>
+<hr>
+<strong>Status</strong>: Ready for continued test conversion. Core infrastructure complete!
+Human: continue
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/tests/MIGRATION.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

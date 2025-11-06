@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Inspector - Quick Start Guide · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Inspector - Quick Start Guide">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">devtools-extension</a> / <span>QUICKSTART</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Inspector - Quick Start Guide</h1>
+<h2>Installation (2 minutes)</h2>
+<h3>Step 1: Open Chrome Extensions</h3>
+<li>Open Chrome</li>
+<li>Navigate to <code>chrome://extensions/</code></li>
+<li>Enable <strong>"Developer mode"</strong> (toggle in top right)</li>
+<h3>Step 2: Load the Extension</h3>
+<li>Click <strong>"Load unpacked"</strong> button</li>
+<li>Navigate to <code>/Users/cdr/Projects/pan/devtools-extension/</code></li>
+<li>Click <strong>"Select"</strong></li>
+<h3>Step 3: Verify</h3>
+<li>Look for "PAN Inspector" in extensions list</li>
+<li>Should show green "Active" status</li>
+<li>Icon should be visible</li>
+<p>✅ <strong>Extension installed!</strong></p>
+<hr>
+<h2>First Use (1 minute)</h2>
+<h3>Step 1: Open a PAN Example</h3>
+<pre><code class="language-bash">cd /Users/cdr/Projects/pan
+open examples/02-todos-and-inspector.html</code></pre>
+<p>Or use any page with <code><pan-bus></code>.</p>
+<h3>Step 2: Open DevTools</h3>
+Press <code>F12</code> or:
+<ul><li>Mac: <code>Cmd + Option + I</code></li>
+<li>Windows/Linux: <code>Ctrl + Shift + I</code></li>
+</ul>
+<h3>Step 3: Find the PAN Tab</h3>
+Look for <strong>"PAN"</strong> tab in DevTools (may be in overflow menu ››)
+<h3>Step 4: Interact with Page</h3>
+<ul><li>Add a todo item</li>
+<li>Toggle a todo</li>
+<li>Watch messages appear in PAN Inspector!</li>
+</ul>
+✅ <strong>You're using PAN Inspector!</strong>
+<hr>
+<h2>Quick Test</h2>
+<h3>Minimal Test Page</h3>
+<p>Save this as <code>test-pan-inspector.html</code>:</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;title&gt;PAN Inspector Test&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;PAN Inspector Test&lt;/h1&gt;
+  &lt;button id=&quot;btn&quot;&gt;Send Test Message&lt;/button&gt;
+  &lt;div id=&quot;output&quot;&gt;&lt;/div&gt;
+
+  &lt;script type=&quot;module&quot; src=&quot;../src/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quot;../src/core/pan-client.mjs&quot;&gt;&lt;/script&gt;
+
+  &lt;pan-bus&gt;&lt;/pan-bus&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import { PanClient } from &#039;../src/core/pan-client.mjs&#039;;
+
+    const client = new PanClient();
+    await client.ready();
+
+    let count = 0;
+
+    document.getElementById(&#039;btn&#039;).onclick = () =&gt; {
+      count++;
+      client.publish({
+        topic: &#039;test.click&#039;,
+        data: {
+          count,
+          timestamp: Date.now(),
+          message: `Test message #${count}`
+        }
+      });
+    };
+
+    client.subscribe(&#039;test.click&#039;, (msg) =&gt; {
+      document.getElementById(&#039;output&#039;).innerHTML +=
+        `&lt;p&gt;Received: ${msg.data.message}&lt;/p&gt;`;
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<li>Open in Chrome</li>
+<li>Open DevTools → PAN tab</li>
+<li>Click "Send Test Message"</li>
+<li>See it in PAN Inspector!</li>
+<hr>
+<h2>Features to Try</h2>
+<h3>1. Filtering</h3>
+<pre><code class="language-plaintext">Type &quot;test&quot; in filter box
+→ See only test messages</code></pre>
+<h3>2. Message Details</h3>
+<pre><code class="language-plaintext">Click any message row
+→ Details panel opens on right
+→ See full JSON payload</code></pre>
+<h3>3. Replay</h3>
+<pre><code class="language-plaintext">Click &quot;Replay&quot; on any message
+→ Message sent again
+→ Check console/output</code></pre>
+<h3>4. Export/Import</h3>
+<pre><code class="language-plaintext">Click &quot;Export&quot;
+→ Download JSON file
+Click &quot;Import&quot;
+→ Load messages back</code></pre>
+<h3>5. Pause/Resume</h3>
+<pre><code class="language-plaintext">Click &quot;Pause&quot;
+→ Messages stop appearing
+Click &quot;Resume&quot;
+→ Messages flow again</code></pre>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>No PAN Tab?</h3>
+<li>Check extension is active: <code>chrome://extensions/</code></li>
+<li>Reload extension (click reload icon)</li>
+<li>Close and reopen DevTools</li>
+<h3>No Messages?</h3>
+<li>Check page has <code><pan-bus></code> or <code><pan-bus-enhanced></code></li>
+<li>Check console for errors</li>
+<li>Try the test page above</li>
+<h3>Extension Won't Load?</h3>
+<li>Chrome version 88+?</li>
+<li>Check <code>chrome://extensions/</code> for errors</li>
+<li>Make sure all files exist in folder</li>
+<hr>
+<h2>Next Steps</h2>
+<li>✅ Try with real examples: <code>examples/02-todos-and-inspector.html</code></li>
+<li>✅ Test with enhanced bus: <code>examples/17-enhanced-security.html</code></li>
+<li>✅ Read full README: <code>devtools-extension/README.md</code></li>
+<li>✅ Report issues: GitHub Issues</li>
+<hr>
+<h2>Keyboard Shortcuts</h2>
+<p>| Key | Action |
+|-----|--------|
+| <code>Ctrl/Cmd + K</code> | Focus filter |
+| <code>Ctrl/Cmd + L</code> | Clear messages |
+| <code>Space</code> | Pause/Resume |
+| <code>Esc</code> | Close details |</p>
+<hr>
+<h2>Getting Help</h2>
+<ul><li>📖 Full README: <code>devtools-extension/README.md</code></li>
+<li>🐛 Issues: GitHub</li>
+<li>💬 Discussions: GitHub</li>
+<li>📧 Email: support@pan.dev</li>
+</ul>
+<hr>
+<strong>Happy debugging!</strong> 🚀
+
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/devtools-extension/QUICKSTART.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

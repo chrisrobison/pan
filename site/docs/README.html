@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LARC — Lightweight Asynchronous Relay Core · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - LARC — Lightweight Asynchronous Relay Core">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>LARC — Lightweight Asynchronous Relay Core</h1>
+<a href="https://img.shields.io/badge/version-1.0.0-blue.svg">![Version</a>](https://github.com/chrisrobison/pan)
+<a href="https://img.shields.io/badge/license-MIT-green.svg">![License</a>](LICENSE)
+<a href="https://img.shields.io/badge/status-production--ready-brightgreen.svg">![Status</a>](RELEASE_NOTES.md)
+<a href="https://img.shields.io/badge/browser-chrome--tested-green.svg">![Browser Support</a>](RELEASE_NOTES.md#browser-support)
+<a href="https://img.shields.io/badge/coverage-80%25+-success.svg">![Test Coverage</a>](tests/)
+<a href="https://img.shields.io/badge/performance-exceptional-brightgreen.svg">![Performance</a>](docs/PERFORMANCE.md)
+<blockquote><strong>A very lightweight DOM‑native message bus reference (PAN) and its reference implementation:</strong> topics, request/reply, retained messages, lightweight, no build, with an Inspector!</blockquote>
+<p>* <strong>Zero build:</strong> drop a <code><pan-bus></code> on the page; talk via <code>CustomEvent</code>s.
+* <strong>Loose coupling:</strong> components depend on topic contracts (JSON‑Schema), not imports.
+* <strong>Interoperable:</strong> works with vanilla, Web Components, React/Lit/Vue, iframes.
+* <strong>Batteries included:</strong> retained messages, req/rep, optional cross‑tab mirror, DevTools‑style inspector.</p>
+<p>LARC is the project and reference implementation for the Page Area Network (PAN) messaging bus. The PAN bus element and topic conventions remain named with the <code>pan-</code>/<code>pan:</code> prefixes (for example <code><pan-bus></code> and <code>pan:publish</code>) — this repo provides LARC as the lightweight implementation, docs, and examples.</p>
+<p>PAN (Page Area Network) is the messaging model and bus that enables a central communications hub for web components or micro-frontends. It works with any framework or no framework at all.</p>
+<strong>📋 <a href="docs/V1_ROADMAP.md">v1.0 Roadmap</a></strong> | <strong>✅ <a href="V1_CHECKLIST.md">v1.0 Checklist</a></strong> | <strong>📖 <a href="#documentation">Full Documentation</a></strong> | <strong>🎉 <a href="RELEASE_NOTES.md">Release Notes</a></strong>
+<hr>
+<h2>🎉 v1.0.0 Released!</h2>
+<strong>PAN v1.0 is production-ready!</strong> The core messaging infrastructure is stable, tested, and performance-validated.
+<strong>What's Production-Ready:</strong>
+<ul><li>✅ <strong>Core Infrastructure</strong> (pan-bus, pan-client, pan-autoload) - Fully stable with locked APIs</li>
+<li>✅ <strong>80%+ Test Coverage</strong> - 85 comprehensive test suites</li>
+<li>✅ <strong>Exceptional Performance</strong> - 300k+ msg/sec, zero memory leaks (<a href="docs/PERFORMANCE.md">benchmarks</a>)</li>
+<li>✅ <strong>Complete Documentation</strong> - API reference, guides, and examples</li>
+</ul>
+<strong>Important Notes for v1.0:</strong>
+<ul><li>⚠️ <strong>Components are experimental</strong> - Need security audit before production use</li>
+<li>⚠️ <strong>Browser support: Chrome-only</strong> - Multi-browser testing planned for v1.1</li>
+<li>⚠️ <strong>Core is rock-solid</strong> - Use pan-bus and pan-client with confidence in production</li>
+</ul>
+See <a href="RELEASE_NOTES.md">RELEASE_NOTES.md</a> for full details and <a href="RELEASE_NOTES.md#whats-next-v11-roadmap">v1.1 roadmap</a>.
+<hr>
+<h2>Architecture & Goals</h2>
+<p>We are building a suite of Web Components that communicate over PAN to form composable, framework-agnostic UIs.</p>
+<ul><li>Roles:</li>
+</ul>  - Providers/Connectors: talk to backends (REST/GraphQL/IndexedDB), publish retained state, answer requests.
+  - Views: tables, forms, inspectors that subscribe to state and publish user intents (select, save, delete, filter).
+  - Adapters/Controllers: optional mappers that translate between domain topics and transports.
+<ul><li>Message types:</li>
+</ul>  - Commands: <code><em>.get</code>, <code></em>.save</code>, <code>*.delete</code> (request/reply; not retained).
+  - Events: <code><em>.changed</code>, <code></em>.error</code> (notifications; not retained).
+  - State: <code>*.state</code> (retained snapshot for late joiners).
+<ul><li>Topic contracts (CRUD v1):</li>
+</ul>  - List: <code>${resource}.list.get</code> → replies <code>{ items }</code> and publishes <code>${resource}.list.state</code> (retain:true).
+  - Select: <code>${resource}.item.select</code> with <code>{ id }</code> (view event, no reply).
+  - Get: <code>${resource}.item.get</code> with <code>{ id }</code> → replies <code>{ ok, item? }</code>.
+  - Save: <code>${resource}.item.save</code> with <code>{ item }</code> → replies <code>{ ok, item }</code>; provider updates list state.
+  - Delete: <code>${resource}.item.delete</code> with <code>{ id }</code> → replies <code>{ ok, id }</code>; provider updates list state.
+<p>Security tips:</p>
+<ul><li>Mirror only non-sensitive topics across tabs; avoid secrets in mirrored traffic.</li>
+<li>Keep payloads JSON-serializable; prefer headers for schema/version metadata.</li>
+</ul>
+<h2>Quickstart (10‑second demo)</h2>
+<strong>With autoload (recommended):</strong>
+<p>Drop one script tag, then use any component. That's it!</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+
+&lt;!-- Just declare the components you want - they load automatically --&gt;
+&lt;x-counter&gt;&lt;/x-counter&gt;
+&lt;pan-inspector&gt;&lt;/pan-inspector&gt;</code></pre>
+<p>All components live in <code>./pan/components/</code> and load on demand as they approach the viewport. <strong>The <code><pan-bus></code> is automatically created for you.</strong> No imports, no <code>customElements.define()</code>, no bundler.</p>
+<hr>
+<strong>Manual setup (for learning):</strong>
+<p>Copy this into an <code>.html</code> file and open it to see the minimal PAN implementation:</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;x-counter&gt;&lt;/x-counter&gt;
+&lt;script type=&quot;module&quot;&gt;
+  // Minimal PanClient helper
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent(&#039;pan:publish&#039;,{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=&gt;e.detail?.topic&amp;&amp;PanClient.matches(e.detail.topic,t)&amp;&amp;fn(e.detail);
+      this.h.addEventListener(&#039;pan:deliver&#039;,on);
+      this.h.dispatchEvent(new CustomEvent(&#039;pan:subscribe&#039;,{detail:{topics:[t]},bubbles:true,composed:true}));
+      return ()=&gt;{this.h.removeEventListener(&#039;pan:deliver&#039;,on);
+        this.h.dispatchEvent(new CustomEvent(&#039;pan:unsubscribe&#039;,{detail:{topics:[t]},bubbles:true,composed:true}));};}
+    static matches(topic, pattern){ if(pattern===&#039;*&#039;||topic===pattern) return true;
+      if(pattern.includes(&#039;*&#039;)){const esc=s=&gt;s.replace(/[|\\{}()\[\]^$+?.]/g,&#039;\\$&amp;&#039;).replace(/\*/g,&#039;[^.]+&#039; );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  // Tiny bus (reference)
+  customElements.define(&#039;pan-bus&#039;, class extends HTMLElement{ subs=[]; connectedCallback(){
+    document.addEventListener(&#039;pan:publish&#039;, e=&gt;this.#pub(e), true);
+    document.addEventListener(&#039;pan:subscribe&#039;, e=&gt;this.#sub(e), true);
+    document.addEventListener(&#039;pan:unsubscribe&#039;, e=&gt;this.#unsub(e), true);
+    document.dispatchEvent(new CustomEvent(&#039;pan:sys.ready&#039;,{bubbles:true,composed:true}));
+  }
+  #sub(e){const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=&gt;this.subs.push({p,el}));}
+  #unsub(e){const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; this.subs=this.subs.filter(s=&gt;s.el!==el||!topics.includes(s.p));}
+  #pub(e){const m=e.detail; this.subs.forEach(s=&gt;{ if(PanClient.matches(m.topic,s.p)) s.el.dispatchEvent(new CustomEvent(&#039;pan:deliver&#039;,{detail:m})); });}
+  });
+  // Demo component
+  customElements.define(&#039;x-counter&#039;, class extends HTMLElement{ pc=new PanClient(this); n=0; connectedCallback(){
+    this.innerHTML=`&lt;button&gt;Clicked 0&lt;/button&gt;`;
+    this.querySelector(&#039;button&#039;).onclick=()=&gt;this.pc.pub({topic:&#039;demo:click&#039;,data:{n:++this.n},retain:true});
+    this.pc.sub(&#039;demo:click&#039;, m=&gt; this.querySelector(&#039;button&#039;).textContent = `Clicked ${m.data.n}`);
+  }});
+&lt;/script&gt;</code></pre>
+<hr>
+<h2>Install</h2>
+<strong>Recommended: Use autoload</strong>
+<p>Clone the repo and drop a single script tag on your page:</p>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
+<p>Then just use components in your HTML - they load automatically on demand:</p>
+<pre><code class="language-html">&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;todo-list&gt;&lt;/todo-list&gt;
+&lt;pan-inspector&gt;&lt;/pan-inspector&gt;</code></pre>
+<p>No bundler required. Works from <code>file://</code>.</p>
+<hr>
+<strong>Alternative: Manual imports</strong>
+<p>For fine-grained control or CDN usage (when published):</p>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-client.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/app/devtools/pan-inspector.mjs&quot;&gt;&lt;/script&gt;</code></pre>
+<hr>
+<h2>Autoloading Custom Elements</h2>
+<strong>This is the recommended way to use LARC.</strong>
+<p>Drop a single script tag on the page to progressively load Web Components from the
+<code>components/</code> folder. Tags with a dash (<code><my-widget></code>) are auto-detected; when they
+approach the viewport, the loader imports <code>./pan/components/<tag>.mjs</code> and registers them.</p>
+<strong>The <code><pan-bus></code> is automatically created</strong> so you can start using components immediately:
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+
+&lt;!-- All of these load automatically - no imports needed --&gt;
+&lt;my-widget&gt;&lt;/my-widget&gt;
+&lt;todo-list&gt;&lt;/todo-list&gt;
+&lt;pan-inspector&gt;&lt;/pan-inspector&gt;</code></pre>
+<strong>Configuration (optional):</strong>
+<p>Override the components path or file extension:</p>
+<pre><code class="language-html">&lt;script&gt;
+  window.panAutoload = {
+    componentsPath: &#039;./my-components/&#039;,
+    extension: &#039;.js&#039;,
+    rootMargin: 600  // px from viewport to trigger load
+  };
+&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
+<strong>Per-element override:</strong>
+<p>Point a specific element to a different module:</p>
+<pre><code class="language-html">&lt;my-card data-module=&quot;/pan/components/cards/my-card.mjs&quot;&gt;&lt;/my-card&gt;</code></pre>
+<p>Components that don't self-register are defined automatically when they export a
+default class matching the tag name.</p>
+<hr>
+<h2>Project Structure</h2>
+<p>The project has a clean, approachable top-level structure:</p>
+<pre><code class="language-plaintext">pan/
+├── pan/           # 🎯 Component library (the heart of the project)
+│   ├── core/      # Core infrastructure (pan-bus, pan-client, pan-autoload)
+│   ├── ui/        # Simple, reusable UI building blocks
+│   ├── components/# Complex, feature-rich widgets
+│   ├── data/      # State management and data layer
+│   └── app/       # Domain-specific application components
+├── site/          # 🌐 Website (homepage, gallery, demos)
+├── apps/          # 📱 Demo applications
+├── examples/      # 📚 Example usage pages
+├── docs/          # 📖 Documentation
+│   ├── rfcs/      # Design proposals
+│   └── templates/ # Component starter templates
+├── assets/        # 🎨 Shared resources (theme.css, badges)
+├── scripts/       # 🔧 Build and utility scripts
+└── tests/         # ✅ Test suite</code></pre>
+<h3>Component Layers</h3>
+<strong>Core</strong> (<code>pan/core/</code>) - Required infrastructure
+<ul><li><code>pan-bus.mjs</code> - Message bus</li>
+<li><code>pan-client.mjs</code> - Client library</li>
+<li><code>pan-autoload.mjs</code> - Component autoloader</li>
+</ul>
+<strong>UI</strong> (<code>pan/ui/</code>) - Simple building blocks
+<ul><li>Cards, modals, dropdowns, tabs, etc.</li>
+<li>Lightweight, single-purpose components</li>
+<li>Highly reusable across projects</li>
+</ul>
+<strong>Components</strong> (<code>pan/components/</code>) - Feature-rich widgets
+<ul><li>Markdown editor/renderer</li>
+<li>Data tables, charts, date pickers</li>
+<li>File system manager</li>
+<li>Theme system</li>
+<li>Complex, production-ready tools</li>
+</ul>
+<strong>Data</strong> (<code>pan/data/</code>) - State management
+<ul><li>Store components for application state</li>
+<li>Persistence logic (localStorage, IndexedDB)</li>
+<li>Coordinates state via PAN bus</li>
+</ul>
+<strong>App</strong> (<code>pan/app/</code>) - Domain-specific components
+<ul><li>Built for specific applications</li>
+<li>Tightly coupled to business logic</li>
+<li>Not intended for general reuse</li>
+</ul>
+<strong>Apps</strong> (<code>apps/</code>) - Complete demo applications
+<ul><li>Invoice creator</li>
+<li>Markdown notes editor</li>
+<li>Data browser</li>
+<li>Contact manager</li>
+</ul>
+See individual README files in each directory for detailed documentation.
+<hr>
+<h2>Core Concepts</h2>
+<p>* <strong>Topics</strong>: strings like <code>todos.change</code>, <code>nav.goto</code>, <code>user.update@2</code>.
+* <strong>Messages</strong>: <code>{ topic, data, id?, ts?, replyTo?, correlationId?, retain? }</code>.
+* <strong>Transport</strong>: bubbling, composed <code>CustomEvent</code>s so they cross shadow DOM.
+* <strong>Retained</strong>: last message per topic is replayed to new subscribers.
+* <strong>Req/Rep</strong>: set <code>replyTo</code>+<code>correlationId</code>; reply on <code>replyTo</code>.</p>
+<hr>
+<h2>API (PanClient)</h2>
+<pre><code class="language-ts">class PanClient {
+  constructor(host?: HTMLElement|Document, busSelector = &#039;pan-bus&#039;)
+  ready(): Promise&lt;void&gt;
+  publish&lt;T&gt;(msg: PanMessage&lt;T&gt;): void
+  subscribe(topics: string|string[], handler: (m: PanMessage)=&gt;void, opts?: { retained?: boolean, signal?: AbortSignal }): () =&gt; void
+  request&lt;TReq,TRes&gt;(topic: string, data: TReq, opts?: { timeoutMs?: number }): Promise&lt;PanMessage&lt;TRes&gt;&gt;
+}</code></pre>
+<code>PanMessage<T></code> fields: <code>topic</code>, <code>data</code>, optional <code>id</code>, <code>ts</code>, <code>replyTo</code>, <code>correlationId</code>, <code>retain</code>, <code>headers</code>.
+<hr>
+<h2>Recipes</h2>
+<h3>1) Publish/Subscribe</h3>
+<pre><code class="language-js">pc.publish({ topic:&#039;search.query&#039;, data:{ q:&#039;punk&#039; } });
+pc.subscribe(&#039;search.results&#039;, m =&gt; render(m.data));</code></pre>
+<h3>2) Request/Reply</h3>
+<pre><code class="language-js">const { data } = await pc.request(&#039;data.get&#039;, { key:&#039;users&#039; });
+// provider replies on a temporary reply topic created by PanClient</code></pre>
+<h3>3) Retained State Snapshot</h3>
+<pre><code class="language-js">pc.publish({ topic:&#039;settings.theme&#039;, data:&#039;dark&#039;, retain:true });
+pc.subscribe(&#039;settings.theme&#039;, m =&gt; applyTheme(m.data), { retained:true });</code></pre>
+<h3>4) Cross‑tab sync (BroadcastChannel mirror)</h3>
+<p>Bus option to mirror topics across tabs using <code>BroadcastChannel('pan')</code>. Example in <code>examples/03-broadcastchannel.html</code>.</p>
+<hr>
+<h2>Inspector</h2>
+<p>Drop the Inspector to watch traffic, filter by topic, replay messages.</p>
+<pre><code class="language-html">&lt;pan-inspector style=&quot;height:400px&quot;&gt;&lt;/pan-inspector&gt;</code></pre>
+<p>Features: topic/text filters, pause, clear, export/import JSON, replay, view JSON.</p>
+<hr>
+<h2>Interop</h2>
+<p>* <strong>React:</strong> wrapper hook <code>usePan()</code>; components call <code>publish/subscribe</code>. See <code>examples/04-react-wrapper.html</code> (no build, CDN React).
+* <strong>Lit:</strong> mixin using <code>PanClient</code> inside a Lit element. See <code>examples/05-lit-wrapper.html</code>.
+* <strong>Iframes:</strong> use a gateway that validates <code>origin</code> and whitelists topics.</p>
+<hr>
+<h2>Examples</h2>
+<p>(Each example is a single self‑contained HTML file you can open directly.)</p>
+<h3><code>examples/01-hello.html</code></h3>
+<p>Minimal counter (publish/subscribe).</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;meta charset=&quot;utf-8&quot; /&gt;
+&lt;title&gt;LARC – 01 Hello&lt;/title&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;x-counter&gt;&lt;/x-counter&gt;
+&lt;script type=&quot;module&quot;&gt;
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent(&#039;pan:publish&#039;,{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=&gt;e.detail?.topic&amp;&amp;PanClient.matches(e.detail.topic,t)&amp;&amp;fn(e.detail); this.h.addEventListener(&#039;pan:deliver&#039;,on);
+      this.h.dispatchEvent(new CustomEvent(&#039;pan:subscribe&#039;,{detail:{topics:[t]},bubbles:true,composed:true}));}
+    static matches(topic, pattern){ if(pattern===&#039;*&#039;||topic===pattern) return true; if(pattern.includes(&#039;*&#039;)){const esc=s=&gt;s.replace(/[|\\{}()\[\]^$+?.]/g,&#039;\\$&amp;&#039;).replace(/\*/g,&#039;[^.]+&#039; );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  customElements.define(&#039;pan-bus&#039;, class extends HTMLElement{ subs=[]; connectedCallback(){
+    document.addEventListener(&#039;pan:publish&#039;, e=&gt;this.#pub(e), true);
+    document.addEventListener(&#039;pan:subscribe&#039;, e=&gt;this.#sub(e), true);
+    document.dispatchEvent(new CustomEvent(&#039;pan:sys.ready&#039;,{bubbles:true,composed:true})); }
+    #sub(e){const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=&gt;this.subs.push({p,el}));}
+    #pub(e){const m=e.detail; this.subs.forEach(s=&gt;{ if(PanClient.matches(m.topic,s.p)) s.el.dispatchEvent(new CustomEvent(&#039;pan:deliver&#039;,{detail:m})); });}
+  });
+  customElements.define(&#039;x-counter&#039;, class extends HTMLElement{ pc=new PanClient(this); n=0; connectedCallback(){ this.innerHTML=`&lt;button&gt;Clicked 0&lt;/button&gt;`;
+    this.querySelector(&#039;button&#039;).onclick=()=&gt;this.pc.pub({topic:&#039;demo:click&#039;,data:{n:++this.n},retain:true});
+    this.pc.sub(&#039;demo:click&#039;, m=&gt; this.querySelector(&#039;button&#039;).textContent = `Clicked ${m.data.n}`);
+  }});
+&lt;/script&gt;</code></pre>
+<h3><code>examples/02-todos-and-inspector.html</code></h3>
+<p>Todo list + retained state + DevTools‑style Inspector.</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;
+&lt;title&gt;LARC – 02 Todos &amp; Inspector&lt;/title&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;todo-provider&gt;&lt;/todo-provider&gt;
+&lt;todo-list&gt;&lt;/todo-list&gt;
+&lt;pan-inspector style=&quot;height:420px&quot;&gt;&lt;/pan-inspector&gt;
+&lt;script type=&quot;module&quot;&gt;
+  // --- PanClient (minimal) &amp; bus (same as above, with retained storage) ---
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent(&#039;pan:publish&#039;,{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn,o={}){const on=e=&gt;e.detail?.topic&amp;&amp;PanClient.matches(e.detail.topic,t)&amp;&amp;fn(e.detail); this.h.addEventListener(&#039;pan:deliver&#039;,on);
+      this.h.dispatchEvent(new CustomEvent(&#039;pan:subscribe&#039;,{detail:{topics:[t],options:o},bubbles:true,composed:true})); return ()=&gt;this.h.removeEventListener(&#039;pan:deliver&#039;,on);}
+    static matches(topic, pattern){ if(pattern===&#039;*&#039;||topic===pattern) return true; if(pattern.includes(&#039;*&#039;)){const esc=s=&gt;s.replace(/[|\\{}()\[\]^$+?.]/g,&#039;\\$&amp;&#039;).replace(/\*/g,&#039;[^.]+&#039; );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  customElements.define(&#039;pan-bus&#039;, class extends HTMLElement{ subs=[]; retained=new Map(); connectedCallback(){
+    document.addEventListener(&#039;pan:publish&#039;, e=&gt;this.#pub(e), true);
+    document.addEventListener(&#039;pan:subscribe&#039;, e=&gt;this.#sub(e), true);
+    document.dispatchEvent(new CustomEvent(&#039;pan:sys.ready&#039;,{bubbles:true,composed:true})); }
+    #sub(e){const {topics=[],options={}}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=&gt;{this.subs.push({p,el}); if(options.retained){ for(const [t,msg] of this.retained){ if(PanClient.matches(t,p)) el.dispatchEvent(new CustomEvent(&#039;pan:deliver&#039;,{detail:msg})); } }});}
+    #pub(e){const m={id:crypto.randomUUID(),ts:Date.now(),...e.detail}; if(m.retain) this.retained.set(m.topic,m); this.subs.forEach(s=&gt;{ if(PanClient.matches(m.topic,s.p)) s.el.dispatchEvent(new CustomEvent(&#039;pan:deliver&#039;,{detail:m})); });}
+  });
+  // --- Todo provider (stateful, publishes retained snapshot) ---
+  customElements.define(&#039;todo-provider&#039;, class extends HTMLElement{ pc=new PanClient(this); items=[]; connectedCallback(){
+    document.addEventListener(&#039;pan:sys.ready&#039;, ()=&gt;{
+      this.pc.sub(&#039;todos.change&#039;, m=&gt;{this.items.push(m.data.item); this.broadcast();});
+      this.pc.sub(&#039;todos.remove&#039;, m=&gt;{this.items=this.items.filter(t=&gt;t.id!==m.data.id); this.broadcast();});
+      this.pc.sub(&#039;todos.toggle&#039;, m=&gt;{const t=this.items.find(x=&gt;x.id===m.data.id); if(t) t.done=!!m.data.done; this.broadcast();});
+      this.pc.pub({topic:&#039;todos.state&#039;, data:{items:this.items}, retain:true});
+    }, {once:true});
+  }
+  broadcast(){ this.pc.pub({topic:&#039;todos.state&#039;, data:{items:this.items}, retain:true}); }
+  });
+  // --- Todo list UI ---
+  customElements.define(&#039;todo-list&#039;, class extends HTMLElement{ pc=new PanClient(this); items=[]; connectedCallback(){
+    this.attachShadow({mode:&#039;open&#039;}); this.render();
+    this.pc.sub(&#039;todos.state&#039;, m=&gt;{this.items=m.data.items; this.render();}, {retained:true});
+  }
+  render(){ const h=String.raw; this.shadowRoot.innerHTML=h`
+    &lt;style&gt; .muted{color:#888} ul{list-style:none;padding:0} li{display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed #ddd} li.done .t{ text-decoration:line-through; color:#888 } &lt;/style&gt;
+    &lt;form id=f&gt;&lt;input id=title placeholder=&quot;Add a task…&quot;/&gt;&lt;button&gt;Add&lt;/button&gt;&lt;/form&gt;
+    ${this.items.length? &#039;&#039; : &#039;&lt;div class=muted&gt;No tasks yet.&lt;/div&gt;&#039;}
+    &lt;ul&gt;${this.items.map(t=&gt;`&lt;li class=&quot;${t.done?&#039;done&#039;:&#039;&#039;}&quot; data-id=&quot;${t.id}&quot;&gt;&lt;input type=checkbox ${t.done?&#039;checked&#039;:&#039;&#039;}&gt;&lt;span class=t&gt;${t.title}&lt;/span&gt;&lt;span style=&quot;flex:1&quot;&gt;&lt;/span&gt;&lt;button class=del&gt;✕&lt;/button&gt;&lt;/li&gt;`).join(&#039;&#039;)}&lt;/ul&gt;`;
+    const $=s=&gt;this.shadowRoot.querySelector(s);
+    $(&#039;#f&#039;).onsubmit=(e)=&gt;{e.preventDefault(); const v=$(&#039;#title&#039;).value.trim(); if(!v) return; $(&#039;#title&#039;).value=&#039;&#039;; this.pc.pub({topic:&#039;todos.change&#039;, data:{item:{id:crypto.randomUUID(), title:v, done:false}}, retain:true}); };
+    this.shadowRoot.querySelectorAll(&#039;li input[type=checkbox]&#039;).forEach(cb=&gt;cb.addEventListener(&#039;change&#039;,e=&gt;{const id=e.target.closest(&#039;li&#039;).dataset.id; this.pc.pub({topic:&#039;todos.toggle&#039;, data:{id, done:e.target.checked}, retain:true});}));
+    this.shadowRoot.querySelectorAll(&#039;li .del&#039;).forEach(b=&gt;b.addEventListener(&#039;click&#039;,e=&gt;{const id=e.target.closest(&#039;li&#039;).dataset.id; this.pc.pub({topic:&#039;todos.remove&#039;, data:{id}, retain:true});}));
+  }
+  });
+  // --- Minimal Inspector (table view) ---
+  customElements.define(&#039;pan-inspector&#039;, class extends HTMLElement{ pc=new PanClient(this); events=[]; connectedCallback(){ this.attachShadow({mode:&#039;open&#039;}); this.render(); this.pc.sub(&#039;*&#039;, m=&gt;{this.events.push({ts:Date.now(),topic:m.topic,size:JSON.stringify(m).length}); this.render();}); }
+    render(){ const h=String.raw; this.shadowRoot.innerHTML=h`&lt;style&gt;table{width:100%;font:12px/1.4 monospace}th{ text-align:left; position:sticky; top:0; background:#f6f6f6 }&lt;/style&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;time&lt;/th&gt;&lt;th&gt;topic&lt;/th&gt;&lt;th&gt;size&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;${this.events.slice(-300).map(r=&gt;`&lt;tr&gt;&lt;td&gt;${new Date(r.ts).toLocaleTimeString()}&lt;/td&gt;&lt;td&gt;${r.topic}&lt;/td&gt;&lt;td&gt;${r.size}&lt;/td&gt;&lt;/tr&gt;`).join(&#039;&#039;)}&lt;/tbody&gt;&lt;/table&gt;`; }
+  });
+&lt;/script&gt;</code></pre>
+<h3><code>examples/03-broadcastchannel.html</code></h3>
+<p>Mirror specific topics across tabs using <code>BroadcastChannel('pan')</code>.</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;title&gt;LARC – 03 BroadcastChannel&lt;/title&gt;
+&lt;pan-bus mirror=&quot;settings.*&quot;&gt;&lt;/pan-bus&gt;
+&lt;script type=&quot;module&quot;&gt;
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent(&#039;pan:publish&#039;,{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=&gt;e.detail?.topic&amp;&amp;PanClient.matches(e.detail.topic,t)&amp;&amp;fn(e.detail); this.h.addEventListener(&#039;pan:deliver&#039;,on);
+      this.h.dispatchEvent(new CustomEvent(&#039;pan:subscribe&#039;,{detail:{topics:[t]},bubbles:true,composed:true}));}
+    static matches(topic, pattern){ if(pattern===&#039;*&#039;||topic===pattern) return true; if(pattern.includes(&#039;*&#039;)){const esc=s=&gt;s.replace(/[|\\{}()\[\]^$+?.]/g,&#039;\\$&amp;&#039;).replace(/\*/g,&#039;[^.]+&#039; );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  customElements.define(&#039;pan-bus&#039;, class extends HTMLElement{ subs=[]; bc=null; connectedCallback(){ const allow=(this.getAttribute(&#039;mirror&#039;)||&#039;&#039;).split(/\s+/).filter(Boolean);
+    this.bc = new BroadcastChannel(&#039;pan&#039;); this.bc.onmessage = (ev)=&gt; this.#deliver(ev.data);
+    document.addEventListener(&#039;pan:publish&#039;, e=&gt;{const m=e.detail; this.#deliver(m); if(allow.some(p=&gt;PanClient.matches(m.topic,p))) this.bc.postMessage(m);}, true);
+    document.addEventListener(&#039;pan:subscribe&#039;, e=&gt;{const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=&gt;this.subs.push({p,el}));}, true);
+  }
+  #deliver(m){ this.subs.forEach(s=&gt; PanClient.matches(m.topic,s.p) &amp;&amp; s.el.dispatchEvent(new CustomEvent(&#039;pan:deliver&#039;,{detail:m}))); }
+  });
+  // Demo usage
+  const pc = new PanClient();
+  setInterval(()=&gt; pc.pub({ topic:&#039;settings.clock&#039;, data: Date.now(), retain:true }), 1000);
+  pc.sub(&#039;settings.clock&#039;, m=&gt; console.log(&#039;tick&#039;, m.data));
+&lt;/script&gt;</code></pre>
+<h3><code>examples/04-react-wrapper.html</code></h3>
+<p>Use PAN from React with no build (CDN React, plain JS, no JSX).</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;title&gt;LARC – 04 React&lt;/title&gt;
+&lt;script crossorigin src=&quot;https://unpkg.com/react@18/umd/react.production.min.js&quot;&gt;&lt;/script&gt;
+&lt;script crossorigin src=&quot;https://unpkg.com/react-dom@18/umd/react-dom.production.min.js&quot;&gt;&lt;/script&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;div id=&quot;app&quot;&gt;&lt;/div&gt;
+&lt;script type=&quot;module&quot;&gt;
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent(&#039;pan:publish&#039;,{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=&gt;e.detail?.topic&amp;&amp;PanClient.matches(e.detail.topic,t)&amp;&amp;fn(e.detail); this.h.addEventListener(&#039;pan:deliver&#039;,on);
+      this.h.dispatchEvent(new CustomEvent(&#039;pan:subscribe&#039;,{detail:{topics:[t]},bubbles:true,composed:true})); return ()=&gt;this.h.removeEventListener(&#039;pan:deliver&#039;,on);}
+    static matches(topic, pattern){ if(pattern===&#039;*&#039;||topic===pattern) return true; if(pattern.includes(&#039;*&#039;)){const esc=s=&gt;s.replace(/[|\\{}()\[\]^$+?.]/g,&#039;\\$&amp;&#039;).replace(/\*/g,&#039;[^.]+&#039; );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  const pc = new PanClient();
+  function usePan(topic){ const [msg,setMsg]=React.useState(null);
+    React.useEffect(()=&gt;{ const off=pc.sub(topic, setMsg); return ()=&gt;off&amp;&amp;off(); },[topic]);
+    return [msg, (m)=&gt;pc.pub(m)]; }
+  function App(){ const [msg, send] = usePan(&#039;chat.message&#039;);
+    const [text,setText] = React.useState(&#039;&#039;);
+    return React.createElement(&#039;div&#039;,{},
+      React.createElement(&#039;h3&#039;,{},&#039;React ↔ PAN&#039;),
+      msg &amp;&amp; React.createElement(&#039;pre&#039;,{}, JSON.stringify(msg.data,null,2)),
+      React.createElement(&#039;input&#039;,{value:text,onChange:e=&gt;setText(e.target.value)}),
+      React.createElement(&#039;button&#039;,{onClick:()=&gt;{send({topic:&#039;chat.message&#039;, data:{text}}); setText(&#039;&#039;);}},&#039;Send&#039;)
+    );
+  }
+  ReactDOM.createRoot(document.getElementById(&#039;app&#039;)).render(React.createElement(App));
+&lt;/script&gt;</code></pre>
+<h3><code>examples/05-lit-wrapper.html</code></h3>
+<p>Use PAN from a Lit element (CDN Lit, no build).</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;title&gt;LARC – 05 Lit&lt;/title&gt;
+&lt;script type=&quot;module&quot;&gt;
+  import { LitElement, html, css } from &#039;https://unpkg.com/lit?module&#039;;
+  class PanClient{constructor(h=document){this.h=h}
+    pub(m){this.h.dispatchEvent(new CustomEvent(&#039;pan:publish&#039;,{detail:m,bubbles:true,composed:true}))}
+    sub(t,fn){const on=e=&gt;e.detail?.topic&amp;&amp;PanClient.matches(e.detail.topic,t)&amp;&amp;fn(e.detail); this.h.addEventListener(&#039;pan:deliver&#039;,on);
+      this.h.dispatchEvent(new CustomEvent(&#039;pan:subscribe&#039;,{detail:{topics:[t]},bubbles:true,composed:true})); return ()=&gt;this.h.removeEventListener(&#039;pan:deliver&#039;,on);}
+    static matches(topic, pattern){ if(pattern===&#039;*&#039;||topic===pattern) return true; if(pattern.includes(&#039;*&#039;)){const esc=s=&gt;s.replace(/[|\\{}()\[\]^$+?.]/g,&#039;\\$&amp;&#039;).replace(/\*/g,&#039;[^.]+&#039; );return new RegExp(`^${esc(pattern)}$`).test(topic);} return false; }
+  }
+  customElements.define(&#039;pan-bus&#039;, class extends HTMLElement{ subs=[]; connectedCallback(){
+    document.addEventListener(&#039;pan:publish&#039;, e=&gt;this.#pub(e), true);
+    document.addEventListener(&#039;pan:subscribe&#039;, e=&gt;this.#sub(e), true);
+  } #sub(e){const {topics=[]}=e.detail||{}; const el=e.composedPath?.()[0]; topics.forEach(p=&gt;this.subs.push({p,el}));}
+    #pub(e){const m=e.detail; this.subs.forEach(s=&gt; PanClient.matches(m.topic,s.p) &amp;&amp; s.el.dispatchEvent(new CustomEvent(&#039;pan:deliver&#039;,{detail:m}))); }
+  });
+  class LitChat extends LitElement{
+    static styles = css`:host{display:block;padding:12px;border:1px solid #ccc;border-radius:8px}`;
+    pc = new PanClient(this);
+    firstUpdated(){ this.off = this.pc.sub(&#039;chat.message&#039;, m=&gt;{ this.last = m.data; this.requestUpdate(); }); }
+    disconnectedCallback(){ super.disconnectedCallback(); this.off &amp;&amp; this.off(); }
+    render(){ return html`
+      &lt;h3&gt;Lit ↔ PAN&lt;/h3&gt;
+      ${this.last ? html`&lt;pre&gt;${JSON.stringify(this.last,null,2)}&lt;/pre&gt;` : html`&lt;em&gt;no messages yet&lt;/em&gt;`}
+      &lt;form @submit=${e=&gt;{e.preventDefault(); const v=this.renderRoot.getElementById(&#039;t&#039;).value.trim(); if(!v) return; this.pc.pub({topic:&#039;chat.message&#039;, data:{text:v}}); this.renderRoot.getElementById(&#039;t&#039;).value=&#039;&#039;;}}&gt;
+        &lt;input id=&quot;t&quot; placeholder=&quot;Say hi&quot; /&gt;
+        &lt;button&gt;Send&lt;/button&gt;
+      &lt;/form&gt;` }
+  }
+  customElements.define(&#039;lit-chat&#039;, LitChat);
+&lt;/script&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;lit-chat&gt;&lt;/lit-chat&gt;</code></pre>
+<h3><code>examples/06-crud.html</code></h3>
+<p>Basic CRUD stack wired to a mock provider (local state, optional <code>localStorage</code> persistence).</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;div class=&quot;row&quot;&gt;
+  &lt;pan-data-table resource=&quot;users&quot; columns=&quot;id,name,email&quot;&gt;&lt;/pan-data-table&gt;
+  &lt;pan-form resource=&quot;users&quot; fields=&quot;name,email&quot;&gt;&lt;/pan-form&gt;
+  &lt;pan-inspector style=&quot;height:320px&quot;&gt;&lt;/pan-inspector&gt;
+  &lt;pan-data-provider resource=&quot;users&quot; persist=&quot;localStorage&quot;&gt;
+    &lt;script type=&quot;application/json&quot;&gt;[{&quot;id&quot;:&quot;u1&quot;,&quot;name&quot;:&quot;Ada&quot;,&quot;email&quot;:&quot;ada@example.com&quot;}]&lt;/script&gt;
+  &lt;/pan-data-provider&gt;
+  &lt;script type=&quot;module&quot;&gt;
+    import &#039;../dist/pan-bus.js&#039;;
+    import &#039;../dist/pan-client.js&#039;;
+    import &#039;../dist/pan-inspector.js&#039;;
+    import &#039;../dist/pan-data-provider-mock.js&#039;;
+    import &#039;../dist/pan-data-table.js&#039;;
+    import &#039;../dist/pan-form.js&#039;;
+  &lt;/script&gt;
+  &lt;!-- Open examples/06-crud.html to try it. --&gt;</code></pre>
+<h3><code>examples/07-rest-connector.html</code></h3>
+<p>CRUD stack driving a remote REST API via <code><pan-data-connector></code>. Uses JSONPlaceholder for demo.</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;pan-data-table resource=&quot;users&quot; columns=&quot;id,name,email&quot;&gt;&lt;/pan-data-table&gt;
+&lt;pan-form resource=&quot;users&quot; fields=&quot;name,email&quot;&gt;&lt;/pan-form&gt;
+&lt;pan-inspector style=&quot;height:340px&quot;&gt;&lt;/pan-inspector&gt;
+&lt;pan-data-connector resource=&quot;users&quot; base-url=&quot;https://jsonplaceholder.typicode.com&quot;&gt;&lt;/pan-data-connector&gt;
+&lt;script type=&quot;module&quot;&gt;
+  import &#039;../dist/pan-bus.js&#039;;
+  import &#039;../dist/pan-client.js&#039;;
+  import &#039;../dist/pan-inspector.js&#039;;
+  import &#039;../dist/pan-data-table.js&#039;;
+  import &#039;../dist/pan-form.js&#039;;
+  import &#039;../dist/pan-data-connector.js&#039;;
+  // Optional refresh
+  import { PanClient } from &#039;../dist/pan-client.js&#039;;
+  new PanClient().publish({ topic:&#039;users.list.get&#039;, data:{} });
+  // Open examples/07-rest-connector.html to try it.
+&lt;/script&gt;</code></pre>
+<hr>
+<h3><code>examples/08-workers.html</code></h3>
+<p>Offload filter/sort of 10k records to a Web Worker via <code><pan-worker></code>; publishes computed <code>${resource}.list.state</code> for <code><pan-data-table></code>.</p>
+<pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;pan-worker topics=&quot;users.list.get users.query.set&quot;&gt;
+  &lt;script type=&quot;application/worker&quot;&gt;
+    // Worker: generate 10k users, compute filter/sort, publish users.list.state
+    let items=[]; for(let i=0;i&lt;10000;i++){ const id=`u${i+1}`; const name=`User ${String(i+1).padStart(5,&#039;0&#039;)}`; items.push({id,name,email:`${name.toLowerCase().replace(/\s+/g,&#039;&#039;)}@example.com`}); }
+    let q={q:&#039;&#039;,sort:&#039;name:asc&#039;};
+    function pub(){ const [k,d]=(q.sort||&#039;name:asc&#039;).split(&#039;:&#039;); let v=items; if(q.q){const s=q.q.toLowerCase(); v=v.filter(it=&gt;it.name.toLowerCase().includes(s)||it.email.toLowerCase().includes(s));} v=v.slice().sort((a,b)=&gt;{const av=a[k],bv=b[k];return (av&gt;bv?1:av&lt;bv?-1:0)*(d===&#039;desc&#039;?-1:1)}); postMessage({topic:&#039;users.list.state&#039;,data:{items:v},retain:true}); }
+    onmessage=(e)=&gt;{ const m=e.data||{}; if(m.topic===&#039;users.query.set&#039;){ q=Object.assign({},q,m.data||{}); pub(); } if(m.topic===&#039;users.list.get&#039;){ pub(); } };
+  &lt;/script&gt;
+&lt;/pan-worker&gt;
+&lt;pan-data-table resource=&quot;users&quot; columns=&quot;id,name,email&quot;&gt;&lt;/pan-data-table&gt;
+&lt;script type=&quot;module&quot;&gt;
+  import &#039;../dist/pan-bus.js&#039;;
+  import &#039;../dist/pan-client.js&#039;;
+  import &#039;../dist/pan-data-table.js&#039;;
+  import &#039;../dist/pan-worker.js&#039;;
+  import { PanClient } from &#039;../dist/pan-client.js&#039;;
+  new PanClient().publish({ topic:&#039;users.list.get&#039;, data:{} });
+&lt;/script&gt;</code></pre>
+<hr>
+<h2>CRUD Components</h2>
+<ul><li><code>pan-data-table</code>: subscribes to <code>${resource}.list.state</code> and renders a table. Publishes row clicks as <code>${resource}.item.select</code>.</li>
+<li><code>pan-form</code>: listens for <code>${resource}.item.select</code>, requests <code>${resource}.item.get</code>, and submits to <code>${resource}.item.save</code> / <code>${resource}.item.delete</code>.</li>
+<li><code>pan-data-provider</code>: mock in‑memory provider. Seeds from child JSON script and can persist to <code>localStorage</code>. Handles get/save/delete topics and publishes <code>${resource}.list.state</code> (retained).</li>
+<li><code>pan-data-connector</code>: REST bridge. Maps PAN CRUD topics to HTTP endpoints. Publishes <code>${resource}.list.state</code> (retained).</li>
+<li><code>pan-query</code>: query orchestrator; retains <code>${resource}.query.state</code> and triggers <code>${resource}.list.get</code>. Supports URL sync via <code>sync-url="search|hash"</code>.</li>
+</ul>
+<h3>Schema-driven Components</h3>
+<ul><li><code>pan-schema</code>: publishes retained <code>${resource}.schema.state</code> from a <code>src</code> URL or inline JSON.</li>
+<li><code>pan-schema-form</code>: renders a form from JSON Schema, validates locally, and performs <code>${resource}.item.get</code>/<code>.save</code>/<code>.delete</code>. Listens to <code>${resource}.item.state.*</code> for live updates.</li>
+</ul>
+<h3>Additional Connectors</h3>
+<ul><li><code>pan-php-connector</code>: bridges <code>${resource}.list.*</code> topics to a PHP endpoint shaped like <code>api.php</code> (supports paging, filters). Publishes aggregated <code>${resource}.list.state</code>.</li>
+<li><code>pan-graphql-connector</code>: maps CRUD topics to GraphQL queries/mutations provided as child <code><script type="application/graphql" data-op="..."></code> and extracts results via a JSON <code>data-paths</code> map.</li>
+</ul>
+Realtime bridges and stores:
+<ul><li><code>pan-sse</code>: bridges Server-Sent Events into PAN topics. Attributes: <code>src</code>, optional <code>topics</code> (space-separated), <code>persist-last-event</code>, and <code>backoff</code> (e.g., <code>1000,15000</code>). Emits events where either <code>event:</code> is the topic or JSON payload contains <code>{ topic, data }</code>.</li>
+<li><code>pan-forwarder</code>: forwards selected topics to an HTTP endpoint (e.g., <code>sse.php</code> POST). Attributes: <code>dest</code>, <code>topics</code>, optional <code>headers</code>, <code>with-credentials</code>.</li>
+<li><code>pan-store</code>: tiny reactive store and <code>bind()</code> helper for wiring form fields ↔ state.</li>
+<li><code>pan-store-pan</code>: helpers <code>syncItem()</code> and <code>syncList()</code> to connect stores to PAN topics (auto-save, live updates).</li>
+</ul>
+Defaults and attributes:
+<ul><li><code>resource</code>: logical name (default <code>items</code>).</li>
+<li><code>pan-data-table</code> attributes: <code>columns="col1,col2"</code>, optional <code>key</code> (id field, default <code>id</code>).</li>
+<li><code>pan-form</code> attributes: <code>fields="name,email"</code>, optional <code>key</code> (id field, default <code>id</code>).</li>
+<li><code>pan-data-provider</code> attributes: <code>persist="localStorage"</code>, optional <code>key</code>.</li>
+<li><code>pan-data-connector</code> attributes: <code>base-url</code>, optional <code>list-path</code> (default <code>/${resource}</code>), <code>item-path</code> (default <code>/${resource}/:id</code>), <code>update-method</code> (<code>PUT</code>|<code>PATCH</code>, default <code>PUT</code>), <code>credentials</code> (e.g. <code>include</code>). Optional child <code><script type="application/json"></code> supplies fetch options (e.g., headers).</li>
+</ul>
+Topic contract (generic CRUD):
+<ul><li>Request list: <code>${resource}.list.get</code> → replies <code>{ items }</code>; also causes <code>${resource}.list.state</code> to be retained.</li>
+<li>Select row: <code>${resource}.item.select</code> with <code>{ id }</code>.</li>
+<li>Get item: <code>${resource}.item.get</code> with <code>{ id }</code> → replies <code>{ ok, item? }</code>.</li>
+<li>Save item: <code>${resource}.item.save</code> with <code>{ item }</code> → replies <code>{ ok, item }</code>.</li>
+<li>Delete item: <code>${resource}.item.delete</code> with <code>{ id }</code> → replies <code>{ ok, id }</code>.</li>
+</ul>
+Realtime updates (optional, generic):
+<ul><li>Per‑item state: providers may publish retained <code>${resource}.item.state.${id}</code> with <code>{ item }</code> when an item changes.</li>
+<li>Deletions: publish <code>${resource}.item.state.${id}</code> with <code>{ id, deleted: true }</code> (not retained).</li>
+<li><code>pan-data-table</code> and <code>pan-form</code> listen for these automatically when <code>live="true"</code> (default).</li>
+</ul>
+<hr>
+<h2>SSE Sidecar + Store Example</h2>
+<p>Run a minimal SSE + REST sidecar (no deps):</p>
+<pre><code class="language-plaintext">node examples/server/sse-server.js</code></pre>
+<p>Then open: <code>examples/10-sse-store.html</code></p>
+<ul><li>The page uses <code><pan-sse></code> to receive server events and republish as PAN topics.</li>
+<li><code><pan-data-connector></code> points to the sidecar REST API for CRUD.</li>
+<li>A small store auto-saves changes to <code>${resource}.item.save</code> and updates live from <code>${resource}.item.state.${id}</code>.</li>
+</ul>
+<hr>
+<h2>Stores & Sync APIs</h2>
+<code>pan-store</code> (dist/pan-store.js)
+<ul><li>createStore(initial)</li>
+</ul>  - Returns <code>{ state, subscribe(fn), snapshot(), set(k,v), patch(obj), update(fn) }</code>.
+  - Proxy-backed <code>state</code> emits a <code>state</code> event on key change.
+<ul><li>bind(el, store, map, opts?)</li>
+</ul>  - Two-way binds form elements to store keys.
+  - <code>map</code>: <code>{ 'input[name=name]':'name', 'input[name=email]':'email' }</code>.
+  - <code>opts.events</code>: default <code>['input','change']</code>.
+<code>pan-store-pan</code> (dist/pan-store-pan.js)
+<ul><li>syncItem(store, opts)</li>
+</ul>  - Bridges a store to item topics; applies live updates and (optionally) auto-saves edits.
+  - Options:
+    - <code>resource='items'</code>, <code>key='id'</code>
+    - <code>id</code>: fixed id; if omitted and <code>followSelect=true</code>, follows <code>${resource}.item.select</code>.
+    - <code>live=true</code>: subscribe to <code>${resource}.item.state.${id}</code> (retained) and apply <code>{ item }</code>, <code>{ patch }</code>, or top-level patches; clear on <code>{ deleted:true }</code>.
+    - <code>autoSave=true</code>: debounce changes and request <code>${resource}.item.save</code> with <code>{ item: store.snapshot() }</code>.
+    - <code>debounceMs=300</code>, <code>followSelect=true</code>.
+  - Returns an <code>unsubscribe</code> function.
+<ul><li>syncList(store, opts)</li>
+</ul>  - Tracks <code>${resource}.list.state</code> and <code>${resource}.item.state.*</code> into an in-memory array.
+  - Options: <code>resource='items'</code>, <code>key='id'</code>, <code>live=true</code>.
+  - Expects a store with at least an <code>items</code> key; updates via <code>store._setAll({ items })</code>.
+<code>pan-sse</code> (dist/pan-sse.js)
+<ul><li>Attributes</li>
+</ul>  - <code>src</code>: SSE endpoint URL (absolute or relative).
+  - <code>topics</code>: optional space-separated list; added as <code>?topics=...</code> to the request.
+  - <code>persist-last-event</code>: key for localStorage to resume with <code>?lastEventId=</code>.
+  - <code>backoff</code>: <code>min,max</code> in ms (e.g., <code>1000,15000</code>).
+  - <code>with-credentials</code>: include cookies; default true if present.
+<ul><li>Server payloads supported</li>
+</ul>  - Event-as-topic: <code>event: users.item.state.u123</code> + <code>data: {"item":{...}}</code>.
+  - JSON envelope: <code>event: message</code> + <code>data: {"topic":"users.item.state.u123","data":{...},"retain":true}</code>.
+  - The bridge republishes <code>{ topic, data, retain? }</code> onto the PAN bus.
+<code>pan-form</code> and <code>pan-data-table</code>
+<ul><li>Both now support <code>live</code> (default <code>true</code>) and optional <code>key</code> for id field.</li>
+<li><code>pan-data-table</code> remains subscribed to <code>${resource}.list.state</code> and merges <code>${resource}.item.state.*</code> updates.</li>
+<li><code>pan-form</code> follows <code>${resource}.item.select</code> and keeps the selected item live-synced.</li>
+</ul>
+<code>pan-table</code>
+<ul><li><code>dist/pan-table.js</code> defines <code><pan-table></code> as an alias for <code><pan-data-table></code>.</li>
+</ul>
+<hr>
+<h2>Demo Browser (SPA)</h2>
+<code>index.html</code> hosts a SPA-style browser powered by PAN topics:
+<ul><li><code><pan-demo-nav></code>: renders the example list from inline JSON, publishes retained <code>nav.state</code> and <code>nav.goto</code> topics on selection (hash-synced).</li>
+<li><code><pan-demo-viewer></code>: subscribes to <code>nav.state</code> and loads the selected example in an iframe (or inline HTML in <code>mode="inline"</code>).</li>
+</ul>
+Navigation topics:
+<ul><li><code>nav.state</code> (retained): <code>{ href, id }</code> current selection</li>
+<li><code>nav.goto</code>: <code>{ href, id }</code> imperative navigation</li>
+</ul>
+Open <code>index.html</code> to browse all examples in a single page.
+<hr>
+<h2>More Examples</h2>
+<ul><li><code>examples/08-workers.html</code>: Workers + Query orchestrator (10k synthetic records).</li>
+<li><code>examples/09-schema-form.html</code>: Schema-driven form + mock provider.</li>
+<li><code>examples/11-graphql-connector.html</code>: GraphQL connector (GraphQLZero) with list/get/save/delete.</li>
+<li><code>examples/12-php-connector.html</code>: PHP connector against local <code>api.php</code>; list + paging.</li>
+<li><code>registry/index.html</code>: Component registry viewer (loads <code>registry/index.json</code>).</li>
+<li><code>conformance/index.html</code>: PAN v1 conformance tests for the reference implementation.</li>
+<li><code>templates/provider-kit/</code>: Starter kit for a minimal CRUD provider component.</li>
+<li><code>examples/13-sse-pan.html</code>: Local PHP SSE hub (<code>sse.php</code>) broadcasting into PAN.</li>
+<li><code>pan-grid.html</code>: DB grid wired to <code>api.php</code> using PAN.</li>
+</ul>
+Topic patterns in use
+<ul><li>Bulk: <code>${resource}.list.state</code> with <code>{ items: [...] }</code> (retained).</li>
+<li>Per-item: <code>${resource}.item.state.${id}</code> with either <code>{ item }</code> (retained) or <code>{ patch }</code>.</li>
+<li>Deletion: <code>${resource}.item.state.${id}</code> with <code>{ id, deleted:true }</code> (not retained).</li>
+</ul>
+Providers
+<ul><li><code>pan-data-provider</code> (mock) and <code>pan-data-connector</code> (REST) now also publish per-item snapshots on get/save and deletion notices.</li>
+</ul>  - Mock: dist/pan-data-provider-mock.js
+  - REST: dist/pan-data-connector.js
+<p>Operational notes (PHP)</p>
+<ul><li>For PHP (mod_php or PHP-FPM), prefer using the small sidecar for SSE/WebSocket rather than holding long-lived connections in PHP workers.</li>
+<li>If serving SSE from PHP directly, disable output buffering, avoid locking sessions, send keep-alives regularly, and ensure reverse proxies don’t buffer.</li>
+</ul>
+Local PHP SSE hub
+<ul><li><code>sse.php</code> implements a simple file-backed SSE stream and a <code>POST</code> endpoint:</li>
+</ul>  - <code>GET /pan/sse.php?topics=users.*</code> streams events (with keepalives; respects <code>lastEventId</code>).
+  - <code>POST /pan/sse.php</code> with <code>{ "topic":"chat.message", "data":{...}, "retain":false }</code> appends and broadcasts.
+  - Use <code><pan-sse src="/pan/sse.php" topics="chat.message demo.*"></code> to bridge into PAN.
+<hr>
+<h2>Spec & Guarantees</h2>
+<p>* Spec lives in <code>LARC_SPEC.v0.md</code> (topics, envelopes, versioning, compliance tests).
+* Backwards compatibility: topic schemas versioned with semver; minor bumps are additive.</p>
+<hr>
+<h2>Roadmap</h2>
+<p>* Inspector Pro: timeline, heatmaps, replay to Playwright tests.
+* Schema registry & TS typegen.
+* Cross‑origin gateway (<code>postMessage</code>) with allowlists.
+* IndexedDB/Yjs providers for offline + CRDT sync.</p>
+<hr>
+<h2>Sample Data</h2>
+<p>Static JSON you can load in examples or serve via a simple static server:</p>
+<ul><li><code>examples/data/users.json</code></li>
+<li><code>examples/data/products.json</code></li>
+<li><code>examples/data/todos.json</code></li>
+</ul>
+<hr>
+<h2>E2E Tests (Playwright)</h2>
+<ul><li>Prereqs: Node 18+.</li>
+<li>Install Playwright (downloads browsers):</li>
+</ul>  - <code>npx -y playwright install</code>
+<ul><li>Run tests:</li>
+</ul>  - <code>npx playwright test</code> (headless)
+  - <code>npx playwright test --headed</code> (headed)
+  - <code>npx playwright test --ui</code> (watch mode)
+<ul><li>Notes: tests open the example pages via <code>file://</code> URLs and validate UI actions and bus traffic.</li>
+</ul>
+<hr>
+<h2>License</h2>
+<p>MIT for core libraries. Pro/enterprise add‑ons under commercial license.</p>
+<hr>
+<h2>PAN v1, Registry, and Packages</h2>
+<ul><li>Spec: <code>PAN_SPEC.v1.md</code> (concise)</li>
+<li>Conformance: open <code>conformance/index.html</code> — passing implementations may use <code>badges/pan-v1.svg</code>.</li>
+<li>Registry: <code>registry/index.json</code> + <code>registry/index.html</code> to browse components by topic/type.</li>
+<li>npm scaffold: <code>packages/</code> contains publishable entries for <code>@pan/bus</code>, <code>@pan/client</code>, <code>@pan/inspector</code>.</li>
+</ul>  - Sync dist into packages: <code>npm run packages:sync</code>
+  - Then publish from each package folder (remove root <code>private:true</code> if you split repos).
+<ul><li>Build registry from packages: <code>npm run registry:build</code> updates <code>registry/index.json</code> from <code>packages/*/package.json</code> <code>pan</code> metadata.</li>
+<li>Conformance badge: <code>npm run conformance:badge</code> writes <code>conformance/badge.json</code> and <code>badges/pan-v1-status.svg</code> using Playwright.</li>
+<li>RFCs: see <code>rfcs/README.md</code> and <code>.github/ISSUE_TEMPLATE/rfc.md</code>.</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

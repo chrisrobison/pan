@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Building Icons · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Building Icons">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">devtools-extension</a> / <span>BUILD_ICONS</span>
+      </div>
+      <article class="docs-content">
+        <h1>Building Icons</h1>
+<p>The extension needs PNG icons in multiple sizes.</p>
+<h2>Required Icons</h2>
+<ul><li><code>icons/icon-16.png</code> (16x16) - Browser toolbar</li>
+<li><code>icons/icon-48.png</code> (48x48) - Extensions page</li>
+<li><code>icons/icon-128.png</code> (128x128) - Chrome Web Store</li>
+</ul>
+<h2>Option 1: Use ImageMagick</h2>
+<p>If you have ImageMagick installed:</p>
+<pre><code class="language-bash">cd devtools-extension/icons
+
+# Convert SVG to PNGs
+convert -background none icon.svg -resize 16x16 icon-16.png
+convert -background none icon.svg -resize 48x48 icon-48.png
+convert -background none icon.svg -resize 128x128 icon-128.png</code></pre>
+<h2>Option 2: Use Online Tool</h2>
+<li>Go to https://www.iloveimg.com/resize-image</li>
+<li>Upload <code>icons/icon.svg</code></li>
+<li>Resize to 16x16, 48x48, 128x128</li>
+<li>Download and save in <code>icons/</code> folder</li>
+<h2>Option 3: Use Figma/Photoshop</h2>
+<li>Open <code>icons/icon.svg</code> in design tool</li>
+<li>Export as PNG at 16x16, 48x48, 128x128</li>
+<li>Save in <code>icons/</code> folder</li>
+<h2>Option 4: Use Placeholder (Quick Start)</h2>
+<p>For testing, create simple colored squares:</p>
+<pre><code class="language-html">&lt;!-- Save as generate-icons.html and open in browser --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;canvas id=&quot;c&quot; width=&quot;128&quot; height=&quot;128&quot;&gt;&lt;/canvas&gt;
+  &lt;script&gt;
+    const sizes = [16, 48, 128];
+    const canvas = document.getElementById(&#039;c&#039;);
+    const ctx = canvas.getContext(&#039;2d&#039;);
+
+    sizes.forEach(size =&gt; {
+      canvas.width = size;
+      canvas.height = size;
+
+      // Blue background
+      ctx.fillStyle = &#039;#1a73e8&#039;;
+      ctx.fillRect(0, 0, size, size);
+
+      // White text
+      ctx.fillStyle = &#039;white&#039;;
+      ctx.font = `${size * 0.5}px Arial`;
+      ctx.textAlign = &#039;center&#039;;
+      ctx.textBaseline = &#039;middle&#039;;
+      ctx.fillText(&#039;P&#039;, size / 2, size / 2);
+
+      // Download
+      canvas.toBlob(blob =&gt; {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement(&#039;a&#039;);
+        a.href = url;
+        a.download = `icon-${size}.png`;
+        a.click();
+      });
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h2>Verify</h2>
+<p>After creating icons, verify in extension:
+<li>Reload extension at <code>chrome://extensions/</code></li>
+<li>Check extension shows icon</li>
+<li>Open DevTools and check PAN tab has icon</li></p>
+<h2>Note</h2>
+<p>The extension will still work without icons, but they improve UX and are required for Chrome Web Store publication.</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/devtools-extension/BUILD_ICONS.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data & State Management · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Data & State Management">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">src</a> / <a href="#">data</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>Data & State Management</h1>
+<p>Components that manage application state, data persistence, and business logic.</p>
+<h2>Components</h2>
+<h3>pan-invoice-store.mjs</h3>
+State management for invoice application.
+<strong>Features:</strong>
+<ul><li>LocalStorage persistence</li>
+<li>Multiple invoice management</li>
+<li>Auto-save with debouncing</li>
+<li>Import/Export JSON</li>
+<li>Coordinates state via PAN bus</li>
+</ul>
+<strong>PAN Events:</strong>
+<ul><li>Subscribes: <code>invoice.*</code> commands</li>
+<li>Publishes: <code>invoice.load</code>, <code>invoice.saved</code>, <code>invoice.list-updated</code></li>
+</ul>
+<strong>Usage:</strong>
+<pre><code class="language-html">&lt;pan-invoice-store auto-save=&quot;true&quot;&gt;&lt;/pan-invoice-store&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;../core/pan-client.mjs&#039;;
+  const pc = new PanClient();
+
+  // Save invoice
+  pc.publish({
+    topic: &#039;invoice.save&#039;,
+    data: {}
+  });
+
+  // Listen for saves
+  pc.subscribe(&#039;invoice.saved&#039;, (msg) =&gt; {
+    console.log(&#039;Invoice saved:&#039;, msg.data.id);
+  });
+&lt;/script&gt;</code></pre>
+<h2>Design Philosophy</h2>
+<p>Data components:
+<ul><li><strong>Manage state</strong> - Central source of truth</li>
+<li><strong>Handle persistence</strong> - LocalStorage, IndexedDB, etc.</li>
+<li><strong>Coordinate updates</strong> - Broadcast changes via PAN</li>
+<li><strong>Encapsulate logic</strong> - Business rules in one place</li>
+<li><strong>No UI</strong> - Pure data/logic layer</li>
+</ul>
+<h2>Pattern: State Management</h2></p>
+<p>Data components follow this pattern:</p>
+<li><strong>Subscribe to commands</strong> - Listen for actions (save, load, delete)</li>
+<li><strong>Update state</strong> - Process commands and update internal state</li>
+<li><strong>Persist data</strong> - Save to localStorage/IndexedDB/API</li>
+<li><strong>Broadcast changes</strong> - Publish state updates via PAN</li>
+<li><strong>Coordinate components</strong> - Keep UI in sync</li>
+<h2>When to Use</h2>
+<p>Create a data component when you need:
+<ul><li>Centralized state management</li>
+<li>Persistent data storage</li>
+<li>Complex business logic</li>
+<li>Coordination between multiple UI components</li>
+<li>Separation of concerns (data from presentation)</li>
+</ul>
+<h2>Example: Creating a Data Component</h2></p>
+<pre><code class="language-javascript">export class PanDataStore extends HTMLElement {
+  constructor() {
+    super();
+    this._data = {};
+  }
+
+  connectedCallback() {
+    this._setupPanListeners();
+    this._loadFromStorage();
+  }
+
+  _setupPanListeners() {
+    const bus = document.querySelector(&#039;pan-bus&#039;);
+
+    // Listen for commands
+    bus.subscribe(&#039;data.save&#039;, (msg) =&gt; {
+      this._save(msg.data);
+    });
+
+    bus.subscribe(&#039;data.load&#039;, (msg) =&gt; {
+      this._load(msg.data.id);
+    });
+  }
+
+  _save(data) {
+    this._data = data;
+    localStorage.setItem(&#039;mydata&#039;, JSON.stringify(data));
+
+    // Broadcast success
+    const bus = document.querySelector(&#039;pan-bus&#039;);
+    bus.publish(&#039;data.saved&#039;, { id: data.id });
+  }
+
+  _load(id) {
+    const data = JSON.parse(localStorage.getItem(&#039;mydata&#039;));
+    const bus = document.querySelector(&#039;pan-bus&#039;);
+    bus.publish(&#039;data.loaded&#039;, data);
+  }
+}</code></pre>
+<h2>Dependencies</h2>
+<ul><li>Core: pan-bus (required for state coordination)</li>
+<li>Storage: Browser APIs (localStorage, IndexedDB, etc.)</li>
+</ul>
+<h2>Future Components</h2>
+<p>Potential additions to this directory:
+<ul><li><code>pan-cache.mjs</code> - Caching layer with TTL</li>
+<li><code>pan-sync.mjs</code> - Sync state to backend</li>
+<li><code>pan-offline.mjs</code> - Offline-first data management</li>
+<li><code>pan-realtime.mjs</code> - Real-time data synchronization</li>
+<li><code>pan-history.mjs</code> - Undo/redo state management</li>
+</ul></p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/src/data/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

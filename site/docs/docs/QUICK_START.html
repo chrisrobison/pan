@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Quick Start Guide · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Quick Start Guide">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>QUICK_START</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Quick Start Guide</h1>
+<p>Get started with PAN (Page Area Network) in 5 minutes.</p>
+<hr>
+<h2>What is PAN?</h2>
+<p>PAN is a <strong>DOM-native message bus</strong> for building loosely-coupled web applications. Components communicate via topics instead of direct imports, making your code more modular and testable.</p>
+<strong>Key Features:</strong>
+<ul><li>✅ <strong>Zero build</strong> - Works directly in the browser</li>
+<li>✅ <strong>Framework agnostic</strong> - Works with vanilla JS, React, Vue, etc.</li>
+<li>✅ <strong>Shadow DOM ready</strong> - Events cross shadow boundaries</li>
+<li>✅ <strong>Request/reply</strong> - Built-in async request-response pattern</li>
+<li>✅ <strong>Retained messages</strong> - Late joiners get current state</li>
+<li>✅ <strong>Wildcard subscriptions</strong> - Subscribe to topic patterns</li>
+</ul>
+<hr>
+<h2>Installation</h2>
+<h3>Option 1: Local Files (Recommended for Development)</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;My PAN App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- 1. Add the bus element --&gt;
+  &lt;pan-bus&gt;&lt;/pan-bus&gt;
+
+  &lt;!-- 2. Include autoloader --&gt;
+  &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+
+  &lt;!-- 3. Your app code --&gt;
+  &lt;script type=&quot;module&quot;&gt;
+    import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+
+    const client = new PanClient();
+    await client.ready();
+
+    // Start using PAN!
+    client.publish({
+      topic: &#039;app.started&#039;,
+      data: { timestamp: Date.now() }
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h3>Option 2: CDN (Coming Soon)</h3>
+<pre><code class="language-html">&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;script type=&quot;module&quot; src=&quot;https://unpkg.com/@larc/pan-bus@1.0.0&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;https://unpkg.com/@larc/pan-client@1.0.0&#039;;
+  // ...
+&lt;/script&gt;</code></pre>
+<hr>
+<h2>Your First PAN App</h2>
+<p>Let's build a simple counter that shows PAN's core concepts.</p>
+<h3>Step 1: Create HTML</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Counter App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;pan-bus&gt;&lt;/pan-bus&gt;
+
+  &lt;div id=&quot;app&quot;&gt;
+    &lt;h1&gt;Counter: &lt;span id=&quot;count&quot;&gt;0&lt;/span&gt;&lt;/h1&gt;
+    &lt;button id=&quot;increment&quot;&gt;+1&lt;/button&gt;
+    &lt;button id=&quot;decrement&quot;&gt;-1&lt;/button&gt;
+    &lt;button id=&quot;reset&quot;&gt;Reset&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quot;./app.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h3>Step 2: Create app.js</h3>
+<pre><code class="language-javascript">import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+
+// Create client and wait for bus
+const client = new PanClient();
+await client.ready();
+
+// Current count
+let count = 0;
+
+// Publish count state
+function publishCount() {
+  client.publish({
+    topic: &#039;counter.state&#039;,
+    data: { count },
+    retain: true  // Late subscribers get current value
+  });
+}
+
+// Button handlers
+document.getElementById(&#039;increment&#039;).addEventListener(&#039;click&#039;, () =&gt; {
+  count++;
+  publishCount();
+});
+
+document.getElementById(&#039;decrement&#039;).addEventListener(&#039;click&#039;, () =&gt; {
+  count--;
+  publishCount();
+});
+
+document.getElementById(&#039;reset&#039;).addEventListener(&#039;click&#039;, () =&gt; {
+  count = 0;
+  publishCount();
+});
+
+// Subscribe to count changes
+client.subscribe(&#039;counter.state&#039;, (msg) =&gt; {
+  document.getElementById(&#039;count&#039;).textContent = msg.data.count;
+}, { retained: true });  // Get current count immediately
+
+// Publish initial state
+publishCount();</code></pre>
+<h3>Step 3: Run It</h3>
+<p>Open <code>index.html</code> in a browser. Click buttons to see the counter update!</p>
+<strong>What's happening:</strong>
+<li>Buttons publish counter state when clicked</li>
+<li>UI subscribes to counter state and updates</li>
+<li><code>retain: true</code> means new subscribers get the current count</li>
+<li>Components are decoupled - they only know about topics</li>
+<hr>
+<h2>Core Concepts</h2>
+<h3>1. Publish Messages</h3>
+<pre><code class="language-javascript">client.publish({
+  topic: &#039;users.updated&#039;,
+  data: { id: 123, name: &#039;Alice&#039; }
+});</code></pre>
+<h3>2. Subscribe to Topics</h3>
+<pre><code class="language-javascript">client.subscribe(&#039;users.updated&#039;, (msg) =&gt; {
+  console.log(&#039;User updated:&#039;, msg.data);
+});</code></pre>
+<h3>3. Wildcard Subscriptions</h3>
+<pre><code class="language-javascript">// Match all user-related topics
+client.subscribe(&#039;users.*&#039;, (msg) =&gt; {
+  console.log(&#039;User event:&#039;, msg.topic);
+});</code></pre>
+<h3>4. Request/Reply</h3>
+<pre><code class="language-javascript">// Make a request
+const response = await client.request(&#039;users.get&#039;, { id: 123 });
+console.log(&#039;User:&#039;, response.data);
+
+// Respond to requests
+client.subscribe(&#039;users.get&#039;, (msg) =&gt; {
+  if (!msg.replyTo) return;
+
+  const user = getUserFromDatabase(msg.data.id);
+
+  client.publish({
+    topic: msg.replyTo,
+    data: { ok: true, user },
+    correlationId: msg.correlationId
+  });
+});</code></pre>
+<h3>5. Retained Messages</h3>
+<pre><code class="language-javascript">// Publish retained state
+client.publish({
+  topic: &#039;app.theme&#039;,
+  data: { mode: &#039;dark&#039; },
+  retain: true
+});
+
+// New subscribers get current value
+client.subscribe(&#039;app.theme&#039;, (msg) =&gt; {
+  applyTheme(msg.data.mode);
+}, { retained: true });</code></pre>
+<hr>
+<h2>Common Patterns</h2>
+<h3>Pattern 1: State Management</h3>
+<pre><code class="language-javascript">// Publish state
+client.publish({
+  topic: &#039;users.list.state&#039;,
+  data: { users: [user1, user2, user3] },
+  retain: true
+});
+
+// Subscribe to state
+client.subscribe(&#039;users.list.state&#039;, (msg) =&gt; {
+  renderUserList(msg.data.users);
+}, { retained: true });</code></pre>
+<h3>Pattern 2: CRUD Operations</h3>
+<pre><code class="language-javascript">// Create
+const response = await client.request(&#039;users.item.save&#039;, {
+  item: { name: &#039;Alice&#039;, email: &#039;alice@example.com&#039; }
+});
+
+// Read
+const user = await client.request(&#039;users.item.get&#039;, { id: 123 });
+
+// Update
+await client.request(&#039;users.item.save&#039;, {
+  item: { id: 123, name: &#039;Alice Updated&#039; }
+});
+
+// Delete
+await client.request(&#039;users.item.delete&#039;, { id: 123 });</code></pre>
+<h3>Pattern 3: Events</h3>
+<pre><code class="language-javascript">// Publish event
+client.publish({
+  topic: &#039;users.item.created&#039;,
+  data: { item: newUser }
+});
+
+// Multiple subscribers
+client.subscribe(&#039;users.item.created&#039;, (msg) =&gt; {
+  console.log(&#039;User created:&#039;, msg.data.item);
+});
+
+client.subscribe(&#039;users.item.created&#039;, (msg) =&gt; {
+  sendWelcomeEmail(msg.data.item);
+});</code></pre>
+<h3>Pattern 4: Commands</h3>
+<pre><code class="language-javascript">// Publish command
+client.publish({
+  topic: &#039;nav.goto&#039;,
+  data: { route: &#039;/users/123&#039; }
+});
+
+// Handle command
+client.subscribe(&#039;nav.goto&#039;, (msg) =&gt; {
+  router.navigateTo(msg.data.route);
+});</code></pre>
+<hr>
+<h2>Web Components Example</h2>
+<p>Here's how to use PAN with Web Components:</p>
+<pre><code class="language-javascript">class UserCard extends HTMLElement {
+  connectedCallback() {
+    this.client = new PanClient(this);
+
+    // Subscribe to user data
+    const userId = this.getAttribute(&#039;user-id&#039;);
+    this.unsub = this.client.subscribe(`users.item.state.${userId}`, (msg) =&gt; {
+      this.render(msg.data);
+    }, { retained: true });
+
+    // Request initial data
+    this.loadUser(userId);
+  }
+
+  disconnectedCallback() {
+    // Clean up subscription
+    if (this.unsub) this.unsub();
+  }
+
+  async loadUser(userId) {
+    const response = await this.client.request(&#039;users.item.get&#039;, { id: userId });
+    if (response.data.ok) {
+      this.render(response.data.item);
+    }
+  }
+
+  render(user) {
+    this.innerHTML = `
+      &lt;div class=&quot;user-card&quot;&gt;
+        &lt;h3&gt;${user.name}&lt;/h3&gt;
+        &lt;p&gt;${user.email}&lt;/p&gt;
+      &lt;/div&gt;
+    `;
+  }
+}
+
+customElements.define(&#039;user-card&#039;, UserCard);</code></pre>
+<p>Usage:</p>
+<pre><code class="language-html">&lt;user-card user-id=&quot;123&quot;&gt;&lt;/user-card&gt;</code></pre>
+<hr>
+<h2>Best Practices</h2>
+<h3>✅ DO</h3>
+<strong>Wait for ready:</strong>
+<pre><code class="language-javascript">const client = new PanClient();
+await client.ready();
+// Now safe to publish</code></pre>
+<strong>Use retained for state:</strong>
+<pre><code class="language-javascript">client.publish({
+  topic: &#039;app.state&#039;,
+  data: { ... },
+  retain: true
+});</code></pre>
+<strong>Clean up subscriptions:</strong>
+<pre><code class="language-javascript">const unsub = client.subscribe(&#039;topic&#039;, handler);
+// Later:
+unsub();</code></pre>
+<strong>Use specific topics:</strong>
+<pre><code class="language-javascript">client.subscribe(&#039;users.updated&#039;, handler);  // Good</code></pre>
+<h3>❌ DON'T</h3>
+<strong>Don't publish before ready:</strong>
+<pre><code class="language-javascript">const client = new PanClient();
+client.publish({ ... });  // May be lost!</code></pre>
+<strong>Don't subscribe to everything:</strong>
+<pre><code class="language-javascript">client.subscribe(&#039;*&#039;, handler);  // Too broad!</code></pre>
+<strong>Don't forget to unsubscribe:</strong>
+<pre><code class="language-javascript">// Memory leak!
+client.subscribe(&#039;topic&#039;, handler);
+// Component removed but subscription remains</code></pre>
+<hr>
+<h2>Next Steps</h2>
+<h3>Learn More</h3>
+<ul><li><strong><a href="./API_REFERENCE.md">API Reference</a></strong> - Complete API documentation</li>
+<li><strong><a href="./TOPICS.md">Topic Conventions</a></strong> - Topic naming patterns</li>
+<li><strong><a href="../examples/">Examples</a></strong> - Working examples</li>
+<li><strong><a href="./API_STABILITY.md">API Stability</a></strong> - Version guarantees</li>
+</ul>
+<h3>Build Something</h3>
+<p>Try building these to practice:</p>
+<li><strong>Todo List</strong> - CRUD operations + state management</li>
+<li><strong>Chat App</strong> - Real-time updates + retained messages</li>
+<li><strong>Dashboard</strong> - Multiple components + request/reply</li>
+<li><strong>Form Wizard</strong> - Multi-step process + events</li>
+<h3>Get Help</h3>
+<ul><li><strong>Issues</strong>: <a href="https://github.com/chrisrobison/pan/issues">GitHub Issues</a></li>
+<li><strong>Examples</strong>: See <code>examples/</code> directory</li>
+<li><strong>Tests</strong>: See <code>tests/</code> directory for usage patterns</li>
+</ul>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>Messages not received</h3>
+<strong>Problem:</strong> Published messages aren't being received
+<strong>Solutions:</strong>
+<pre><code class="language-javascript">// 1. Wait for bus to be ready
+await client.ready();
+
+// 2. Check topic names match exactly
+client.publish({ topic: &#039;users.updated&#039;, data: {} });
+client.subscribe(&#039;users.updated&#039;, handler);  // Must match
+
+// 3. Use wildcard for debugging
+client.subscribe(&#039;*&#039;, (msg) =&gt; {
+  console.log(&#039;All messages:&#039;, msg.topic);
+});</code></pre>
+<h3>Subscriptions not cleaning up</h3>
+<strong>Problem:</strong> Memory leaks from subscriptions
+<strong>Solution:</strong>
+<pre><code class="language-javascript">// Store unsubscribe function
+this.unsubs = [];
+
+// Add subscriptions
+this.unsubs.push(client.subscribe(&#039;topic1&#039;, handler1));
+this.unsubs.push(client.subscribe(&#039;topic2&#039;, handler2));
+
+// Clean up all
+disconnectedCallback() {
+  this.unsubs.forEach(unsub =&gt; unsub());
+}
+
+// OR use AbortSignal
+const controller = new AbortController();
+client.subscribe(&#039;topic&#039;, handler, { signal: controller.signal });
+controller.abort();  // Unsubscribe all</code></pre>
+<h3>Request timeouts</h3>
+<strong>Problem:</strong> Requests timing out
+<strong>Solutions:</strong>
+<pre><code class="language-javascript">// 1. Increase timeout
+const response = await client.request(&#039;topic&#039;, data, {
+  timeoutMs: 10000  // 10 seconds
+});
+
+// 2. Check responder is subscribed
+client.subscribe(&#039;topic&#039;, (msg) =&gt; {
+  if (!msg.replyTo) return;  // Must check this!
+  // ... send reply
+});
+
+// 3. Handle timeout gracefully
+try {
+  const response = await client.request(&#039;topic&#039;, data);
+} catch (err) {
+  console.error(&#039;Request failed:&#039;, err);
+  // Fallback behavior
+}</code></pre>
+<hr>
+<strong>Ready to build? Start with the <a href="./API_REFERENCE.md">API Reference</a> for complete details!</strong>
+<hr>
+<strong>Last Updated:</strong> November 2024
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/QUICK_START.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

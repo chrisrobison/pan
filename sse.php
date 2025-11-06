@@ -13,10 +13,23 @@ if (!is_dir($RT_DIR)) { @mkdir($RT_DIR, 0777, true); }
 if (!file_exists($SEQ_FILE)) { @file_put_contents($SEQ_FILE, "0\n"); }
 if (!file_exists($LOG_FILE)) { @touch($LOG_FILE); }
 
-// CORS (optional; same-origin works fine)
-header('Access-Control-Allow-Origin: *');
+// CORS - Whitelist specific origins (SECURITY FIX)
+$allowedOrigins = [
+	'https://cdr2.com',
+	'https://www.cdr2.com',
+	'https://localhost:8443',
+	'http://localhost:8080',
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins) || strpos($origin, 'http://localhost:') === 0) {
+	header("Access-Control-Allow-Origin: $origin");
+	header('Access-Control-Allow-Credentials: true');
+}
+
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Last-Event-ID');
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
 // Helpers

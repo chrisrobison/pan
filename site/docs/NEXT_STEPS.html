@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Next Steps to v1.0 · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Next Steps to v1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>NEXT_STEPS</span>
+      </div>
+      <article class="docs-content">
+        <h1>Next Steps to v1.0</h1>
+<strong>Current Status:</strong> 0.1.0 → 1.0.0 (Estimated 4-6 weeks)
+<hr>
+<h2>✅ Recently Completed (Nov 2024)</h2>
+<li><strong>Critical v1.0 Tests</strong> - 16/16 passing</li>
+   - Error handling (5 tests)
+   - Memory leak prevention (4 tests)
+   - Edge cases (5 tests)
+   - Concurrency (2 tests)
+<li><strong>Test Infrastructure</strong> - HTTP server for tests</li>
+   - Built-in Node server (no dependencies)
+   - Solves file:// import restrictions
+   - New npm scripts: <code>npm test</code>, <code>npm run test:headed</code>
+<li><strong>JSDoc Documentation</strong> - All core files</li>
+   - pan-bus.mjs (228 lines of docs)
+   - pan-client.mjs (337 lines of docs)
+   - pan-autoload.mjs (201 lines of docs)
+<hr>
+<h2>🔴 CRITICAL (Must Complete Before v1.0)</h2>
+<h3>1. Lock Down Core APIs (1 week)</h3>
+<strong>Priority: HIGHEST</strong> - No breaking changes allowed after this
+<strong>Tasks:</strong>
+<ul><li>[ ] Review PanClient API - ensure all methods are final</li>
+</ul>  - <code>publish()</code>, <code>subscribe()</code>, <code>request()</code>, <code>ready()</code>, <code>matches()</code>
+  - Document what's stable vs experimental
+<ul><li>[ ] Review PanMessage format - lock down envelope structure</li>
+</ul>  - Required fields: <code>topic</code>, <code>data</code>
+  - Optional fields: <code>id</code>, <code>ts</code>, <code>retain</code>, <code>replyTo</code>, <code>correlationId</code>, <code>headers</code>
+<ul><li>[ ] Review pan-bus CustomEvents - document all event names</li>
+</ul>  - <code>pan:publish</code>, <code>pan:subscribe</code>, <code>pan:unsubscribe</code>, <code>pan:deliver</code>, <code>pan:hello</code>, <code>pan:sys.ready</code>
+<ul><li>[ ] Document core topic conventions</li>
+</ul>  - Naming patterns (e.g., <code>entity.action</code>, <code>entity.action.state</code>)
+  - Reserved namespaces (<code>pan:<em></code>, <code>sys:</em></code>)
+<ul><li>[ ] Write semantic versioning policy</li>
+</ul>  - What constitutes breaking vs non-breaking changes
+  - Deprecation timeline
+<strong>Deliverable:</strong> <code>docs/API_STABILITY.md</code> documenting what's locked
+<hr>
+<h3>2. Complete API Documentation (1 week)</h3>
+<strong>Tasks:</strong>
+<ul><li>[ ] API Reference: PanClient</li>
+</ul>  - All methods with signatures, parameters, return types
+  - Code examples for each method
+  - Common patterns and best practices
+<ul><li>[ ] API Reference: PanMessage</li>
+</ul>  - Full envelope specification
+  - Field descriptions and constraints
+  - Examples of different message types
+<ul><li>[ ] API Reference: CustomEvents</li>
+</ul>  - All pan:* events documented
+  - Event bubbling and composition behavior
+  - Integration with Shadow DOM
+<ul><li>[ ] Topic Convention Guide</li>
+</ul>  - Naming best practices
+  - Wildcard pattern reference
+  - Reserved topic namespaces
+<strong>Deliverable:</strong> <code>docs/API_REFERENCE.md</code> comprehensive reference
+<hr>
+<h3>3. Browser Compatibility Testing (3-5 days)</h3>
+<strong>Tasks:</strong>
+<ul><li>[ ] Test on Chrome (latest 2 versions)</li>
+</ul>  - Run test suite
+  - Test all demo apps
+  - Document any issues
+<ul><li>[ ] Test on Firefox (latest 2 versions)</li>
+<li>[ ] Test on Safari (latest 2 versions)</li>
+<li>[ ] Test on Edge (latest 2 versions)</li>
+<li>[ ] Test on mobile browsers</li>
+</ul>  - Safari iOS
+  - Chrome Android
+<ul><li>[ ] Document browser support matrix</li>
+</ul>  - Minimum versions supported
+  - Known issues and workarounds
+  - Required polyfills (if any)
+<strong>Deliverable:</strong> <code>docs/BROWSER_SUPPORT.md</code> compatibility matrix
+<hr>
+<h3>4. Security Audit (1 week)</h3>
+<strong>High Risk Components:</strong>
+<ul><li>[ ] <strong>pan-markdown-renderer</strong> - XSS vulnerability check</li>
+</ul>  - Test with malicious markdown input
+  - Verify HTML sanitization
+  - Check script execution prevention
+<ul><li>[ ] <strong>pan-files</strong> - Path traversal check</li>
+</ul>  - Test with malicious file paths (<code>../../../etc/passwd</code>)
+  - Verify OPFS sandboxing
+  - Check file type restrictions
+<ul><li>[ ] <strong>User input handling</strong> across all components</li>
+</ul>  - Content editable fields
+  - Form inputs
+  - Dynamic content injection
+<strong>Other Checks:</strong>
+<ul><li>[ ] Review localStorage usage</li>
+</ul>  - What data is stored?
+  - Is sensitive data exposed?
+  - Document security considerations
+<ul><li>[ ] Content Security Policy recommendations</li>
+</ul>  - What CSP headers are needed?
+  - Document restrictions and requirements
+<ul><li>[ ] Write security guidelines</li>
+</ul>  - Best practices for PAN apps
+  - Common vulnerabilities to avoid
+<strong>Deliverable:</strong> <code>docs/SECURITY.md</code> guidelines and audit results
+<hr>
+<h2>🟡 HIGH PRIORITY (Should Complete)</h2>
+<h3>5. Increase Test Coverage to 80%+ (1-2 weeks)</h3>
+<strong>Current:</strong> ~50% (26 tests)
+<strong>Target:</strong> 80%+ (60-70 tests)
+<strong>Missing Coverage:</strong>
+<ul><li>[ ] More pan-bus tests</li>
+</ul>  - Subscription lifecycle edge cases
+  - Unsubscribe during message delivery
+  - Bus lifecycle (mount/unmount)
+<ul><li>[ ] More pan-client tests</li>
+</ul>  - Client cleanup on disconnect
+  - Multiple buses on same page
+  - Error recovery scenarios
+<ul><li>[ ] More pan-autoload tests</li>
+</ul>  - Dynamic component loading
+  - Load failures and retries
+  - Custom component paths
+<strong>Deliverable:</strong> 80%+ code coverage with comprehensive tests
+<hr>
+<h3>6. Performance Benchmarks (3-5 days)</h3>
+<strong>Establish Baselines:</strong>
+<ul><li>[ ] Message throughput</li>
+</ul>  - How many msgs/sec can bus handle?
+  - Test with 1, 10, 100, 1000 subscribers
+<ul><li>[ ] Subscribe/unsubscribe speed</li>
+</ul>  - Latency for sub/unsub operations
+  - Impact on message delivery
+<ul><li>[ ] Retained message retrieval</li>
+</ul>  - Time to retrieve 1, 100, 1000 retained messages
+<ul><li>[ ] Large dataset rendering</li>
+</ul>  - Test pan-data-table with 10k rows
+  - Measure FPS and memory usage
+<ul><li>[ ] Memory usage over time</li>
+</ul>  - Run stress test for 10 minutes
+  - Check for memory leaks
+<strong>Deliverable:</strong> <code>docs/PERFORMANCE.md</code> with benchmark results
+<hr>
+<h3>7. Package Distribution (3-5 days)</h3>
+<strong>Tasks:</strong>
+<ul><li>[ ] Create @larc/pan-bus package</li>
+</ul>  - Package just the core bus
+  - Add package.json with exports
+<ul><li>[ ] Create @larc/pan-client package</li>
+</ul>  - Package just the client
+<ul><li>[ ] Setup npm publishing</li>
+</ul>  - Configure .npmignore
+  - Test local install
+  - Publish to npm registry
+<ul><li>[ ] Setup CDN distribution</li>
+</ul>  - Configure unpkg/jsdelivr
+  - Test CDN URLs
+  - Document CDN usage
+<ul><li>[ ] Document installation methods</li>
+</ul>  - npm install
+  - CDN script tag
+  - Manual download
+<strong>Deliverable:</strong> Published npm packages + CDN availability
+<hr>
+<h3>8. User Documentation (1 week)</h3>
+<strong>Guides to Write:</strong>
+<ul><li>[ ] Getting Started Tutorial</li>
+</ul>  - Install PAN
+  - Create first component
+  - Publish/subscribe example
+<ul><li>[ ] Building Your First App Guide</li>
+</ul>  - Step-by-step todo app
+  - State management patterns
+  - Component communication
+<ul><li>[ ] State Management Patterns Guide</li>
+</ul>  - When to use retained messages
+  - Request/reply vs pub/sub
+  - Error handling
+<ul><li>[ ] Testing PAN Apps Guide</li>
+</ul>  - Writing tests for PAN components
+  - Mocking the bus
+  - Integration test patterns
+<strong>Deliverable:</strong> <code>docs/guides/</code> directory with tutorials
+<hr>
+<h2>🟢 NICE TO HAVE (Post v1.0)</h2>
+<h3>9. Component Testing (optional)</h3>
+<ul><li>pan-markdown-editor tests</li>
+<li>pan-files (OPFS) tests</li>
+<li>pan-theme-provider tests</li>
+<li>pan-data-table tests</li>
+<li>Integration tests for demo apps</li>
+</ul>
+<h3>10. Developer Tools (optional)</h3>
+<ul><li>Enhanced inspector with time travel</li>
+<li>Chrome DevTools extension</li>
+<li>Message trace export/import</li>
+</ul>
+<h3>11. TypeScript Support (optional)</h3>
+<ul><li>.d.ts definitions for PanClient</li>
+<li>.d.ts definitions for PanMessage</li>
+<li>Type-safe component props</li>
+</ul>
+<hr>
+<h2>Pre-Release Checklist</h2>
+<p>Before tagging v1.0.0:</p>
+<ul><li>[ ] All CRITICAL items complete</li>
+<li>[ ] All HIGH PRIORITY items complete (or deferred to post-1.0)</li>
+<li>[ ] All tests passing (80%+ coverage)</li>
+<li>[ ] All demos working</li>
+<li>[ ] Documentation complete and reviewed</li>
+<li>[ ] CHANGELOG.md updated with all changes since 0.1.0</li>
+<li>[ ] Migration guide written (if needed)</li>
+<li>[ ] Release notes drafted</li>
+<li>[ ] Version bumped to 1.0.0 in package.json</li>
+<li>[ ] Git tag created: <code>git tag -a v1.0.0 -m "Release v1.0.0"</code></li>
+<li>[ ] npm packages published</li>
+<li>[ ] Announcement prepared (blog post, social media)</li>
+</ul>
+<hr>
+<h2>Timeline Estimate</h2>
+<p>| Phase | Duration | Completion |
+|-------|----------|------------|
+| API Lock Down | 1 week | Week 1 |
+| API Documentation | 1 week | Week 2 |
+| Browser Testing | 3-5 days | Week 3 |
+| Security Audit | 1 week | Week 3-4 |
+| Test Coverage | 1-2 weeks | Week 4-5 |
+| Performance | 3-5 days | Week 5 |
+| Packaging | 3-5 days | Week 5-6 |
+| Documentation | 1 week | Week 6 |
+| <strong>Total</strong> | <strong>4-6 weeks</strong> | <strong>End Week 6</strong> |</p>
+<hr>
+<h2>How to Proceed</h2>
+<h3>Option 1: Sequential (Safest)</h3>
+Complete each phase fully before moving to next. Ensures highest quality but takes full 6 weeks.
+<h3>Option 2: Parallel (Faster)</h3>
+Work on multiple phases simultaneously:
+<ul><li><strong>Week 1-2:</strong> API lock down + Browser testing + Security audit</li>
+<li><strong>Week 3-4:</strong> API docs + Test coverage + Performance benchmarks</li>
+<li><strong>Week 5-6:</strong> Packaging + User documentation + Final polish</li>
+</ul>
+Could complete in 4-5 weeks with parallel work.
+<h3>Option 3: MVP Approach (Fastest)</h3>
+Focus only on CRITICAL items:
+<li>Lock down APIs (1 week)</li>
+<li>API Documentation (1 week)</li>
+<li>Browser Testing (3-5 days)</li>
+<li>Security Audit (1 week)</li>
+<p>Ship v1.0 in ~3 weeks, defer HIGH PRIORITY to v1.1.</p>
+<hr>
+<strong>Recommendation:</strong> Option 2 (Parallel) - Balance speed and quality, ship in 4-5 weeks.
+<strong>Last Updated:</strong> November 2024
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/NEXT_STEPS.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

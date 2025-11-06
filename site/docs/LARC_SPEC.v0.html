@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LARC — Page Area Network (PAN) · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - LARC — Page Area Network (PAN)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>LARC_SPEC.v0</span>
+      </div>
+      <article class="docs-content">
+        <h1>LARC — Page Area Network (PAN)</h1>
+<strong>Version:</strong> 0.1 (Draft)
+<strong>Status:</strong> Proposal
+<strong>Editors:</strong> (add)
+<strong>License:</strong> MIT
+<hr>
+<h2>1. Overview</h2>
+<p>PAN is a lightweight, build-free coordination protocol and runtime for browser UIs. It provides a <strong>page-local message bus</strong> so Web Components (and other DOM-based widgets) can discover each other, publish/subscribe to topics, and perform request/response without framework coupling.</p>
+<h3>1.1 Goals</h3>
+<p>* Simple to adopt: add a <code><pan-bus></code> element; components publish/subscribe via DOM events.
+* Framework-agnostic: usable from Web Components, React/Vue/Svelte, vanilla JS, iframes.
+* Loose coupling: components depend on topic contracts, not concrete peers.
+* Inspectable: traffic can be recorded, replayed, and validated.
+* No build required; no global singletons required.</p>
+<h3>1.2 Non‑Goals</h3>
+<p>* Not a full state management framework.
+* Not a routing standard (though topics may carry navigation intents).
+* Not a network protocol; transport is strictly in‑page unless extended.</p>
+<hr>
+<h2>2. Terminology</h2>
+<p>* <strong>Bus</strong>: the orchestrator custom element <code><pan-bus></code>; maintains topic registry and relays messages.
+* <strong>Client</strong>: any producer/consumer of PAN messages (custom element, script, iframe).
+* <strong>Topic</strong>: string identifier for a message category, namespaced (e.g., <code>pan:user.update</code>).
+* <strong>Message</strong>: immutable payload published on a topic.
+* <strong>Session</strong>: lifetime of a bus instance in a page/document.</p>
+<hr>
+<h2>3. Architecture</h2>
+<p>* A single <code><pan-bus></code> instance per document is recommended (multiple allowed with explicit scoping).
+* Clients communicate with the bus via <strong>DOM <code>CustomEvent</code>s</strong> (primary transport).
+* Optional mirrors: <code>BroadcastChannel</code> (cross‑tab), <code>postMessage</code> to sandboxed iframes, <code>SharedWorker</code> cache layer.</p>
+<pre><code class="language-html">&lt;pan-bus id=&quot;bus&quot; version=&quot;0.1&quot;&gt;&lt;/pan-bus&gt;</code></pre>
+<hr>
+<h2>4. Message Model</h2>
+<h3>4.1 Type Definition (TypeScript-flavored)</h3>
+<pre><code class="language-ts">interface PanMessage&lt;T=unknown&gt; {
+  topic: string;                 // e.g., &quot;pan:user.update&quot;
+  data: T;                       // JSON-serializable payload
+  id?: string;                   // ULID/UUID; assigned by bus if missing
+  ts?: number;                   // ms since epoch; assigned by bus if missing
+  source?: string;               // client ID or element tag/id
+  replyTo?: string;              // topic for replies (RR pattern)
+  correlationId?: string;        // to join requests/replies
+  qos?: 0 | 1;                   // 0=fire-and-forget, 1=at-least-once w/ ack
+  retain?: boolean;              // retain last message on topic
+  ttlMs?: number;                // soft expiration
+  headers?: Record&lt;string,string&gt;; // meta: schema, version, trace, etc.
+}</code></pre>
+<h3>4.2 Event Envelopes</h3>
+<p>All API interactions use bubbling, composed <code>CustomEvent</code> objects so they cross shadow DOM boundaries.</p>
+<pre><code class="language-ts">interface PanPublishEvent extends CustomEvent&lt;PanMessage&gt; {
+  type: &#039;pan:publish&#039;;
+}
+interface PanSubscribeEvent extends CustomEvent&lt;PanSubscribe&gt; {
+  type: &#039;pan:subscribe&#039;;
+}
+interface PanUnsubscribeEvent extends CustomEvent&lt;PanUnsubscribe&gt; {
+  type: &#039;pan:unsubscribe&#039;;
+}
+interface PanRequestEvent extends CustomEvent&lt;PanMessage&gt; {
+  type: &#039;pan:request&#039;;           // expects reply
+}
+interface PanReplyEvent extends CustomEvent&lt;PanMessage&gt; {
+  type: &#039;pan:reply&#039;;
+}
+interface PanHelloEvent extends CustomEvent&lt;PanHello&gt; {
+  type: &#039;pan:hello&#039;;             // discovery
+}
+interface PanAckEvent extends CustomEvent&lt;PanAck&gt; {
+  type: &#039;pan:ack&#039;;               // QoS1 ack from bus→client or client→bus
+}</code></pre>
+<p>All events <strong>must</strong> be dispatched with <code>{ bubbles: true, composed: true }</code>.</p>
+<hr>
+<h2>5. Topics & Namespacing</h2>
+<p>* Hierarchical dotted paths, lowercase kebab tokens: <code>pan:user.update</code>, <code>pan:navigation.goto</code>.
+<em> Wildcards (subscription only): <code>pan:user.</em></code>, <code>*</code> (all topics) — optional depending on security policy.
+* Versioning: suffix or header, e.g., <code>pan:user.update@2</code> <strong>or</strong> <code>headers['schema'] = 'pan:user.update@2'</code>.
+<em> Reserved prefixes: <code>pan:$</code> for control/meta; <code>pan:sys.</em></code> for bus diagnostics.</p>
+<hr>
+<h2>6. Discovery</h2>
+<p>Clients announce themselves and capabilities.</p>
+<pre><code class="language-ts">interface PanHello { id?: string; caps?: string[]; wants?: string[]; version?: string }
+// Client → Bus
+node.dispatchEvent(new CustomEvent(&#039;pan:hello&#039;, { detail: { id: &#039;x-foo#1&#039;, caps:[&#039;ui&#039;,&#039;fetch&#039;] }, bubbles:true, composed:true }));
+// Bus → Client reply on &#039;pan:$hello.reply&#039;</code></pre>
+<p>Bus maintains a registry of <code>clientId → { element, caps }</code> for inspection and targeted messaging.</p>
+<hr>
+<h2>7. Subscription API</h2>
+<pre><code class="language-ts">interface PanSubscribe {
+  clientId?: string;             // bus assigns if absent
+  topics: string[];              // allowed wildcards if policy permits
+  options?: {
+    retained?: boolean;          // immediately receive last retained message per topic
+    filter?: Record&lt;string, unknown&gt;; // optional header/data matchers
+    signal?: AbortSignal;        // auto-unsubscribe on abort
+  }
+}</code></pre>
+<p>* Bus emits messages to subscribers via a <strong>DOM event</strong> targeted at the subscriber element:</p>
+<p>* Event type: <code>pan:deliver</code>
+  * <code>detail</code>: <code>PanMessage</code>
+* Unsubscribe mirrors subscribe with <code>PanUnsubscribe</code> (same shape, or <code>signal.abort()</code>).</p>
+<hr>
+<h2>8. Publish & Request/Reply</h2>
+<h3>8.1 Publish</h3>
+<pre><code class="language-js">node.dispatchEvent(new CustomEvent(&#039;pan:publish&#039;, {
+  detail: { topic:&#039;pan:user.update&#039;, data:{ id:&#039;u1&#039;, name:&#039;Ada&#039; }, retain:true },
+  bubbles:true, composed:true
+}));</code></pre>
+<h3>8.2 Request/Reply</h3>
+<pre><code class="language-js">// Requester
+const correlationId = crypto.randomUUID();
+node.dispatchEvent(new CustomEvent(&#039;pan:request&#039;, {
+  detail: { topic:&#039;pan:data.get&#039;, data:{ key:&#039;users&#039; }, replyTo:&#039;pan:$reply&#039;, correlationId },
+  bubbles:true, composed:true
+}));
+// Replier (subscriber to pan:data.get)
+// on receipt, reply
+node.dispatchEvent(new CustomEvent(&#039;pan:reply&#039;, {
+  detail: { topic:&#039;pan:$reply&#039;, correlationId, data:{ users:[/*...*/] } },
+  bubbles:true, composed:true
+}));</code></pre>
+<p>* Bus may provide a convenience RPC wrapper (see §13 Helper API).</p>
+<hr>
+<h2>9. QoS & Backpressure</h2>
+<p>* <code>qos:0</code> (default): deliver best-effort; no ack.
+* <code>qos:1</code>: bus requires a <code>pan:ack</code> from each subscribed client; if missing after <code>ackTimeoutMs</code>, it retries or logs.
+* Bus implements <strong>coalescing</strong> per topic and optional <strong>rate limits</strong> per publisher. Recommended defaults:</p>
+<p>* <code>deliverBatchMax=64</code>, <code>deliverIntervalMs=8</code>, <code>maxQueueDepth=10_000</code> (drop oldest with warning when exceeded).</p>
+<hr>
+<h2>10. Retained Messages & Snapshots</h2>
+<p>* If <code>retain:true</code>, bus stores the <strong>last</strong> message per topic and immediately delivers it to new subscribers (if <code>options.retained</code>).
+* Bus exposes snapshot API via control topic <code>pan:sys.snapshot</code> returning <code>{ topics: string[], counts, retained }</code>.</p>
+<hr>
+<h2>11. Schema & Validation</h2>
+<p>* Each topic <strong>should</strong> define a JSON Schema (<code>$id = topic@version</code>).
+* Bus can validate on publish; invalid messages produce <code>pan:sys.error</code> with <code>{ code:'SCHEMA_VIOLATION', details }</code>.
+* Suggested headers: <code>headers: { schema: 'pan:user.update@2' }</code>.</p>
+<hr>
+<h2>12. Security Model</h2>
+<p>* <strong>Trust domains</strong>:</p>
+<p>* Same-origin components: full access by default.
+  * Cross-origin iframes: must communicate via a gateway component (see §15) with an allowlist.
+* <strong>Permissions</strong>: optional policy map <code>topic → { publish:[roles], subscribe:[roles] }</code>.
+* <strong>Sanitization</strong>: data must be JSON-serializable; functions/DOM nodes rejected.
+* <strong>Isolation</strong>: sensitive providers can be sandboxed in iframes; gateway validates topics & schemas.</p>
+<hr>
+<h2>13. Helper API (Reference)</h2>
+<p>A tiny helper for clients; pure ES module, no build.</p>
+<pre><code class="language-ts">class PanClient {
+  constructor(host: HTMLElement | Document = document, busSelector = &#039;pan-bus&#039;) {}
+  async ready(): Promise&lt;void&gt; {}
+  publish&lt;T&gt;(msg: PanMessage&lt;T&gt;): void {}
+  subscribe(topics: string | string[], handler: (m: PanMessage)=&gt;void, opts?: { retained?: boolean, signal?: AbortSignal }): () =&gt; void {}
+  request&lt;TReq, TRes&gt;(topic: string, data: TReq, opts?: { timeoutMs?: number, schema?: string }): Promise&lt;PanMessage&lt;TRes&gt;&gt; {}
+}</code></pre>
+<p>Minimal semantics:</p>
+<p>* <code>ready()</code> resolves when the bus announces <code>pan:sys.ready</code>.
+* <code>subscribe()</code> returns an unsubscribe function and auto-uses an <code>AbortSignal</code> if provided.
+* <code>request()</code> handles correlation, temporary <code>replyTo</code>, and timeout.</p>
+<hr>
+<h2>14. Control & Diagnostics Topics</h2>
+<p>* <code>pan:sys.ready</code> — fired when bus starts.
+* <code>pan:sys.clients</code> — query list of clients/caps.
+* <code>pan:sys.snapshot</code> — retained topics & counts.
+* <code>pan:sys.log</code> — structured log stream from bus.
+* <code>pan:sys.error</code> — standardized errors:</p>
+<pre><code class="language-ts">interface PanError { code: string; message: string; cause?: unknown; correlationId?: string }</code></pre>
+<hr>
+<h2>15. Cross‑Context Bridges (Optional)</h2>
+<p>* <strong>BroadcastChannel('pan')</strong> mirror for multi‑tab sync:</p>
+<em> Mirrored topics must be declared in bus attr: <code>mirror-topics="pan:user.</em> pan:settings.*"</code>.
+* <strong>Iframe Gateway</strong>:
+<em> Embedded <code><pan-gateway target="https://example.com" allow-topics="pan:public.</em>"></code> translates PAN⇆<code>postMessage</code>.
+  * Gateway validates <code>origin</code>, topic allowlist, and schemas.
+* <strong>SharedWorker cache</strong> for data providers to dedupe network fetches across tabs.
+<hr>
+<h2>16. Lifecycle</h2>
+<p>* Bus boot:</p>
+<p>1. Initialize registries and retained store
+  2. Attach listeners for <code>pan:*</code> events at <code>document</code>
+  3. Emit <code>pan:sys.ready</code></p>
+<p>* Client boot:</p>
+<p>1. Wait for <code>pan:sys.ready</code> (or poll for <code>pan-bus</code>)
+  2. Dispatch <code>pan:hello</code>
+  3. Subscribe to topics</p>
+<p>* Cleanup: clients must unsubscribe or provide <code>AbortSignal</code>; bus purges dead targets on GC signals or delivery failures.</p>
+<hr>
+<h2>17. Shadow DOM Rules</h2>
+<p>* All bus-bound events <strong>must</strong> use <code>{ bubbles:true, composed:true }</code>.
+* Delivery events target the subscriber element; for closed shadow roots, delivery targets the host element.</p>
+<hr>
+<h2>18. Versioning & Capability Negotiation</h2>
+<p>* Semver for topic schemas; clients may advertise <code>caps: ['pan:user.update@^2', 'pan:data.get@~1.3']</code>.
+* Bus exposes <code>supports(schemaRange: string): boolean</code> via control request <code>pan:$supports</code>.</p>
+<hr>
+<h2>19. Performance Guidance</h2>
+<p>* Prefer coarse topics plus fine-grained fields over chatty micro-topics.
+* Batch deliveries per animation frame; coalesce duplicate retained updates.
+* Avoid large payloads (>100KB); use references to caches or streams.</p>
+<hr>
+<h2>20. Accessibility Guidance</h2>
+<p>* PAN must not be the only trigger path; all user actions should map to semantic controls.
+* Announce significant state changes via ARIA‑friendly components, not just PAN traffic.</p>
+<hr>
+<h2>21. Compliance Tests (CT)</h2>
+<p>* CT‑01: subscribe receives retained on join when <code>retained:true</code>.
+* CT‑02: wildcard subscription respects allowlist.
+* CT‑03: request/reply correlation within timeout.
+* CT‑04: schema validation rejects and logs error.
+* CT‑05: shadow DOM crossing works with <code>composed:true</code>.</p>
+<hr>
+<h2>22. Minimal Reference Implementation Sketch</h2>
+<pre><code class="language-html">&lt;pan-bus id=&quot;bus&quot;&gt;&lt;/pan-bus&gt;
+&lt;script type=&quot;module&quot;&gt;
+class PanBus extends HTMLElement {
+  registry = new Map();        // clientId -&gt; element
+  subs = new Map();            // topic -&gt; Set(clientId)
+  retained = new Map();        // topic -&gt; PanMessage
+  connectedCallback() {
+    this.addEventListener(&#039;pan:publish&#039;, this.onPublish, { capture:true });
+    this.addEventListener(&#039;pan:request&#039;, this.onRequest, { capture:true });
+    this.addEventListener(&#039;pan:reply&#039;, this.onReply, { capture:true });
+    this.addEventListener(&#039;pan:subscribe&#039;, this.onSubscribe, { capture:true });
+    this.addEventListener(&#039;pan:unsubscribe&#039;, this.onUnsubscribe, { capture:true });
+    this.addEventListener(&#039;pan:hello&#039;, this.onHello, { capture:true });
+    queueMicrotask(()=&gt;document.dispatchEvent(new CustomEvent(&#039;pan:sys.ready&#039;, { bubbles:true, composed:true })));
+  }
+  // ...handlers deliver via target.dispatchEvent(new CustomEvent(&#039;pan:deliver&#039;, {detail:m}))
+}
+customElements.define(&#039;pan-bus&#039;, PanBus);
+&lt;/script&gt;</code></pre>
+<hr>
+<h2>23. Example Topics (Starter Set)</h2>
+<p>* <code>pan:navigation.goto</code> — <code>{ href:string, replace?:boolean }</code>
+* <code>pan:user.update</code> — <code>{ id:string, name?:string, email?:string }</code>
+* <code>pan:settings.set</code> — <code>{ key:string, value:any }</code>
+* <code>pan:data.get</code> / <code>pan:data.put</code> — <code>{ key:string, value?:any }</code></p>
+<hr>
+<h2>24. Open Questions</h2>
+<p>* Should the bus support Streams (ReadableStream) as payload references?
+* Built‑in persistence (IndexedDB) for retained topics?
+* Formal ACL spec vs pluggable policy hooks?</p>
+<hr>
+<h2>25. Next Steps</h2>
+<p>* Publish JSON Schemas for starter topics.
+* Ship <code>pan-client</code> helper (1KB gz).
+* Build PAN Inspector (traffic console + replay).
+* Author compliance test suite (Web Test Runner).</p>
+<hr>
+<h2>26. CRUD Suite v1 (Draft)</h2>
+<p>This section specifies a minimal, interoperable contract for CRUD-style components communicating over PAN. It defines topics, message shapes, and component roles so tables, forms, and connectors can be mixed-and-matched.</p>
+<h3>26.1 Topics</h3>
+<ul><li>List request: <code>${resource}.list.get</code> with <code>data?: { page?, size?, sort?, filter? }</code></li>
+</ul>  - Provider optionally replies on <code>replyTo</code> with <code>{ items, page?, size?, total? }</code>.
+  - Provider publishes <code>${resource}.list.state</code> with <code>{ items, page?, size?, total? }</code> and <code>retain:true</code>.
+<ul><li>List state: <code>${resource}.list.state</code> (retained snapshot for subscribers with <code>retained:true</code>).</li>
+<li>Item select: <code>${resource}.item.select</code> with <code>{ id }</code> (view → provider hint; no reply required).</li>
+<li>Item get: <code>${resource}.item.get</code> with <code>{ id }</code> → reply <code>{ ok:boolean, item?:object, error?:any }</code>.</li>
+<li>Item save: <code>${resource}.item.save</code> with <code>{ item:object }</code> → reply <code>{ ok:boolean, item?:object, error?:any }</code>.</li>
+<li>Item delete: <code>${resource}.item.delete</code> with <code>{ id }</code> → reply <code>{ ok:boolean, id?:string|number, error?:any }</code>.</li>
+</ul>
+Notes:
+<ul><li>Providers SHOULD publish an updated <code>${resource}.list.state</code> after save/delete.</li>
+<li>Providers SHOULD accept <code>key</code> other than <code>id</code> (attribute or header-driven), but reply payloads MUST include the resolved identifier.</li>
+<li>Versioning MAY be conveyed via topic suffix <code>@N</code> or header <code>schema: '<topic>@<N>'</code>.</li>
+</ul>
+<h3>26.2 Component Roles</h3>
+<ul><li>Data Table (<code><pan-data-table></code>): subscribes to <code>${resource}.list.state</code> (retained), renders tabular rows, and publishes <code>${resource}.item.select</code> on row click. Attributes: <code>resource</code>, <code>columns</code>, optional <code>key</code>.</li>
+<li>Form (<code><pan-form></code>): listens for <code>${resource}.item.select</code>, requests <code>${resource}.item.get</code>, and publishes <code>${resource}.item.save</code> / <code>${resource}.item.delete</code>. Attributes: <code>resource</code>, <code>fields</code>, optional <code>key</code>.</li>
+<li>Mock Provider (<code><pan-data-provider></code>): in-memory storage, optional localStorage persistence; handles CRUD topics and publishes list state.</li>
+<li>REST Connector (<code><pan-data-connector></code>): maps CRUD topics to HTTP endpoints. Attributes: <code>base-url</code>, optional <code>list-path</code>, <code>item-path</code>, <code>update-method</code>, <code>credentials</code>. Accepts child JSON for fetch options.</li>
+</ul>
+<h3>26.3 Error Semantics</h3>
+<ul><li>On failure, providers SHOULD reply <code>{ ok:false, error }</code> on the original request's <code>replyTo</code>; <code>error</code> MAY include <code>status</code>, <code>statusText</code>, and parsed body when applicable.</li>
+<li>Providers MAY also emit <code>*.error</code> event topics for ambient error displays.</li>
+</ul>
+<h3>26.4 Security & Privacy</h3>
+<ul><li>Only mirror non-sensitive topics across tabs (e.g., view filters). Do not mirror PII or secrets.</li>
+<li>Keep payload sizes small; consider pagination and server-side filtering.</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/LARC_SPEC.v0.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

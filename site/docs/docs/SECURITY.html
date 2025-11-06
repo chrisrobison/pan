@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Security Guide · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Security Guide">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>SECURITY</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Security Guide</h1>
+<p>This guide covers security best practices, threat models, and recommended configurations for using PAN in production environments.</p>
+<h2>Table of Contents</h2>
+<li><a href="#threat-model">Threat Model</a></li>
+<li><a href="#memory-safety">Memory Safety</a></li>
+<li><a href="#message-validation">Message Validation</a></li>
+<li><a href="#content-security-policy-csp">Content Security Policy (CSP)</a></li>
+<li><a href="#wildcard-subscriptions">Wildcard Subscriptions</a></li>
+<li><a href="#rate-limiting">Rate Limiting</a></li>
+<li><a href="#xss-prevention">XSS Prevention</a></li>
+<li><a href="#component-security">Component Security</a></li>
+<li><a href="#production-checklist">Production Checklist</a></li>
+<hr>
+<h2>Threat Model</h2>
+<h3>Assumptions</h3>
+<p>PAN assumes all code running in the same JavaScript context is <strong>trusted</strong>. PAN provides:</p>
+<ul><li>✅ <strong>Memory safety</strong> - Prevents unbounded memory growth</li>
+<li>✅ <strong>Input validation</strong> - Validates message structure and size</li>
+<li>✅ <strong>Rate limiting</strong> - Prevents message flooding</li>
+<li>✅ <strong>Audit logging</strong> - Tracks bus activity</li>
+</ul>
+PAN does <strong>NOT</strong> provide:
+<ul><li>❌ <strong>Code sandboxing</strong> - All components share the same bus</li>
+<li>❌ <strong>Encryption</strong> - Messages are plain objects in memory</li>
+<li>❌ <strong>Authentication</strong> - No built-in access control</li>
+</ul>
+<h3>Trust Boundaries</h3>
+<pre><code class="language-plaintext">┌─────────────────────────────────────┐
+│  Same-Origin Context (TRUSTED)      │
+│  ┌────────────┐  ┌────────────┐    │
+│  │  pan-bus   │  │ Component  │    │
+│  └────────────┘  └────────────┘    │
+│         ↕               ↕            │
+│    CustomEvents (trusted)           │
+└─────────────────────────────────────┘
+         ↕ postMessage
+┌─────────────────────────────────────┐
+│  Cross-Origin iframe (UNTRUSTED)    │
+│  Requires pan-gateway with          │
+│  topic allowlisting                 │
+└─────────────────────────────────────┘</code></pre>
+<hr>
+<h2>Memory Safety</h2>
+<h3>Problem: Unbounded Retained Messages</h3>
+<p>Without limits, retained messages can grow indefinitely:</p>
+<pre><code class="language-javascript">// BAD: Can exhaust memory
+for (let i = 0; i &lt; 1000000; i++) {
+  client.publish({
+    topic: `sensor.${i}`,
+    data: { value: Math.random() },
+    retain: true  // Each creates a new retained message!
+  });
+}</code></pre>
+<h3>Solution: Use Enhanced Bus with Limits</h3>
+<pre><code class="language-html">&lt;!-- Configure memory limits --&gt;
+&lt;pan-bus-enhanced
+  max-retained=&quot;1000&quot;
+  max-message-size=&quot;1048576&quot;
+  debug=&quot;true&quot;&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre>
+<pre><code class="language-javascript">// Messages beyond limit are evicted (LRU)
+for (let i = 0; i &lt; 2000; i++) {
+  client.publish({
+    topic: `sensor.${i}`,
+    data: { value: Math.random() },
+    retain: true
+  });
+}
+// Only 1000 most recent are kept</code></pre>
+<h3>Monitoring Memory Usage</h3>
+<pre><code class="language-javascript">// Request bus statistics
+client.publish({ topic: &#039;pan:sys.stats&#039;, data: {} });
+
+client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
+  console.log(&#039;Bus stats:&#039;, msg.data);
+  // {
+  //   published: 12543,
+  //   delivered: 50172,
+  //   retained: 850,
+  //   retainedEvicted: 150,
+  //   subscriptions: 23
+  // }
+});</code></pre>
+<hr>
+<h2>Message Validation</h2>
+<h3>JSON-Serializable Data Only</h3>
+<p>PAN automatically validates that message data is JSON-serializable:</p>
+<pre><code class="language-javascript">// ✅ GOOD: These work
+client.publish({ topic: &#039;test&#039;, data: { name: &#039;Alice&#039; } });
+client.publish({ topic: &#039;test&#039;, data: [1, 2, 3] });
+client.publish({ topic: &#039;test&#039;, data: &#039;string&#039; });
+client.publish({ topic: &#039;test&#039;, data: 42 });
+client.publish({ topic: &#039;test&#039;, data: null });
+
+// ❌ BAD: These will be rejected
+client.publish({ topic: &#039;test&#039;, data: document.body });  // DOM node
+client.publish({ topic: &#039;test&#039;, data: () =&gt; {} });       // Function
+client.publish({ topic: &#039;test&#039;, data: new Map() });      // Not serializable
+
+// Handle circular references
+const obj = { name: &#039;Alice&#039; };
+obj.self = obj;  // Circular!
+client.publish({ topic: &#039;test&#039;, data: obj });  // ❌ Rejected</code></pre>
+<h3>Error Handling</h3>
+<pre><code class="language-javascript">// Listen for validation errors
+client.subscribe(&#039;pan:sys.error&#039;, (msg) =&gt; {
+  console.error(&#039;PAN Error:&#039;, msg.data);
+  // {
+  //   code: &#039;MESSAGE_INVALID&#039;,
+  //   message: &#039;Circular references are not allowed&#039;,
+  //   details: { topic: &#039;test&#039; }
+  // }
+});</code></pre>
+<h3>Size Limits</h3>
+<pre><code class="language-javascript">// Configure size limits
+&lt;pan-bus-enhanced
+  max-message-size=&quot;1048576&quot;    &lt;!-- 1MB total --&gt;
+  max-payload-size=&quot;524288&quot;&gt;    &lt;!-- 512KB data --&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre>
+<pre><code class="language-javascript">// Large messages are rejected
+const hugeData = new Array(1000000).fill(&#039;x&#039;).join(&#039;&#039;);
+client.publish({
+  topic: &#039;test&#039;,
+  data: { huge: hugeData }  // ❌ Rejected if &gt; 512KB
+});</code></pre>
+<hr>
+<h2>Content Security Policy (CSP)</h2>
+<h3>Recommended CSP Headers</h3>
+<p>For maximum security, use strict CSP headers:</p>
+<pre><code class="language-html">&lt;!-- Strict CSP (recommended for production) --&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;
+  default-src &#039;self&#039;;
+  script-src &#039;self&#039;;
+  style-src &#039;self&#039; &#039;unsafe-inline&#039;;
+  img-src &#039;self&#039; data: https:;
+  font-src &#039;self&#039;;
+  connect-src &#039;self&#039;;
+  frame-src &#039;none&#039;;
+  object-src &#039;none&#039;;
+  base-uri &#039;self&#039;;
+  form-action &#039;self&#039;;
+&quot;&gt;</code></pre>
+<h3>CSP-Compatible PAN Usage</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;
+    default-src &#039;self&#039;;
+    script-src &#039;self&#039;;
+  &quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- ✅ Works with CSP --&gt;
+  &lt;script type=&quot;module&quot; src=&quot;/pan/core/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quot;/pan/core/pan-client.mjs&quot;&gt;&lt;/script&gt;
+
+  &lt;pan-bus-enhanced&gt;&lt;/pan-bus-enhanced&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import { PanClient } from &#039;/pan/core/pan-client.mjs&#039;;
+    const client = new PanClient();
+    // ... your code
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h3>Avoiding CSP Violations</h3>
+<pre><code class="language-javascript">// ❌ BAD: Inline event handlers violate CSP
+&lt;button onclick=&quot;handleClick()&quot;&gt;Click&lt;/button&gt;
+
+// ✅ GOOD: Use addEventListener
+&lt;button id=&quot;myButton&quot;&gt;Click&lt;/button&gt;
+&lt;script type=&quot;module&quot;&gt;
+  document.getElementById(&#039;myButton&#039;)
+    .addEventListener(&#039;click&#039;, handleClick);
+&lt;/script&gt;
+
+// ❌ BAD: eval() violates CSP
+eval(&#039;alert(&quot;test&quot;)&#039;);
+
+// ✅ GOOD: Don&#039;t use eval, use structured data
+client.publish({ topic: &#039;action&#039;, data: { type: &#039;alert&#039;, msg: &#039;test&#039; } });</code></pre>
+<hr>
+<h2>Wildcard Subscriptions</h2>
+<h3>Security Risk</h3>
+<p>Global wildcard subscriptions can expose sensitive data:</p>
+<pre><code class="language-javascript">// ⚠️ DANGEROUS: Sees ALL messages on the bus
+client.subscribe(&#039;*&#039;, (msg) =&gt; {
+  console.log(&#039;Intercepted:&#039;, msg.topic, msg.data);
+  // Could capture passwords, tokens, PII, etc.
+});</code></pre>
+<h3>Mitigation: Disable Global Wildcards</h3>
+<pre><code class="language-html">&lt;!-- Disable global wildcard in production --&gt;
+&lt;pan-bus-enhanced allow-global-wildcard=&quot;false&quot;&gt;&lt;/pan-bus-enhanced&gt;</code></pre>
+<pre><code class="language-javascript">// Now this will be rejected
+client.subscribe(&#039;*&#039;, handler);
+// Error: Global wildcard (*) is disabled for security</code></pre>
+<h3>Safe Wildcard Usage</h3>
+<pre><code class="language-javascript">// ✅ GOOD: Scoped wildcards are fine
+client.subscribe(&#039;users.*&#039;, handler);         // Only user topics
+client.subscribe(&#039;app.settings.*&#039;, handler);  // Only app settings</code></pre>
+<h3>Topic Namespacing</h3>
+<p>Use topic prefixes to isolate sensitive data:</p>
+<pre><code class="language-javascript">// Public topics (okay to wildcard)
+&#039;public.news.*&#039;
+&#039;public.weather.*&#039;
+
+// Private topics (no wildcards)
+&#039;private.user.session&#039;
+&#039;private.auth.token&#039;
+
+// Internal topics (restricted)
+&#039;internal.admin.*&#039;</code></pre>
+<hr>
+<h2>Rate Limiting</h2>
+<h3>Problem: Message Flooding</h3>
+<p>Without rate limiting, malicious or buggy code can flood the bus:</p>
+<pre><code class="language-javascript">// BAD: Can DoS the bus
+setInterval(() =&gt; {
+  for (let i = 0; i &lt; 1000; i++) {
+    client.publish({ topic: &#039;spam&#039;, data: i });
+  }
+}, 10);  // 100,000 messages per second!</code></pre>
+<h3>Solution: Per-Client Rate Limits</h3>
+<pre><code class="language-html">&lt;pan-bus-enhanced
+  rate-limit=&quot;1000&quot;
+  rate-limit-window=&quot;1000&quot;&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre>
+<pre><code class="language-javascript">// Client is limited to 1000 messages per second
+// Excess messages are dropped and error is emitted
+
+client.subscribe(&#039;pan:sys.error&#039;, (msg) =&gt; {
+  if (msg.data.code === &#039;RATE_LIMIT_EXCEEDED&#039;) {
+    console.warn(&#039;Rate limit hit:&#039;, msg.data.details);
+  }
+});</code></pre>
+<h3>Recommended Limits by Environment</h3>
+<pre><code class="language-javascript">// Development
+&lt;pan-bus-enhanced rate-limit=&quot;10000&quot;&gt;&lt;/pan-bus-enhanced&gt;  // Permissive
+
+// Staging
+&lt;pan-bus-enhanced rate-limit=&quot;1000&quot;&gt;&lt;/pan-bus-enhanced&gt;   // Moderate
+
+// Production
+&lt;pan-bus-enhanced rate-limit=&quot;500&quot;&gt;&lt;/pan-bus-enhanced&gt;    // Conservative</code></pre>
+<hr>
+<h2>XSS Prevention</h2>
+<h3>Never Render Untrusted HTML</h3>
+<pre><code class="language-javascript">// ❌ DANGEROUS: XSS vulnerability
+client.subscribe(&#039;chat.message&#039;, (msg) =&gt; {
+  document.body.innerHTML += msg.data.html;  // XSS!
+});
+
+// ✅ SAFE: Use textContent
+client.subscribe(&#039;chat.message&#039;, (msg) =&gt; {
+  const p = document.createElement(&#039;p&#039;);
+  p.textContent = msg.data.text;  // Escaped automatically
+  document.body.appendChild(p);
+});</code></pre>
+<h3>Sanitize Markdown</h3>
+<p>If using <code>pan-markdown-renderer</code>, always sanitize:</p>
+<pre><code class="language-javascript">// ⚠️ Components like pan-markdown-renderer need audit
+&lt;pan-markdown-renderer sanitize=&quot;true&quot;&gt;&lt;/pan-markdown-renderer&gt;</code></pre>
+<h3>URL Validation</h3>
+<pre><code class="language-javascript">// ❌ DANGEROUS: javascript: URLs
+client.subscribe(&#039;link.clicked&#039;, (msg) =&gt; {
+  window.location = msg.data.url;  // Can be &quot;javascript:alert(1)&quot;
+});
+
+// ✅ SAFE: Validate protocol
+client.subscribe(&#039;link.clicked&#039;, (msg) =&gt; {
+  const url = new URL(msg.data.url);
+  if (url.protocol === &#039;http:&#039; || url.protocol === &#039;https:&#039;) {
+    window.location = url.href;
+  }
+});</code></pre>
+<hr>
+<h2>Component Security</h2>
+<h3>Components Requiring Audit (v1.0)</h3>
+<p>These components handle user input and need security review:</p>
+<li><strong>pan-markdown-renderer</strong> - XSS via malicious Markdown</li>
+<li><strong>pan-files</strong> - Path traversal attacks</li>
+<li><strong>pan-form</strong> - Input validation bypass</li>
+<li><strong>pan-php-connector</strong> - SQL injection (server-side)</li>
+<li><strong>pan-graphql-connector</strong> - Query injection</li>
+<h3>Safe Component Usage</h3>
+<pre><code class="language-javascript">// ✅ Use with caution in production
+// 1. Review component source
+// 2. Test with malicious input
+// 3. Use in sandboxed context if possible
+// 4. Monitor for suspicious activity
+
+// Example: Sandboxed markdown renderer
+&lt;iframe sandbox=&quot;allow-same-origin&quot; srcdoc=&quot;
+  &lt;pan-markdown-renderer&gt;&lt;/pan-markdown-renderer&gt;
+&quot;&gt;&lt;/iframe&gt;</code></pre>
+<hr>
+<h2>Production Checklist</h2>
+<h3>Before Deployment</h3>
+<ul><li>[ ] <strong>Enable enhanced bus</strong> with memory limits</li>
+<li>[ ] <strong>Disable global wildcards</strong> (<code>allow-global-wildcard="false"</code>)</li>
+<li>[ ] <strong>Set rate limits</strong> appropriate for your app</li>
+<li>[ ] <strong>Enable debug logging</strong> in staging, disable in prod</li>
+<li>[ ] <strong>Implement error monitoring</strong> for <code>pan:sys.error</code> events</li>
+<li>[ ] <strong>Review all components</strong> for security issues</li>
+<li>[ ] <strong>Set strict CSP headers</strong></li>
+<li>[ ] <strong>Validate all user input</strong> before publishing</li>
+<li>[ ] <strong>Use topic namespacing</strong> for sensitive data</li>
+<li>[ ] <strong>Monitor bus statistics</strong> for anomalies</li>
+</ul>
+<h3>Configuration Example</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;title&gt;Production App&lt;/title&gt;
+
+  &lt;!-- Strict CSP --&gt;
+  &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;
+    default-src &#039;self&#039;;
+    script-src &#039;self&#039;;
+    style-src &#039;self&#039; &#039;unsafe-inline&#039;;
+    connect-src &#039;self&#039; https://api.example.com;
+  &quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- Secure bus configuration --&gt;
+  &lt;pan-bus-enhanced
+    max-retained=&quot;500&quot;
+    max-message-size=&quot;524288&quot;
+    rate-limit=&quot;500&quot;
+    allow-global-wildcard=&quot;false&quot;
+    debug=&quot;false&quot;&gt;
+  &lt;/pan-bus-enhanced&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import { PanClient } from &#039;/pan/core/pan-client.mjs&#039;;
+
+    const client = new PanClient();
+
+    // Error monitoring
+    client.subscribe(&#039;pan:sys.error&#039;, (msg) =&gt; {
+      // Log to monitoring service
+      console.error(&#039;PAN Error:&#039;, msg.data);
+      sendToMonitoring(msg.data);
+    });
+
+    // Periodically check bus health
+    setInterval(() =&gt; {
+      client.publish({ topic: &#039;pan:sys.stats&#039;, data: {} });
+    }, 60000);
+
+    client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
+      const { retained, subscriptions, errors } = msg.data;
+      if (errors &gt; 100) {
+        console.warn(&#039;High error rate detected&#039;);
+      }
+      if (retained &gt; 400) {
+        console.warn(&#039;Approaching retained message limit&#039;);
+      }
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h3>Monitoring</h3>
+<pre><code class="language-javascript">// Prometheus-style metrics
+client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
+  const metrics = {
+    &#039;pan_messages_published_total&#039;: msg.data.published,
+    &#039;pan_messages_delivered_total&#039;: msg.data.delivered,
+    &#039;pan_messages_dropped_total&#039;: msg.data.dropped,
+    &#039;pan_retained_messages&#039;: msg.data.retained,
+    &#039;pan_active_subscriptions&#039;: msg.data.subscriptions,
+    &#039;pan_errors_total&#039;: msg.data.errors
+  };
+
+  // Export to monitoring system
+  pushMetrics(metrics);
+});</code></pre>
+<hr>
+<h2>Incident Response</h2>
+<h3>Detecting Attacks</h3>
+<pre><code class="language-javascript">// Detect suspicious patterns
+client.subscribe(&#039;*&#039;, (msg) =&gt; {
+  // Check for suspicious topics
+  if (msg.topic.includes(&#039;..&#039;) || msg.topic.includes(&#039;admin&#039;)) {
+    logSecurityEvent(&#039;SUSPICIOUS_TOPIC&#039;, msg);
+  }
+
+  // Check for large payloads
+  if (JSON.stringify(msg.data).length &gt; 100000) {
+    logSecurityEvent(&#039;LARGE_PAYLOAD&#039;, msg);
+  }
+
+  // Check for high frequency from one source
+  trackMessageRate(msg.clientId);
+});</code></pre>
+<h3>Emergency Shutdown</h3>
+<pre><code class="language-javascript">// Clear all retained messages
+client.publish({ topic: &#039;pan:sys.clear-retained&#039;, data: {} });
+
+// Or clear specific pattern
+client.publish({
+  topic: &#039;pan:sys.clear-retained&#039;,
+  data: { pattern: &#039;compromised.*&#039; }
+});</code></pre>
+<hr>
+<h2>Additional Resources</h2>
+<ul><li><a href="./API_SECURITY.md">API Security Best Practices</a></li>
+<li><a href="./SECURITY_AUDIT_TEMPLATE.md">Component Security Audit Template</a></li>
+<li><a href="./PENTEST_GUIDE.md">Penetration Testing Guide</a></li>
+<li><a href="../SECURITY.md">CVE Disclosure Process</a></li>
+</ul>
+<hr>
+<h2>Reporting Security Issues</h2>
+<strong>DO NOT</strong> file public issues for security vulnerabilities.
+<p>Email: security@example.com (encrypted preferred)</p>
+<p>PGP Key: [link to public key]</p>
+<p>We aim to respond within 48 hours.</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/SECURITY.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

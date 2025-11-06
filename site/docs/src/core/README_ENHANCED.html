@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Core: Basic vs Enhanced · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Core: Basic vs Enhanced">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">src</a> / <a href="#">core</a> / <span>README_ENHANCED</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Core: Basic vs Enhanced</h1>
+<p>This directory contains two versions of the PAN bus:</p>
+<h2>🔹 <code>pan-bus.mjs</code> - Basic Bus</h2>
+<strong>Best for:</strong> Prototypes, demos, learning
+<strong>Features:</strong>
+<ul><li>✅ Lightweight (~290 LOC)</li>
+<li>✅ Zero dependencies</li>
+<li>✅ Simple API</li>
+<li>✅ Fast (300k+ msg/sec)</li>
+</ul>
+<strong>Limitations:</strong>
+<ul><li>⚠️ No memory limits</li>
+<li>⚠️ No rate limiting</li>
+<li>⚠️ No validation</li>
+<li>⚠️ Manual cleanup required</li>
+</ul>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan-bus.mjs&quot;&gt;&lt;/script&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;</code></pre>
+<hr>
+<h2>🔸 <code>pan-bus-enhanced.mjs</code> - Enhanced Bus</h2>
+<strong>Best for:</strong> Production, enterprise, security-sensitive apps
+<strong>Features:</strong>
+<ul><li>✅ Memory-bounded (LRU eviction)</li>
+<li>✅ Rate limiting (per-client)</li>
+<li>✅ Message validation</li>
+<li>✅ Automatic cleanup</li>
+<li>✅ Security policies</li>
+<li>✅ Debug mode</li>
+<li>✅ Statistics API</li>
+<li>✅ Error reporting</li>
+</ul>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
+&lt;pan-bus-enhanced
+  max-retained=&quot;1000&quot;
+  rate-limit=&quot;1000&quot;
+  allow-global-wildcard=&quot;false&quot;&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre>
+<hr>
+<h2>Quick Comparison</h2>
+<p>| Feature | Basic | Enhanced |
+|---------|-------|----------|
+| Size | 290 LOC | 640 LOC |
+| Memory Safe | ❌ | ✅ |
+| Rate Limiting | ❌ | ✅ |
+| Validation | ❌ | ✅ |
+| Auto Cleanup | ❌ | ✅ |
+| Security Policies | ❌ | ✅ |
+| Statistics | ❌ | ✅ |
+| Debug Mode | ❌ | ✅ |
+| Configuration | ❌ | ✅ (attributes) |
+| Performance | 300k/sec | 285k/sec |
+| Drop-in Replace | - | ✅ |</p>
+<hr>
+<h2>When to Use Each</h2>
+<h3>Use Basic Bus When:</h3>
+<ul><li>🎓 Learning PAN</li>
+<li>🚀 Rapid prototyping</li>
+<li>📝 Simple demos</li>
+<li>🏃 Maximum performance needed</li>
+<li>💡 Memory usage controlled by app</li>
+</ul>
+<h3>Use Enhanced Bus When:</h3>
+<ul><li>🏢 Production deployment</li>
+<li>🔒 Security-sensitive data</li>
+<li>📊 Need monitoring/metrics</li>
+<li>💾 Long-running applications</li>
+<li>🛡️ Untrusted components</li>
+<li>🌐 Enterprise environments</li>
+</ul>
+<hr>
+<h2>Migration</h2>
+<strong>It's a drop-in replacement!</strong>
+<pre><code class="language-html">&lt;!-- Change this: --&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+
+&lt;!-- To this: --&gt;
+&lt;pan-bus-enhanced&gt;&lt;/pan-bus-enhanced&gt;</code></pre>
+<p>No code changes required. See <a href="../../docs/MIGRATION_ENHANCED.md">MIGRATION_ENHANCED.md</a> for details.</p>
+<hr>
+<h2>Additional Files</h2>
+<ul><li><strong><code>pan-client.mjs</code></strong> - Works with both buses</li>
+<li><strong><code>pan-autoload.mjs</code></strong> - Component auto-loader</li>
+<li><strong><code>pan-validation.mjs</code></strong> - Shared validation utilities</li>
+<li><strong><code>pan-auth.mjs</code></strong> - Authentication helpers</li>
+<li><strong><code>pan-fetch.mjs</code></strong> - Fetch utilities</li>
+</ul>
+<hr>
+<h2>Documentation</h2>
+<ul><li><a href="../../docs/SECURITY.md">Security Guide</a></li>
+<li><a href="../../docs/MIGRATION_ENHANCED.md">Migration Guide</a></li>
+<li><a href="../../docs/API_REFERENCE.md">API Reference</a></li>
+<li><a href="../../docs/PERFORMANCE.md">Performance Benchmarks</a></li>
+</ul>
+<hr>
+<h2>Examples</h2>
+<ul><li><strong>Basic:</strong> <code>examples/01-hello.html</code></li>
+<li><strong>Enhanced:</strong> <code>examples/17-enhanced-security.html</code></li>
+</ul>
+<hr>
+<h2>Questions?</h2>
+<ul><li>📖 <a href="../../docs/">Full Documentation</a></li>
+<li>🐛 <a href="https://github.com/youruser/pan/issues">Report Issues</a></li>
+<li>💬 <a href="https://github.com/youruser/pan/discussions">Discussions</a></li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/src/core/README_ENHANCED.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

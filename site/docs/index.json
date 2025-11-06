@@ -1,0 +1,335 @@
+{
+  ".github/ISSUE_TEMPLATE": [
+    {
+      "title": "rfc",
+      "path": ".github/ISSUE_TEMPLATE/rfc.html",
+      "category": ".github/ISSUE_TEMPLATE"
+    }
+  ],
+  "Root": [
+    {
+      "title": "✅ PAN Inspector DevTools Extension - Complete!",
+      "path": "DEVTOOLS_EXTENSION_COMPLETE.html",
+      "category": "Root"
+    },
+    {
+      "title": "✅ Security & Memory Management Improvements - Complete",
+      "path": "IMPROVEMENTS_SUMMARY.html",
+      "category": "Root"
+    },
+    {
+      "title": "🎯 Priority Action Plan: 9.5 → 10/10",
+      "path": "NEXT_STEPS_PRIORITY.html",
+      "category": "Root"
+    },
+    {
+      "title": "🎯 Roadmap to 10/10 - The Path to Excellence",
+      "path": "ROADMAP_TO_10.html",
+      "category": "Root"
+    },
+    {
+      "title": "Changelog",
+      "path": "CHANGELOG.html",
+      "category": "Root"
+    },
+    {
+      "title": "LARC — Lightweight Asynchronous Relay Core",
+      "path": "README.html",
+      "category": "Root"
+    },
+    {
+      "title": "LARC — Page Area Network (PAN)",
+      "path": "LARC_SPEC.v0.html",
+      "category": "Root"
+    },
+    {
+      "title": "LARC (PAN) Usage Guide",
+      "path": "USAGE.html",
+      "category": "Root"
+    },
+    {
+      "title": "LARC PAN Demo App Ideas",
+      "path": "DEMO_IDEAS.html",
+      "category": "Root"
+    },
+    {
+      "title": "LARC Roadmap (PAN)",
+      "path": "LARC_ROADMAP.html",
+      "category": "Root"
+    },
+    {
+      "title": "Next Steps to v1.0",
+      "path": "NEXT_STEPS.html",
+      "category": "Root"
+    },
+    {
+      "title": "PAN Authentication System - Implementation Complete ✅",
+      "path": "AUTHENTICATION_SUMMARY.html",
+      "category": "Root"
+    },
+    {
+      "title": "PAN v1 — Page Area Network (Concise Spec)",
+      "path": "PAN_SPEC.v1.html",
+      "category": "Root"
+    },
+    {
+      "title": "PAN v1.0 Release Checklist",
+      "path": "V1_CHECKLIST.html",
+      "category": "Root"
+    },
+    {
+      "title": "PAN v1.0.0 Release Notes",
+      "path": "RELEASE_NOTES.html",
+      "category": "Root"
+    },
+    {
+      "title": "Repository Guidelines",
+      "path": "LARC_AGENTS.html",
+      "category": "Root"
+    },
+    {
+      "title": "Secure Development Server",
+      "path": "DEV_SERVER_README.html",
+      "category": "Root"
+    },
+    {
+      "title": "Security & Memory Management Improvements",
+      "path": "SECURITY_IMPROVEMENTS.html",
+      "category": "Root"
+    },
+    {
+      "title": "Security Fixes Applied - PAN Framework",
+      "path": "SECURITY_FIXES.html",
+      "category": "Root"
+    },
+    {
+      "title": "TypeScript Implementation Complete ✅",
+      "path": "TYPESCRIPT_IMPLEMENTATION.html",
+      "category": "Root"
+    },
+    {
+      "title": "v0.1.0 — SSE bridge, reactive stores, and live updates",
+      "path": "RELEASE_NOTES_v0.1.0.html",
+      "category": "Root"
+    }
+  ],
+  "apps": [
+    {
+      "title": "Demo Applications",
+      "path": "apps/README.html",
+      "category": "apps"
+    }
+  ],
+  "apps/contact-manager": [
+    {
+      "title": "Contact Manager Demo",
+      "path": "apps/contact-manager/README.html",
+      "category": "apps/contact-manager"
+    }
+  ],
+  "apps/invoice": [
+    {
+      "title": "Invoice Creator Demo App",
+      "path": "apps/invoice/README.html",
+      "category": "apps/invoice"
+    }
+  ],
+  "apps/invoice-studio": [
+    {
+      "title": "📄 PAN Invoice Studio",
+      "path": "apps/invoice-studio/README.html",
+      "category": "apps/invoice-studio"
+    }
+  ],
+  "devtools-extension": [
+    {
+      "title": "Building Icons",
+      "path": "devtools-extension/BUILD_ICONS.html",
+      "category": "devtools-extension"
+    },
+    {
+      "title": "PAN Inspector - Chrome DevTools Extension",
+      "path": "devtools-extension/README.html",
+      "category": "devtools-extension"
+    },
+    {
+      "title": "PAN Inspector - Quick Start Guide",
+      "path": "devtools-extension/QUICKSTART.html",
+      "category": "devtools-extension"
+    }
+  ],
+  "docs": [
+    {
+      "title": "Authentication Quick Start",
+      "path": "docs/AUTH_QUICKSTART.html",
+      "category": "docs"
+    },
+    {
+      "title": "MARKDOWN_SYSTEM",
+      "path": "docs/MARKDOWN_SYSTEM.html",
+      "category": "docs"
+    },
+    {
+      "title": "Migration Guide: Enhanced PAN Bus",
+      "path": "docs/MIGRATION_ENHANCED.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN Authentication System",
+      "path": "docs/AUTHENTICATION.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN Performance Characteristics",
+      "path": "docs/PERFORMANCE.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN Quick Start Guide",
+      "path": "docs/QUICK_START.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN Reorganization - Project Structure",
+      "path": "docs/REORGANIZATION.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN Security Guide",
+      "path": "docs/SECURITY.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN Theme System",
+      "path": "docs/THEME_SYSTEM.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN Topic Conventions",
+      "path": "docs/TOPICS.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN v1.0 API Reference",
+      "path": "docs/API_REFERENCE.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN v1.0 API Stability Contract",
+      "path": "docs/API_STABILITY.html",
+      "category": "docs"
+    },
+    {
+      "title": "PAN v1.0 Release Roadmap",
+      "path": "docs/V1_ROADMAP.html",
+      "category": "docs"
+    },
+    {
+      "title": "TypeScript Guide for PAN",
+      "path": "docs/TYPESCRIPT.html",
+      "category": "docs"
+    }
+  ],
+  "docs/rfcs": [
+    {
+      "title": "0000-template",
+      "path": "docs/rfcs/0000-template.html",
+      "category": "docs/rfcs"
+    },
+    {
+      "title": "PAN RFCs",
+      "path": "docs/rfcs/README.html",
+      "category": "docs/rfcs"
+    }
+  ],
+  "docs/templates/provider-kit": [
+    {
+      "title": "README",
+      "path": "docs/templates/provider-kit/README.html",
+      "category": "docs/templates/provider-kit"
+    }
+  ],
+  "packages/pan-bus": [
+    {
+      "title": "@pan/bus",
+      "path": "packages/pan-bus/README.html",
+      "category": "packages/pan-bus"
+    }
+  ],
+  "packages/pan-client": [
+    {
+      "title": "@pan/client",
+      "path": "packages/pan-client/README.html",
+      "category": "packages/pan-client"
+    }
+  ],
+  "packages/pan-inspector": [
+    {
+      "title": "@pan/inspector",
+      "path": "packages/pan-inspector/README.html",
+      "category": "packages/pan-inspector"
+    }
+  ],
+  "src/app": [
+    {
+      "title": "Application Components",
+      "path": "src/app/README.html",
+      "category": "src/app"
+    }
+  ],
+  "src/components": [
+    {
+      "title": "Components",
+      "path": "src/components/README.html",
+      "category": "src/components"
+    }
+  ],
+  "src/core": [
+    {
+      "title": "Core Infrastructure",
+      "path": "src/core/README.html",
+      "category": "src/core"
+    },
+    {
+      "title": "PAN Core: Basic vs Enhanced",
+      "path": "src/core/README_ENHANCED.html",
+      "category": "src/core"
+    }
+  ],
+  "src/data": [
+    {
+      "title": "Data & State Management",
+      "path": "src/data/README.html",
+      "category": "src/data"
+    }
+  ],
+  "src/ui": [
+    {
+      "title": "UI Components",
+      "path": "src/ui/README.html",
+      "category": "src/ui"
+    }
+  ],
+  "tests": [
+    {
+      "title": "LARC Test Coverage Report",
+      "path": "tests/TEST_COVERAGE.html",
+      "category": "tests"
+    },
+    {
+      "title": "LARC Test Suite",
+      "path": "tests/README.html",
+      "category": "tests"
+    },
+    {
+      "title": "Test System Migration: TypeScript → Plain JavaScript",
+      "path": "tests/MIGRATION.html",
+      "category": "tests"
+    },
+    {
+      "title": "Test System Quick Start",
+      "path": "tests/QUICKSTART.html",
+      "category": "tests"
+    }
+  ]
+}

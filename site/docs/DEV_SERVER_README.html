@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Secure Development Server · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Secure Development Server">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>DEV_SERVER_README</span>
+      </div>
+      <article class="docs-content">
+        <h1>Secure Development Server</h1>
+<h2>Quick Start</h2>
+<pre><code class="language-bash">npm run serve</code></pre>
+<p>Server will start at: <strong>https://localhost:8443</strong></p>
+<h2>Features</h2>
+<p>✅ <strong>HTTPS</strong> - Self-signed certificates auto-generated
+✅ <strong>Security Headers</strong> - CSP, HSTS, X-Frame-Options, etc.
+✅ <strong>CORS Whitelist</strong> - Only allowed origins
+✅ <strong>Static File Serving</strong> - HTML, JS, CSS, images, etc.
+✅ <strong>PHP Support</strong> - Via php-cgi (optional)</p>
+<h2>Configuration</h2>
+<h3>Environment Variables</h3>
+<pre><code class="language-bash"># Port configuration
+PORT=8443                # HTTPS port
+HTTP_PORT=8080          # HTTP port (for redirect)
+HOST=0.0.0.0            # Bind address
+DOMAIN=cdr2.com         # Domain name</code></pre>
+<h3>Example</h3>
+<pre><code class="language-bash"># Custom port
+PORT=3000 npm run serve
+
+# Different domain
+DOMAIN=example.com npm run serve</code></pre>
+<h2>SSL Certificates</h2>
+<p>The server looks for certificates in this order:</p>
+<li><strong>Let's Encrypt</strong> (production):</li>
+   - <code>/etc/letsencrypt/live/cdr2.com/fullchain.pem</code>
+   - <code>/etc/letsencrypt/live/cdr2.com/privkey.pem</code>
+<li><strong>Self-signed</strong> (development):</li>
+   - <code>.ssl/cert.pem</code>
+   - <code>.ssl/key.pem</code>
+<p>If no certificates are found, the server will auto-generate self-signed certs.</p>
+<h2>Security Headers</h2>
+<p>The server automatically adds:</p>
+<pre><code class="language-plaintext">Content-Security-Policy: [strict policy]
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Strict-Transport-Security: max-age=31536000</code></pre>
+<h2>CORS Configuration</h2>
+<p>Edit <code>scripts/dev-server.mjs</code> to modify allowed origins:</p>
+<pre><code class="language-javascript">allowedOrigins: [
+    &#039;https://cdr2.com&#039;,
+    &#039;https://localhost:8443&#039;,
+    &#039;http://localhost:8080&#039;,
+    // Add your origins here
+]</code></pre>
+<h2>Accessing Your Site</h2>
+<h3>Browser</h3>
+Navigate to: <strong>https://localhost:8443</strong>
+<p>Accept the self-signed certificate warning (development only).</p>
+<h3>Adding to /etc/hosts</h3>
+<pre><code class="language-bash"># Add this line to /etc/hosts for domain access
+127.0.0.1  cdr2.com</code></pre>
+<p>Then access at: <strong>https://cdr2.com:8443</strong></p>
+<h2>PHP Support</h2>
+<p>The server automatically handles <code>.php</code> files via <code>php-cgi</code> if available.</p>
+<h3>Test PHP</h3>
+<p>Create <code>test.php</code>:
+<pre><code class="language-php">&lt;?php
+phpinfo();
+?&gt;</code></pre></p>
+<p>Access at: <strong>https://localhost:8443/test.php</strong></p>
+<h2>Troubleshooting</h2>
+<h3>Port Already in Use</h3>
+<pre><code class="language-bash"># Check what&#039;s using the port
+lsof -i :8443
+
+# Kill the process
+kill -9 &lt;PID&gt;
+
+# Or use different port
+PORT=9443 npm run serve</code></pre>
+<h3>Self-Signed Certificate Warning</h3>
+This is normal for development. To avoid warnings:
+<li><strong>Chrome/Edge</strong>: Import <code>.ssl/cert.pem</code> into Trusted Root Certificates</li>
+<li><strong>Firefox</strong>: Accept the exception once</li>
+<li><strong>Use Let's Encrypt</strong> for production</li>
+<h3>PHP Not Available</h3>
+If you see "PHP is not available":
+<pre><code class="language-bash"># Install PHP (macOS)
+brew install php
+
+# Verify php-cgi is available
+which php-cgi</code></pre>
+<h2>Production Deployment</h2>
+<p>For production, use:
+<ul><li>Real SSL certificates (Let's Encrypt)</li>
+<li>Reverse proxy (nginx/Apache)</li>
+<li>Process manager (PM2, systemd)</li>
+</ul>
+The dev server is for <strong>development only</strong>.</p>
+<h2>Examples</h2>
+<h3>Serve on all interfaces</h3>
+<pre><code class="language-bash">HOST=0.0.0.0 npm run serve</code></pre>
+<h3>Custom domain and port</h3>
+<pre><code class="language-bash">DOMAIN=myapp.local PORT=4433 npm run serve</code></pre>
+<h3>With Let's Encrypt certs</h3>
+<pre><code class="language-bash"># Assumes certs at /etc/letsencrypt/live/cdr2.com/
+npm run serve</code></pre>
+<h2>Directory Structure</h2>
+<pre><code class="language-plaintext">project/
+├── scripts/
+│   └── dev-server.mjs       # Server implementation
+├── .ssl/                     # Auto-generated certs (gitignored)
+│   ├── cert.pem
+│   └── key.pem
+├── api-secure.php           # Secured API
+├── auth.php                 # Authentication endpoint
+├── sse.php                  # SSE endpoint
+└── [your files]</code></pre>
+<h2>Security Notes</h2>
+<ul><li>✅ Development server includes production-grade security headers</li>
+<li>✅ CORS whitelist prevents unauthorized access</li>
+<li>✅ CSP prevents XSS attacks</li>
+<li>✅ HSTS enforces HTTPS</li>
+<li>⚠️ Self-signed certs are for development only</li>
+<li>⚠️ Use real SSL certificates in production</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/DEV_SERVER_README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

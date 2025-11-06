@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN v1.0.0 Release Notes · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN v1.0.0 Release Notes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>RELEASE_NOTES</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN v1.0.0 Release Notes</h1>
+<strong>Release Date:</strong> November 2024
+<p>PAN v1.0.0 marks the first production-ready release of the Page Area Network (PAN) framework. The <strong>core messaging infrastructure</strong> is production-ready, battle-tested, and performance-validated.</p>
+<hr>
+<h2>What's Production-Ready in v1.0</h2>
+<h3>Core Infrastructure ✅</h3>
+<p>The following core modules are <strong>fully production-ready</strong>:</p>
+<ul><li><strong>pan-bus.mjs</strong> - Event bus with pub/sub messaging</li>
+<li><strong>pan-client.mjs</strong> - Client API for application code</li>
+<li><strong>pan-autoload.mjs</strong> - Automatic component discovery and loading</li>
+</ul>
+<strong>Stability Guarantees:</strong>
+<ul><li>All APIs are locked (see <a href="docs/API_STABILITY.md">API_STABILITY.md</a>)</li>
+<li>No breaking changes in v1.x releases</li>
+<li>Semantic versioning enforced</li>
+</ul>
+<h3>Test Coverage ✅</h3>
+<ul><li><strong>85 test suites</strong> covering all core functionality</li>
+<li><strong>80%+ code coverage</strong> of core modules (1,054 lines)</li>
+<li>Comprehensive edge case and error handling tests</li>
+<li>Memory leak prevention validated</li>
+<li>Request/reply pattern tested</li>
+<li>Integration pattern tests</li>
+</ul>
+<h3>Performance ✅</h3>
+<p>Exceptional performance validated through comprehensive benchmarks:</p>
+<p>| Metric | Result | vs Threshold |
+|--------|--------|--------------|
+| Message Throughput | 300,300 msg/sec | 30x faster |
+| Subscribe Speed | 434,783 ops/sec | 434x faster |
+| Unsubscribe Speed | 114,943 ops/sec | 114x faster |
+| Retained Retrieval | 9,814 msg/sec | 19x faster |
+| Wildcard Performance | 291,545 msg/sec | 58x faster |
+| Memory Leak (30s) | 0 MB increase | 0 leaks |
+| Large Datasets | <1ms (10k items, 2.93 MB) | Sub-millisecond |</p>
+<p>See <a href="docs/PERFORMANCE.md">docs/PERFORMANCE.md</a> for detailed benchmarks.</p>
+<h3>Documentation ✅</h3>
+<p>Comprehensive documentation for all core APIs:</p>
+<ul><li><a href="docs/API_REFERENCE.md">API_REFERENCE.md</a> - Complete API documentation</li>
+<li><a href="docs/TOPICS.md">TOPICS.md</a> - Topic naming conventions</li>
+<li><a href="docs/QUICK_START.md">QUICK_START.md</a> - Getting started guide</li>
+<li><a href="docs/PERFORMANCE.md">PERFORMANCE.md</a> - Performance characteristics</li>
+<li><a href="docs/API_STABILITY.md">API_STABILITY.md</a> - Stability guarantees</li>
+<li><a href="docs/PAN_SPEC.v1.md">PAN_SPEC.v1.md</a> - Complete specification</li>
+</ul>
+<hr>
+<h2>What's Experimental in v1.0</h2>
+<h3>UI Components (Experimental)</h3>
+<p>All 40+ UI components in <code>src/components/</code> are marked as <strong>experimental</strong> in v1.0:</p>
+<strong>Why experimental?</strong>
+<ul><li>No comprehensive security audit yet (planned for v1.1)</li>
+<li>Limited browser compatibility testing (Chrome-only for v1.0)</li>
+<li>May have breaking changes in component-specific APIs</li>
+</ul>
+<strong>Using experimental components:</strong>
+<ul><li>Safe for prototyping and demos</li>
+<li>Use with caution in production</li>
+<li>Test thoroughly in your environment</li>
+<li>Review security implications for your use case</li>
+</ul>
+<strong>Specific concerns:</strong>
+<ul><li><code>pan-markdown-renderer</code> - Needs XSS audit</li>
+<li><code>pan-files</code> - Needs path traversal audit</li>
+<li>User input components - Need validation audit</li>
+</ul>
+<hr>
+<h2>Browser Support</h2>
+<h3>v1.0 Browser Support</h3>
+<strong>Tested and supported:</strong>
+<ul><li>✅ Chrome (latest 2 versions)</li>
+<li>✅ Edge (Chromium-based, latest 2 versions)</li>
+</ul>
+<strong>Not yet tested (planned for v1.1):</strong>
+<ul><li>⏳ Firefox</li>
+<li>⏳ Safari</li>
+<li>⏳ Mobile browsers</li>
+</ul>
+<strong>Why Chrome-only for v1.0?</strong>
+The core messaging infrastructure uses standard DOM APIs (CustomEvent, EventTarget) that are widely supported. However, comprehensive browser compatibility testing requires significant effort. We're releasing v1.0 with Chrome validation to get the stable core API into users' hands sooner.
+<strong>Will PAN work on other browsers?</strong>
+Likely yes, as PAN uses only standard APIs. However, we cannot guarantee compatibility until comprehensive testing is complete.
+<hr>
+<h2>Security</h2>
+<h3>Security Guidelines ✅</h3>
+<p>v1.0 includes comprehensive security best practices:</p>
+<strong>For Core Infrastructure:</strong>
+<ul><li>Message validation patterns</li>
+<li>Input sanitization guidelines</li>
+<li>CSP (Content Security Policy) recommendations</li>
+<li>localStorage security considerations</li>
+</ul>
+<strong>For Components (Experimental):</strong>
+<ul><li>XSS prevention patterns</li>
+<li>Path traversal prevention</li>
+<li>User input validation strategies</li>
+</ul>
+<strong>See:</strong> Security guidelines in component documentation
+<h3>Security Audit 🔄</h3>
+<strong>Status:</strong> Not yet performed for UI components
+<strong>Planned for v1.1:</strong>
+<ul><li>Professional security audit of all components</li>
+<li>XSS vulnerability assessment</li>
+<li>Path traversal testing</li>
+<li>Input validation review</li>
+</ul>
+<strong>Recommendation:</strong> Review security implications for your use case before using experimental components in production.
+<hr>
+<h2>Migration Guide</h2>
+<h3>From v0.x to v1.0</h3>
+<p>No breaking changes if you were using core APIs:</p>
+<strong>Core APIs (Unchanged):</strong>
+<pre><code class="language-javascript">// All existing core API calls work identically
+const client = new PanClient();
+client.publish({ topic: &#039;test&#039;, data: { value: 42 } });
+client.subscribe(&#039;test&#039;, (msg) =&gt; console.log(msg));</code></pre>
+<strong>New Features:</strong>
+<ul><li>Request/reply pattern with automatic cleanup</li>
+<li>AbortSignal support for subscription cleanup</li>
+<li>Enhanced error handling</li>
+<li>Performance optimizations</li>
+</ul>
+<strong>Component Changes:</strong>
+Some experimental components may have breaking changes. Review component documentation for details.
+<hr>
+<h2>What's Next: v1.1 Roadmap</h2>
+<h3>Planned for v1.1</h3>
+<li><strong>Multi-Browser Support</strong> ✅</li>
+   - Comprehensive testing on Firefox, Safari, mobile browsers
+   - Polyfills if needed
+   - Browser support matrix
+<li><strong>Security Audit</strong> ✅</li>
+   - Professional security review of all components
+   - XSS, path traversal, input validation testing
+   - Security certification
+<li><strong>Component Stability</strong> ✅</li>
+   - Graduate stable components from experimental
+   - Lock component APIs
+   - Full test coverage for components
+<li><strong>Enhanced Tooling</strong> 🎯</li>
+   - Chrome DevTools extension
+   - Enhanced message inspector
+   - Time-travel debugging
+<li><strong>Framework Integration</strong> 🎯</li>
+   - React wrapper
+   - Vue wrapper
+   - Svelte wrapper
+<hr>
+<h2>Installation</h2>
+<h3>Via npm (Planned)</h3>
+<p>Packages will be published to npm:</p>
+<pre><code class="language-bash">npm install @larc/pan-bus
+npm install @larc/pan-client</code></pre>
+<h3>Via CDN (Current)</h3>
+<p>For now, include directly from your project:</p>
+<pre><code class="language-html">&lt;script src=&quot;/path/to/pan-bus.mjs&quot; type=&quot;module&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;/path/to/pan-client.mjs&quot; type=&quot;module&quot;&gt;&lt;/script&gt;</code></pre>
+<hr>
+<h2>Quick Start</h2>
+<pre><code class="language-javascript">import { PanClient } from &#039;./src/core/pan-client.mjs&#039;;
+
+// Create client
+const client = new PanClient();
+
+// Subscribe to messages
+client.subscribe(&#039;user.login&#039;, (msg) =&gt; {
+  console.log(&#039;User logged in:&#039;, msg.data);
+});
+
+// Publish message
+client.publish({
+  topic: &#039;user.login&#039;,
+  data: { userId: 123, username: &#039;alice&#039; }
+});
+
+// Request/reply pattern
+const response = await client.request(&#039;api.users.get&#039;, { id: 123 });
+console.log(&#039;User data:&#039;, response.data);</code></pre>
+<p>See <a href="docs/QUICK_START.md">QUICK_START.md</a> for more examples.</p>
+<hr>
+<h2>Known Issues</h2>
+<h3>v1.0 Limitations</h3>
+<li><strong>Browser Support:</strong> Chrome-only testing for v1.0</li>
+<li><strong>Components:</strong> All marked experimental, needs security audit</li>
+<li><strong>Mobile:</strong> Not yet tested on mobile browsers</li>
+<li><strong>TypeScript:</strong> No .d.ts definitions yet (planned for v1.1)</li>
+<p>See <a href="https://github.com/yourusername/pan/issues">GitHub Issues</a> for full list.</p>
+<hr>
+<h2>Contributing</h2>
+<p>We welcome contributions! See <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines.</p>
+<strong>High-priority contributions for v1.1:</strong>
+<ul><li>Browser compatibility testing (Firefox, Safari, mobile)</li>
+<li>Security review of components</li>
+<li>TypeScript definitions</li>
+<li>Additional test coverage</li>
+</ul>
+<hr>
+<h2>License</h2>
+<p>MIT License - See <a href="LICENSE">LICENSE</a> for details.</p>
+<hr>
+<h2>Acknowledgments</h2>
+<p>Special thanks to all contributors and early adopters who helped shape PAN v1.0.</p>
+<hr>
+<h2>Questions?</h2>
+<ul><li><strong>Documentation:</strong> <a href="docs/">docs/</a></li>
+<li><strong>Issues:</strong> <a href="https://github.com/yourusername/pan/issues">GitHub Issues</a></li>
+<li><strong>Discussions:</strong> <a href="https://github.com/yourusername/pan/discussions">GitHub Discussions</a></li>
+</ul>
+<hr>
+<strong>Happy building with PAN v1.0!</strong> 🎉
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/RELEASE_NOTES.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

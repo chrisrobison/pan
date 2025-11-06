@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN v1.0 API Stability Contract · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN v1.0 API Stability Contract">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>API_STABILITY</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN v1.0 API Stability Contract</h1>
+<strong>Status:</strong> 🔒 LOCKED FOR v1.0
+<strong>Last Updated:</strong> November 2024
+<p>This document defines the <strong>stable, public API surface</strong> for PAN v1.0. All items marked as <strong>STABLE</strong> are guaranteed not to have breaking changes in v1.x releases. Breaking changes require a major version bump (v2.0).</p>
+<hr>
+<h2>Table of Contents</h2>
+<li><a href="#panclient-api">PanClient API</a></li>
+<li><a href="#panmessage-format">PanMessage Format</a></li>
+<li><a href="#customevents">CustomEvents</a></li>
+<li><a href="#topic-conventions">Topic Conventions</a></li>
+<li><a href="#semantic-versioning-policy">Semantic Versioning Policy</a></li>
+<li><a href="#stability-guarantees">Stability Guarantees</a></li>
+<hr>
+<h2>PanClient API</h2>
+<h3>Constructor</h3>
+<strong>STABLE</strong> - Constructor signature locked for v1.0
+<pre><code class="language-javascript">new PanClient(host?: HTMLElement|Document, busSelector?: string)</code></pre>
+<strong>Parameters:</strong>
+<ul><li><code>host</code> (optional) - Element to dispatch/receive events from. Default: <code>document</code></li>
+<li><code>busSelector</code> (optional) - CSS selector for bus element. Default: <code>'pan-bus'</code></li>
+</ul>
+<strong>Guarantees:</strong>
+<ul><li>✅ Constructor will accept these parameters in all v1.x releases</li>
+<li>✅ Default values will not change</li>
+<li>✅ Parameter order will not change</li>
+<li>⚠️ Additional optional parameters MAY be added at the end (non-breaking)</li>
+</ul>
+<hr>
+<h3>ready()</h3>
+<strong>STABLE</strong> - Method signature locked for v1.0
+<pre><code class="language-javascript">client.ready(): Promise&lt;void&gt;</code></pre>
+<strong>Returns:</strong> Promise that resolves when PAN bus is ready
+<strong>Guarantees:</strong>
+<ul><li>✅ Method name will not change</li>
+<li>✅ Return type will not change (always returns Promise<void>)</li>
+<li>✅ Resolves once bus emits <code>pan:sys.ready</code></li>
+<li>✅ Safe to call multiple times (returns same promise)</li>
+</ul>
+<strong>Example:</strong>
+<pre><code class="language-javascript">const client = new PanClient();
+await client.ready();
+// Bus is now ready for use</code></pre>
+<hr>
+<h3>publish()</h3>
+<strong>STABLE</strong> - Method signature locked for v1.0
+<pre><code class="language-javascript">client.publish(message: PanMessage): void</code></pre>
+<strong>Parameters:</strong>
+<ul><li><code>message</code> - PanMessage object with required <code>topic</code> and <code>data</code> fields</li>
+</ul>
+<strong>Required fields:</strong>
+<ul><li><code>message.topic</code> (string) - Topic name</li>
+<li><code>message.data</code> (any) - Message payload</li>
+</ul>
+<strong>Optional fields:</strong>
+<ul><li><code>message.retain</code> (boolean) - If true, message is retained</li>
+<li><code>message.replyTo</code> (string) - Topic to send reply to</li>
+<li><code>message.correlationId</code> (string) - Correlation ID for request/reply</li>
+<li><code>message.headers</code> (object) - Optional metadata</li>
+</ul>
+<strong>Guarantees:</strong>
+<ul><li>✅ Method name will not change</li>
+<li>✅ Accepts object parameter with topic and data</li>
+<li>✅ All PanMessage fields will be honored</li>
+<li>✅ Returns void (fire-and-forget)</li>
+<li>⚠️ Additional optional message fields MAY be added (non-breaking)</li>
+</ul>
+<strong>Example:</strong>
+<pre><code class="language-javascript">// Simple publish
+client.publish({
+  topic: &#039;users.updated&#039;,
+  data: { id: 123, name: &#039;Alice&#039; }
+});
+
+// Retained message
+client.publish({
+  topic: &#039;app.state&#039;,
+  data: { theme: &#039;dark&#039; },
+  retain: true
+});</code></pre>
+<hr>
+<h3>subscribe()</h3>
+<strong>STABLE</strong> - Method signature locked for v1.0
+<pre><code class="language-javascript">client.subscribe(
+  topics: string | string[],
+  handler: (message: PanMessage) =&gt; void,
+  options?: SubscribeOptions
+): UnsubscribeFunction</code></pre>
+<strong>Parameters:</strong>
+<ul><li><code>topics</code> - Topic pattern(s) to subscribe to (string or array)</li>
+<li><code>handler</code> - Callback function receiving PanMessage</li>
+<li><code>options</code> (optional) - Subscription options</li>
+</ul>
+<strong>SubscribeOptions:</strong>
+<ul><li><code>retained</code> (boolean) - If true, receive retained messages immediately</li>
+<li><code>signal</code> (AbortSignal) - AbortSignal for automatic cleanup</li>
+</ul>
+<strong>Returns:</strong> Unsubscribe function <code>() => void</code>
+<strong>Guarantees:</strong>
+<ul><li>✅ Method name will not change</li>
+<li>✅ Parameter order will not change</li>
+<li>✅ Topic patterns support wildcards (<code>*</code>) as documented</li>
+<li>✅ Returns unsubscribe function</li>
+<li>✅ Handler receives full PanMessage object</li>
+<li>✅ AbortSignal integration works as documented</li>
+<li>⚠️ Additional optional options MAY be added (non-breaking)</li>
+</ul>
+<strong>Example:</strong>
+<pre><code class="language-javascript">// Subscribe to single topic
+const unsub = client.subscribe(&#039;users.updated&#039;, (msg) =&gt; {
+  console.log(&#039;User updated:&#039;, msg.data);
+});
+
+// Subscribe to multiple topics with wildcard
+client.subscribe([&#039;users.*&#039;, &#039;posts.*&#039;], (msg) =&gt; {
+  console.log(&#039;Received:&#039;, msg.topic, msg.data);
+});
+
+// With retained messages
+client.subscribe(&#039;app.state&#039;, (msg) =&gt; {
+  console.log(&#039;Current state:&#039;, msg.data);
+}, { retained: true });
+
+// With AbortSignal
+const controller = new AbortController();
+client.subscribe(&#039;events.*&#039;, handler, { signal: controller.signal });
+// Later: controller.abort(); // Unsubscribes automatically</code></pre>
+<hr>
+<h3>request()</h3>
+<strong>STABLE</strong> - Method signature locked for v1.0
+<pre><code class="language-javascript">client.request(
+  topic: string,
+  data: any,
+  options?: RequestOptions
+): Promise&lt;PanMessage&gt;</code></pre>
+<strong>Parameters:</strong>
+<ul><li><code>topic</code> - Request topic name</li>
+<li><code>data</code> - Request payload</li>
+<li><code>options</code> (optional) - Request options</li>
+</ul>
+<strong>RequestOptions:</strong>
+<ul><li><code>timeoutMs</code> (number) - Request timeout in milliseconds. Default: 5000</li>
+</ul>
+<strong>Returns:</strong> Promise<PanMessage> that resolves with reply message
+<strong>Throws:</strong> Error if request times out
+<strong>Guarantees:</strong>
+<ul><li>✅ Method name will not change</li>
+<li>✅ Parameter order will not change</li>
+<li>✅ Default timeout (5000ms) will not change</li>
+<li>✅ Returns Promise<PanMessage></li>
+<li>✅ Rejects on timeout with Error</li>
+<li>✅ Automatic correlation ID generation</li>
+<li>⚠️ Additional optional options MAY be added (non-breaking)</li>
+</ul>
+<strong>Example:</strong>
+<pre><code class="language-javascript">// Simple request
+try {
+  const response = await client.request(&#039;users.get&#039;, { id: 123 });
+  console.log(&#039;User:&#039;, response.data);
+} catch (err) {
+  console.error(&#039;Request failed:&#039;, err);
+}
+
+// Custom timeout
+const response = await client.request(&#039;slow.operation&#039;, { ... }, {
+  timeoutMs: 10000  // 10 second timeout
+});</code></pre>
+<hr>
+<h3>PanClient.matches() (static)</h3>
+<strong>STABLE</strong> - Static method signature locked for v1.0
+<pre><code class="language-javascript">PanClient.matches(topic: string, pattern: string): boolean</code></pre>
+<strong>Parameters:</strong>
+<ul><li><code>topic</code> - Topic to test (e.g., "users.list.state")</li>
+<li><code>pattern</code> - Pattern to match (e.g., "users.<em>" or "</em>")</li>
+</ul>
+<strong>Returns:</strong> boolean - true if topic matches pattern
+<strong>Guarantees:</strong>
+<ul><li>✅ Method name will not change</li>
+<li>✅ Parameter order will not change</li>
+<li>✅ Wildcard semantics as documented (single segment match)</li>
+<li>✅ Exact match when no wildcards</li>
+<li>✅ Global wildcard <code>*</code> matches any topic</li>
+</ul>
+<strong>Pattern Rules:</strong>
+<ul><li>Exact match: <code>users.list.state</code> matches <code>users.list.state</code></li>
+<li>Single wildcard: <code>users.*</code> matches <code>users.list</code> but NOT <code>users.list.state</code></li>
+<li>Global wildcard: <code>*</code> matches any topic</li>
+</ul>
+<strong>Example:</strong>
+<pre><code class="language-javascript">PanClient.matches(&#039;users.list.state&#039;, &#039;users.*&#039;)  // true
+PanClient.matches(&#039;users.list.state&#039;, &#039;users.list.state&#039;)  // true
+PanClient.matches(&#039;users.list.state&#039;, &#039;*&#039;)  // true
+PanClient.matches(&#039;users.list.state&#039;, &#039;posts.*&#039;)  // false
+PanClient.matches(&#039;users.item.123&#039;, &#039;users.item.*&#039;)  // true</code></pre>
+<hr>
+<h2>PanMessage Format</h2>
+<strong>STABLE</strong> - Message envelope format locked for v1.0
+<h3>Required Fields</h3>
+<pre><code class="language-typescript">interface PanMessage {
+  topic: string;      // Topic name (e.g., &quot;users.list.state&quot;)
+  data: any;          // Message payload (any JSON-serializable value)
+
+  // Optional fields - auto-generated by bus if not provided
+  id?: string;        // Unique message ID (UUID)
+  ts?: number;        // Timestamp in milliseconds (epoch)
+
+  // Optional fields - for message features
+  retain?: boolean;           // If true, message is retained by bus
+  replyTo?: string;           // Topic to send reply to
+  correlationId?: string;     // Correlation ID for request/reply
+  headers?: Record&lt;string, string&gt;;  // Optional metadata
+}</code></pre>
+<h3>Field Guarantees</h3>
+<strong>topic (required)</strong>
+<ul><li>✅ Always a string</li>
+<li>✅ Dotted segment notation (e.g., "resource.action.state")</li>
+<li>✅ Case-sensitive</li>
+<li>⚠️ No validation on topic format in v1.0 (MAY add in v1.x as non-breaking warning)</li>
+</ul>
+<strong>data (required)</strong>
+<ul><li>✅ Any JSON-serializable value (object, array, string, number, boolean, null)</li>
+<li>✅ No size limits enforced by PAN (browser/memory limits apply)</li>
+<li>⚠️ Circular references will throw (native JSON serialization)</li>
+</ul>
+<strong>id (optional)</strong>
+<ul><li>✅ Auto-generated UUID by bus if not provided</li>
+<li>✅ String format</li>
+<li>⚠️ User-provided IDs are not validated for uniqueness</li>
+</ul>
+<strong>ts (optional)</strong>
+<ul><li>✅ Auto-generated timestamp by bus if not provided</li>
+<li>✅ Number in milliseconds since epoch</li>
+<li>⚠️ User-provided timestamps are not validated</li>
+</ul>
+<strong>retain (optional)</strong>
+<ul><li>✅ Boolean flag</li>
+<li>✅ If true, bus stores last message per topic</li>
+<li>✅ Retained messages delivered to late subscribers who opt-in</li>
+<li>✅ Default: false (not retained)</li>
+</ul>
+<strong>replyTo (optional)</strong>
+<ul><li>✅ String topic name</li>
+<li>✅ Used in request/reply pattern</li>
+<li>✅ Reply should be published to this topic</li>
+</ul>
+<strong>correlationId (optional)</strong>
+<ul><li>✅ String identifier</li>
+<li>✅ Used to match requests and replies</li>
+<li>✅ Auto-generated by <code>client.request()</code> if not provided</li>
+</ul>
+<strong>headers (optional)</strong>
+<ul><li>✅ Object with string keys and string values</li>
+<li>✅ Free-form metadata</li>
+<li>⚠️ No reserved header names in v1.0 (MAY add conventions in v1.x)</li>
+</ul>
+<hr>
+<h2>CustomEvents</h2>
+<strong>STABLE</strong> - CustomEvent names and signatures locked for v1.0
+<p>All PAN CustomEvents use <code>bubbles: true, composed: true</code> to cross shadow DOM boundaries.</p>
+<h3>pan:sys.ready</h3>
+<strong>Purpose:</strong> Signal that PAN bus is ready
+<pre><code class="language-javascript">new CustomEvent(&#039;pan:sys.ready&#039;, {
+  bubbles: true,
+  composed: true
+})</code></pre>
+<strong>Guarantees:</strong>
+<ul><li>✅ Event name will not change</li>
+<li>✅ Dispatched once when bus connects</li>
+<li>✅ No event detail</li>
+<li>✅ Bubbles and composed</li>
+</ul>
+<hr>
+<h3>pan:publish</h3>
+<strong>Purpose:</strong> Publish a message to the bus
+<pre><code class="language-javascript">new CustomEvent(&#039;pan:publish&#039;, {
+  detail: PanMessage,
+  bubbles: true,
+  composed: true
+})</code></pre>
+<strong>Guarantees:</strong>
+<ul><li>✅ Event name will not change</li>
+<li>✅ <code>detail</code> is PanMessage object</li>
+<li>✅ Bubbles and composed</li>
+<li>✅ Bus listens at document root with capture</li>
+</ul>
+<hr>
+<h3>pan:subscribe</h3>
+<strong>Purpose:</strong> Subscribe to topics
+<pre><code class="language-javascript">new CustomEvent(&#039;pan:subscribe&#039;, {
+  detail: {
+    clientId: string,
+    topics: string[],
+    options?: { retained?: boolean }
+  },
+  bubbles: true,
+  composed: true
+})</code></pre>
+<strong>Guarantees:</strong>
+<ul><li>✅ Event name will not change</li>
+<li>✅ <code>detail.topics</code> is array of topic patterns</li>
+<li>✅ <code>detail.options.retained</code> enables retained message delivery</li>
+<li>✅ Bubbles and composed</li>
+</ul>
+<hr>
+<h3>pan:unsubscribe</h3>
+<strong>Purpose:</strong> Unsubscribe from topics
+<pre><code class="language-javascript">new CustomEvent(&#039;pan:unsubscribe&#039;, {
+  detail: {
+    clientId: string,
+    topics: string[]
+  },
+  bubbles: true,
+  composed: true
+})</code></pre>
+<strong>Guarantees:</strong>
+<ul><li>✅ Event name will not change</li>
+<li>✅ <code>detail.topics</code> is array of topic patterns</li>
+<li>✅ Bubbles and composed</li>
+</ul>
+<hr>
+<h3>pan:deliver</h3>
+<strong>Purpose:</strong> Deliver message from bus to subscriber
+<pre><code class="language-javascript">new CustomEvent(&#039;pan:deliver&#039;, {
+  detail: PanMessage,
+  bubbles: false,
+  composed: false
+})</code></pre>
+<strong>Guarantees:</strong>
+<ul><li>✅ Event name will not change</li>
+<li>✅ <code>detail</code> is full PanMessage object</li>
+<li>✅ Dispatched on subscribing element</li>
+<li>⚠️ Does NOT bubble (targeted delivery)</li>
+</ul>
+<hr>
+<h3>pan:hello</h3>
+<strong>Purpose:</strong> Client announces presence to bus
+<pre><code class="language-javascript">new CustomEvent(&#039;pan:hello&#039;, {
+  detail: {
+    id: string,
+    caps?: string[]
+  },
+  bubbles: true,
+  composed: true
+})</code></pre>
+<strong>Guarantees:</strong>
+<ul><li>✅ Event name will not change</li>
+<li>✅ <code>detail.id</code> is client identifier</li>
+<li>✅ <code>detail.caps</code> is optional capabilities array</li>
+<li>✅ Bubbles and composed</li>
+</ul>
+<hr>
+<h3>Reserved Event Names</h3>
+<strong>LOCKED:</strong> The following event name pattern is <strong>reserved</strong> for PAN:
+<ul><li><code>pan:*</code> - All events starting with <code>pan:</code> are reserved</li>
+<li><code>pan:sys.*</code> - System-level events</li>
+<li><code>pan:ext.*</code> - Reserved for extensions/plugins</li>
+</ul>
+<strong>Guarantees:</strong>
+<ul><li>✅ Application code MUST NOT dispatch <code>pan:*</code> events</li>
+<li>✅ Only PAN bus and official extensions may use <code>pan:*</code> namespace</li>
+<li>⚠️ New <code>pan:*</code> events MAY be added in v1.x (non-breaking if properly ignored)</li>
+</ul>
+<hr>
+<h2>Topic Conventions</h2>
+<strong>STABLE</strong> - Core conventions locked for v1.0
+<h3>Naming Pattern</h3>
+<strong>Standard Format:</strong> <code>resource.action.qualifier</code>
+<p>Examples:
+<ul><li><code>users.list.state</code> - List of users (retained state)</li>
+<li><code>users.item.get</code> - Get single user (request)</li>
+<li><code>users.item.save</code> - Save user (request)</li>
+<li><code>nav.goto</code> - Navigate to route (command)</li>
+</ul>
+<strong>Guarantees:</strong>
+<ul><li>✅ Dotted segment notation is the convention</li>
+<li>✅ Case-sensitive matching</li>
+<li>✅ No enforced rules on segment count</li>
+<li>⚠️ Naming best practices MAY evolve (documentation only)</li>
+</ul>
+<hr></p>
+<h3>Wildcard Matching</h3>
+<strong>Single Segment Wildcard:</strong> <code>*</code>
+<p>Rules:
+<ul><li><code>users.*</code> matches <code>users.list</code> but NOT <code>users.list.state</code></li>
+<li><code>*</code> matches any single topic</li>
+<li>Wildcards can be anywhere: <code>users.<em>.state</code>, <code></em>.item.get</code></li>
+</ul>
+<strong>Guarantees:</strong>
+<ul><li>✅ Wildcard semantics will not change</li>
+<li>✅ <code>*</code> always matches single segment only</li>
+<li>⚠️ Multi-segment wildcards (<code>**</code>) NOT supported in v1.0</li>
+</ul>
+<hr></p>
+<h3>Reserved Namespaces</h3>
+<strong>LOCKED</strong> - Reserved for PAN internals
+<ul><li><code>pan:*</code> - Internal bus communication (system events)</li>
+<li><code>pan:$reply:*</code> - Generated reply topics for request/reply</li>
+</ul>
+<strong>Guarantees:</strong>
+<ul><li>✅ Application code MUST NOT use <code>pan:*</code> topics</li>
+<li>✅ <code>pan:$reply:*</code> topics are auto-generated by <code>client.request()</code></li>
+<li>⚠️ Additional reserved namespaces MAY be added in v1.x with documentation</li>
+</ul>
+<hr>
+<h3>CRUD Conventions (Recommended)</h3>
+<strong>Status:</strong> RECOMMENDED (not enforced)
+<p>These are <strong>conventions</strong>, not requirements. Applications MAY use different patterns.</p>
+<strong>List Operations:</strong>
+<ul><li><code>${resource}.list.get</code> - Request list (responds with <code>{ items }</code>)</li>
+<li><code>${resource}.list.state</code> - List state (retained)</li>
+</ul>
+<strong>Item Operations:</strong>
+<ul><li><code>${resource}.item.select</code> - Select item (no reply, event only)</li>
+<li><code>${resource}.item.get</code> - Get item by ID (request/reply)</li>
+<li><code>${resource}.item.save</code> - Save item (request/reply)</li>
+<li><code>${resource}.item.delete</code> - Delete item (request/reply)</li>
+<li><code>${resource}.item.state.${id}</code> - Per-item state (retained)</li>
+</ul>
+<strong>Examples:</strong>
+<pre><code class="language-javascript">// List users
+const response = await client.request(&#039;users.list.get&#039;, {});
+console.log(response.data.items);
+
+// Subscribe to list state
+client.subscribe(&#039;users.list.state&#039;, (msg) =&gt; {
+  console.log(&#039;User list:&#039;, msg.data.items);
+}, { retained: true });
+
+// Get single user
+const user = await client.request(&#039;users.item.get&#039;, { id: 123 });
+
+// Save user
+await client.request(&#039;users.item.save&#039;, { item: { id: 123, name: &#039;Alice&#039; } });
+
+// Select user (no reply)
+client.publish({ topic: &#039;users.item.select&#039;, data: { id: 123 } });</code></pre>
+<strong>Guarantees:</strong>
+<ul><li>✅ These patterns are documented and recommended</li>
+<li>⚠️ NOT enforced by PAN - applications may use different conventions</li>
+<li>⚠️ Conventions MAY evolve in v1.x (documentation only)</li>
+</ul>
+<hr>
+<h2>Semantic Versioning Policy</h2>
+<p>PAN follows <a href="https://semver.org/">Semantic Versioning 2.0.0</a></p>
+<h3>Version Format: MAJOR.MINOR.PATCH</h3>
+<strong>Example:</strong> v1.2.3
+<ul><li>MAJOR = 1 (breaking changes)</li>
+<li>MINOR = 2 (new features, backward compatible)</li>
+<li>PATCH = 3 (bug fixes, backward compatible)</li>
+</ul>
+<hr>
+<h3>What Constitutes a BREAKING Change (requires MAJOR bump)</h3>
+<strong>PanClient API:</strong>
+<ul><li>❌ Removing a public method</li>
+<li>❌ Changing method signature (parameter order, required params)</li>
+<li>❌ Changing return type</li>
+<li>❌ Changing default values that affect behavior</li>
+<li>❌ Renaming methods or properties</li>
+</ul>
+<strong>PanMessage Format:</strong>
+<ul><li>❌ Removing required fields</li>
+<li>❌ Changing field types</li>
+<li>❌ Changing field semantics</li>
+</ul>
+<strong>CustomEvents:</strong>
+<ul><li>❌ Renaming events</li>
+<li>❌ Changing event detail structure</li>
+<li>❌ Changing bubbling/composed behavior</li>
+</ul>
+<strong>Topic Conventions:</strong>
+<ul><li>❌ Changing wildcard matching semantics</li>
+<li>❌ Breaking documented topic patterns</li>
+</ul>
+<hr>
+<h3>What is a NON-BREAKING Change (MINOR or PATCH)</h3>
+<strong>Allowed in MINOR versions:</strong>
+<ul><li>✅ Adding new methods to PanClient</li>
+<li>✅ Adding new optional parameters (at end of param list)</li>
+<li>✅ Adding new optional fields to PanMessage</li>
+<li>✅ Adding new CustomEvents (if ignorable by old code)</li>
+<li>✅ Adding new topic conventions (documentation only)</li>
+<li>✅ Adding new optional features</li>
+</ul>
+<strong>Allowed in PATCH versions:</strong>
+<ul><li>✅ Bug fixes that don't change API</li>
+<li>✅ Performance improvements</li>
+<li>✅ Documentation updates</li>
+<li>✅ Internal refactoring</li>
+<li>✅ Test additions</li>
+</ul>
+<hr>
+<h3>Deprecation Policy</h3>
+<p>When removing features, we follow this timeline:</p>
+<li><strong>v1.x.0</strong> - Feature marked as deprecated in documentation</li>
+   - Still works, logs deprecation warning to console
+   - Alternative documented
+<li><strong>v1.(x+1).0</strong> - At least 1 MINOR version later</li>
+   - Feature still works, stricter warnings
+   - Removal date announced
+<li><strong>v2.0.0</strong> - MAJOR version bump</li>
+   - Feature removed
+   - Migration guide provided
+<strong>Minimum Deprecation Period:</strong> 2 MINOR versions or 6 months (whichever is longer)
+<hr>
+<h2>Stability Guarantees</h2>
+<h3>What is STABLE (guaranteed not to break in v1.x)</h3>
+<p>✅ <strong>PanClient API</strong>
+<ul><li>All public methods: <code>constructor</code>, <code>ready()</code>, <code>publish()</code>, <code>subscribe()</code>, <code>request()</code>, <code>matches()</code></li>
+<li>Method signatures and return types</li>
+<li>Parameter order and defaults</li>
+</ul>
+✅ <strong>PanMessage Format</strong>
+<ul><li>All fields: <code>topic</code>, <code>data</code>, <code>id</code>, <code>ts</code>, <code>retain</code>, <code>replyTo</code>, <code>correlationId</code>, <code>headers</code></li>
+<li>Field types and semantics</li>
+</ul>
+✅ <strong>CustomEvents</strong>
+<ul><li>Event names: <code>pan:sys.ready</code>, <code>pan:publish</code>, <code>pan:subscribe</code>, <code>pan:unsubscribe</code>, <code>pan:deliver</code>, <code>pan:hello</code></li>
+<li>Event detail structures</li>
+<li>Bubbling/composed behavior</li>
+</ul>
+✅ <strong>Topic Matching</strong>
+<ul><li>Wildcard <code>*</code> matching single segment</li>
+<li>Exact match behavior</li>
+</ul>
+✅ <strong>Reserved Namespaces</strong>
+<ul><li><code>pan:*</code> for internal use</li>
+<li><code>pan:$reply:*</code> for request/reply</li>
+</ul>
+<hr></p>
+<h3>What is UNSTABLE (may change in v1.x)</h3>
+<p>⚠️ <strong>Internal Implementation</strong>
+<ul><li>Private methods (prefixed with <code>_</code>)</li>
+<li>Internal event handling</li>
+<li>Bus internals</li>
+</ul>
+⚠️ <strong>CRUD Conventions</strong>
+<ul><li>Recommended patterns may evolve</li>
+<li>Not enforced, just documented</li>
+</ul>
+⚠️ <strong>Error Messages</strong>
+<ul><li>Text of error messages may change</li>
+<li>Error types are stable</li>
+</ul>
+<hr></p>
+<h3>What is EXPERIMENTAL (may be removed)</h3>
+<p>🧪 <strong>None in v1.0</strong></p>
+<p>All APIs in v1.0 are either STABLE or documented as UNSTABLE. No experimental features at release.</p>
+<hr>
+<h2>Migration Guide (Future)</h2>
+<p>When v2.0 is released, a comprehensive migration guide will be provided covering:
+<ul><li>All breaking changes</li>
+<li>Automated migration tools (if applicable)</li>
+<li>Step-by-step upgrade instructions</li>
+<li>Deprecation timeline</li>
+</ul>
+<hr></p>
+<h2>Feedback and Changes</h2>
+<p>This document is <strong>LOCKED</strong> for v1.0 release. Changes require:</p>
+<li><strong>Non-breaking additions</strong> - Require MINOR version bump and documentation update</li>
+<li><strong>Breaking changes</strong> - Require MAJOR version bump (v2.0) and deprecation period</li>
+<li><strong>Clarifications</strong> - Documentation fixes only, no version bump</li>
+<strong>Last Review:</strong> November 2024
+<strong>Next Review:</strong> Before v1.1.0 release
+<hr>
+<strong>End of API Stability Contract</strong>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/API_STABILITY.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

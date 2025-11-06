@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Migration Guide: Enhanced PAN Bus · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Migration Guide: Enhanced PAN Bus">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>MIGRATION_ENHANCED</span>
+      </div>
+      <article class="docs-content">
+        <h1>Migration Guide: Enhanced PAN Bus</h1>
+<p>This guide helps you migrate from the basic <code>pan-bus</code> to the security-hardened, memory-managed <code>pan-bus-enhanced</code>.</p>
+<h2>Why Upgrade?</h2>
+<p>The enhanced bus adds critical production features:</p>
+<ul><li>✅ <strong>Memory safety</strong> - LRU eviction prevents unbounded growth</li>
+<li>✅ <strong>Rate limiting</strong> - Prevents message flooding</li>
+<li>✅ <strong>Input validation</strong> - Rejects invalid/dangerous messages</li>
+<li>✅ <strong>Security policies</strong> - Configurable wildcard restrictions</li>
+<li>✅ <strong>Monitoring</strong> - Built-in statistics and error reporting</li>
+<li>✅ <strong>Debug mode</strong> - Comprehensive logging for development</li>
+</ul>
+<h2>Quick Migration</h2>
+<h3>1. Update Your HTML</h3>
+<strong>Before:</strong>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;</code></pre>
+<strong>After:</strong>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
+&lt;pan-bus-enhanced
+  max-retained=&quot;1000&quot;
+  rate-limit=&quot;1000&quot;
+  debug=&quot;false&quot;&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre>
+<h3>2. Update Component Initialization</h3>
+<strong>No code changes required!</strong> The enhanced bus is a drop-in replacement.
+<pre><code class="language-javascript">import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+
+const client = new PanClient();
+await client.ready();
+
+// Everything works exactly the same
+client.publish({ topic: &#039;test&#039;, data: { hello: &#039;world&#039; } });
+client.subscribe(&#039;test&#039;, (msg) =&gt; console.log(msg));</code></pre>
+<h2>Configuration Options</h2>
+<p>All configuration is via HTML attributes:</p>
+<pre><code class="language-html">&lt;pan-bus-enhanced
+  max-retained=&quot;1000&quot;          &lt;!-- Maximum retained messages --&gt;
+  max-message-size=&quot;1048576&quot;   &lt;!-- 1MB max total message --&gt;
+  max-payload-size=&quot;524288&quot;    &lt;!-- 512KB max data payload --&gt;
+  rate-limit=&quot;1000&quot;            &lt;!-- Messages per client per second --&gt;
+  cleanup-interval=&quot;30000&quot;     &lt;!-- Cleanup dead subs every 30s --&gt;
+  allow-global-wildcard=&quot;true&quot; &lt;!-- Allow &#039;*&#039; subscriptions --&gt;
+  debug=&quot;false&quot;&gt;               &lt;!-- Enable debug logging --&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre>
+<h3>Recommended Configurations</h3>
+<p>#### Development
+<pre><code class="language-html">&lt;pan-bus-enhanced
+  max-retained=&quot;5000&quot;
+  rate-limit=&quot;10000&quot;
+  allow-global-wildcard=&quot;true&quot;
+  debug=&quot;true&quot;&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre></p>
+<p>#### Staging
+<pre><code class="language-html">&lt;pan-bus-enhanced
+  max-retained=&quot;2000&quot;
+  rate-limit=&quot;1000&quot;
+  allow-global-wildcard=&quot;true&quot;
+  debug=&quot;true&quot;&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre></p>
+<p>#### Production
+<pre><code class="language-html">&lt;pan-bus-enhanced
+  max-retained=&quot;1000&quot;
+  max-message-size=&quot;524288&quot;
+  rate-limit=&quot;500&quot;
+  allow-global-wildcard=&quot;false&quot;
+  debug=&quot;false&quot;&gt;
+&lt;/pan-bus-enhanced&gt;</code></pre></p>
+<h2>Behavioral Changes</h2>
+<h3>1. Memory Limits (Breaking for Edge Cases)</h3>
+<strong>Old Behavior:</strong>
+<pre><code class="language-javascript">// Could create unlimited retained messages
+for (let i = 0; i &lt; 1000000; i++) {
+  client.publish({ topic: `msg.${i}`, data: {}, retain: true });
+}
+// All 1M messages stored in memory</code></pre>
+<strong>New Behavior:</strong>
+<pre><code class="language-javascript">// LRU eviction after reaching limit
+for (let i = 0; i &lt; 1000000; i++) {
+  client.publish({ topic: `msg.${i}`, data: {}, retain: true });
+}
+// Only last 1000 (or configured limit) retained</code></pre>
+<strong>Migration:</strong> If you need more than 1000 retained topics, increase <code>max-retained</code>.
+<h3>2. Rate Limiting (Breaking for High-Throughput)</h3>
+<strong>Old Behavior:</strong>
+<pre><code class="language-javascript">// No limits
+for (let i = 0; i &lt; 100000; i++) {
+  client.publish({ topic: &#039;test&#039;, data: { i } });
+}
+// All messages accepted</code></pre>
+<strong>New Behavior:</strong>
+<pre><code class="language-javascript">// Rate limited per client
+for (let i = 0; i &lt; 100000; i++) {
+  client.publish({ topic: &#039;test&#039;, data: { i } });
+}
+// Only first 1000 (or limit) accepted per second
+// Excess dropped with error event</code></pre>
+<strong>Migration:</strong> Increase <code>rate-limit</code> if needed, or batch operations:
+<pre><code class="language-javascript">// Instead of individual messages
+for (let item of items) {
+  client.publish({ topic: &#039;item&#039;, data: item });
+}
+
+// Batch them
+client.publish({
+  topic: &#039;items.batch&#039;,
+  data: { items: items }
+});</code></pre>
+<h3>3. Message Validation (Breaking for Invalid Data)</h3>
+<strong>Old Behavior:</strong>
+<pre><code class="language-javascript">// Accepted (but would fail later)
+client.publish({
+  topic: &#039;test&#039;,
+  data: { fn: () =&gt; {} }  // Function
+});</code></pre>
+<strong>New Behavior:</strong>
+<pre><code class="language-javascript">// Rejected immediately with error event
+client.publish({
+  topic: &#039;test&#039;,
+  data: { fn: () =&gt; {} }
+});
+// Error: Functions cannot be serialized</code></pre>
+<strong>Migration:</strong> Ensure all published data is JSON-serializable:
+<pre><code class="language-javascript">// ❌ Bad
+client.publish({ topic: &#039;test&#039;, data: { el: document.body } });
+client.publish({ topic: &#039;test&#039;, data: { fn: () =&gt; {} } });
+
+// ✅ Good
+client.publish({ topic: &#039;test&#039;, data: { id: &#039;body&#039; } });
+client.publish({ topic: &#039;test&#039;, data: { action: &#039;click&#039; } });</code></pre>
+<h3>4. Wildcard Security (Breaking if Disabled)</h3>
+<strong>Old Behavior:</strong>
+<pre><code class="language-javascript">// Always allowed
+client.subscribe(&#039;*&#039;, handler);</code></pre>
+<strong>New Behavior (if allow-global-wildcard="false"):</strong>
+<pre><code class="language-javascript">// Rejected with error
+client.subscribe(&#039;*&#039;, handler);
+// Error: Global wildcard (*) is disabled for security</code></pre>
+<strong>Migration:</strong> Use scoped wildcards:
+<pre><code class="language-javascript">// ❌ If global wildcard disabled
+client.subscribe(&#039;*&#039;, handler);
+
+// ✅ Use scoped patterns
+client.subscribe(&#039;users.*&#039;, handler);
+client.subscribe(&#039;app.settings.*&#039;, handler);</code></pre>
+<h2>Error Handling</h2>
+<p>The enhanced bus emits detailed error events:</p>
+<pre><code class="language-javascript">client.subscribe(&#039;pan:sys.error&#039;, (msg) =&gt; {
+  console.error(&#039;PAN Error:&#039;, msg.data);
+
+  switch (msg.data.code) {
+    case &#039;RATE_LIMIT_EXCEEDED&#039;:
+      console.warn(&#039;Slow down publishing&#039;);
+      break;
+
+    case &#039;MESSAGE_INVALID&#039;:
+      console.error(&#039;Invalid message:&#039;, msg.data.details);
+      break;
+
+    case &#039;SUBSCRIPTION_INVALID&#039;:
+      console.error(&#039;Invalid subscription:&#039;, msg.data.details);
+      break;
+  }
+});</code></pre>
+<h3>Error Codes</h3>
+<p>| Code | Description | Solution |
+|------|-------------|----------|
+| <code>RATE_LIMIT_EXCEEDED</code> | Too many messages | Slow down or increase limit |
+| <code>MESSAGE_INVALID</code> | Invalid message structure | Fix message data |
+| <code>SUBSCRIPTION_INVALID</code> | Invalid topic pattern | Use valid pattern |</p>
+<h2>Monitoring</h2>
+<p>Access bus statistics for monitoring:</p>
+<pre><code class="language-javascript">// Request stats
+client.publish({ topic: &#039;pan:sys.stats&#039;, data: {} });
+
+// Handle stats
+client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
+  const {
+    published,      // Total messages published
+    delivered,      // Total deliveries made
+    dropped,        // Messages dropped (rate limit)
+    retained,       // Current retained count
+    retainedEvicted, // Total evicted
+    subscriptions,  // Active subscriptions
+    clients,        // Registered clients
+    errors          // Total errors
+  } = msg.data;
+
+  // Send to monitoring system
+  sendMetrics(msg.data);
+});</code></pre>
+<h3>Recommended Monitoring</h3>
+<pre><code class="language-javascript">// Poll stats every minute
+setInterval(() =&gt; {
+  client.publish({ topic: &#039;pan:sys.stats&#039;, data: {} });
+}, 60000);
+
+// Alert on anomalies
+client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
+  if (msg.data.errors &gt; 100) {
+    alert(&#039;High error rate detected!&#039;);
+  }
+
+  if (msg.data.dropped &gt; 1000) {
+    alert(&#039;Many messages being dropped!&#039;);
+  }
+
+  if (msg.data.retained &gt; msg.data.config.maxRetained * 0.9) {
+    alert(&#039;Approaching retained message limit!&#039;);
+  }
+});</code></pre>
+<h2>Testing Your Migration</h2>
+<h3>1. Unit Tests</h3>
+<pre><code class="language-javascript">describe(&#039;PAN Enhanced Migration&#039;, () =&gt; {
+  let client;
+
+  beforeEach(async () =&gt; {
+    document.body.innerHTML = `
+      &lt;pan-bus-enhanced
+        max-retained=&quot;10&quot;
+        rate-limit=&quot;50&quot;&gt;
+      &lt;/pan-bus-enhanced&gt;
+    `;
+
+    client = new PanClient();
+    await client.ready();
+  });
+
+  it(&#039;should enforce retained limit&#039;, async () =&gt; {
+    // Publish more than limit
+    for (let i = 0; i &lt; 20; i++) {
+      client.publish({
+        topic: `test.${i}`,
+        data: { i },
+        retain: true
+      });
+    }
+
+    // Check stats
+    const stats = await client.request(&#039;pan:sys.stats&#039;, {});
+    expect(stats.data.retained).toBe(10);
+    expect(stats.data.retainedEvicted).toBe(10);
+  });
+
+  it(&#039;should reject invalid data&#039;, (done) =&gt; {
+    client.subscribe(&#039;pan:sys.error&#039;, (msg) =&gt; {
+      expect(msg.data.code).toBe(&#039;MESSAGE_INVALID&#039;);
+      done();
+    });
+
+    // Try to publish function
+    client.publish({
+      topic: &#039;test&#039;,
+      data: { fn: () =&gt; {} }
+    });
+  });
+});</code></pre>
+<h3>2. Load Testing</h3>
+<pre><code class="language-javascript">async function loadTest() {
+  const client = new PanClient();
+  await client.ready();
+
+  let dropped = 0;
+
+  client.subscribe(&#039;pan:sys.error&#039;, (msg) =&gt; {
+    if (msg.data.code === &#039;RATE_LIMIT_EXCEEDED&#039;) {
+      dropped++;
+    }
+  });
+
+  // Blast messages
+  const start = Date.now();
+  for (let i = 0; i &lt; 10000; i++) {
+    client.publish({ topic: &#039;load-test&#039;, data: { i } });
+  }
+  const duration = Date.now() - start;
+
+  // Get stats
+  client.publish({ topic: &#039;pan:sys.stats&#039;, data: {} });
+
+  client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
+    console.log(&#039;Load test results:&#039;, {
+      duration,
+      published: msg.data.published,
+      dropped: msg.data.dropped,
+      throughput: (msg.data.published / duration) * 1000
+    });
+  });
+}</code></pre>
+<h3>3. Memory Testing</h3>
+<pre><code class="language-javascript">async function memoryTest() {
+  const client = new PanClient();
+  await client.ready();
+
+  // Measure initial memory
+  const before = performance.memory?.usedJSHeapSize;
+
+  // Create lots of retained messages
+  for (let i = 0; i &lt; 100000; i++) {
+    client.publish({
+      topic: `test.${i}`,
+      data: { value: Math.random() },
+      retain: true
+    });
+  }
+
+  // Check retained count (should be limited)
+  client.publish({ topic: &#039;pan:sys.stats&#039;, data: {} });
+
+  client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
+    const after = performance.memory?.usedJSHeapSize;
+
+    console.log(&#039;Memory test:&#039;, {
+      retainedCount: msg.data.retained,
+      configLimit: msg.data.config.maxRetained,
+      memoryGrowth: (after - before) / 1024 / 1024 + &#039; MB&#039;
+    });
+
+    // Should not grow unbounded
+    expect(msg.data.retained).toBe(msg.data.config.maxRetained);
+  });
+}</code></pre>
+<h2>Rollback Plan</h2>
+<p>If you encounter issues:</p>
+<h3>1. Quick Rollback</h3>
+<pre><code class="language-html">&lt;!-- Change enhanced back to basic --&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;</code></pre>
+<h3>2. Gradual Migration</h3>
+<p>Use both buses temporarily:</p>
+<pre><code class="language-html">&lt;!-- Keep basic bus for critical components --&gt;
+&lt;pan-bus id=&quot;legacy&quot;&gt;&lt;/pan-bus&gt;
+
+&lt;!-- Add enhanced bus for new features --&gt;
+&lt;pan-bus-enhanced id=&quot;enhanced&quot;&gt;&lt;/pan-bus-enhanced&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  // Legacy code uses basic bus
+  const legacyClient = new PanClient(document, &#039;#legacy&#039;);
+
+  // New code uses enhanced bus
+  const enhancedClient = new PanClient(document, &#039;#enhanced&#039;);
+&lt;/script&gt;</code></pre>
+<h2>Common Issues</h2>
+<h3>Issue: Messages Being Dropped</h3>
+<strong>Symptom:</strong>
+<pre><code class="language-plaintext">Error: RATE_LIMIT_EXCEEDED</code></pre>
+<strong>Solutions:</strong>
+<li>Increase rate limit: <code>rate-limit="2000"</code></li>
+<li>Batch messages instead of sending individually</li>
+<li>Debounce rapid updates</li>
+<h3>Issue: Retained Messages Evicted</h3>
+<strong>Symptom:</strong>
+<pre><code class="language-plaintext">Stats show retainedEvicted &gt; 0</code></pre>
+<strong>Solutions:</strong>
+<li>Increase retained limit: <code>max-retained="2000"</code></li>
+<li>Use fewer unique retained topics</li>
+<li>Clear old topics: <code>client.publish({ topic: 'pan:sys.clear-retained', data: { pattern: 'old.*' } })</code></li>
+<h3>Issue: Global Wildcard Rejected</h3>
+<strong>Symptom:</strong>
+<pre><code class="language-plaintext">Error: Global wildcard (*) is disabled for security</code></pre>
+<strong>Solutions:</strong>
+<li>Enable in config: <code>allow-global-wildcard="true"</code></li>
+<li>Use scoped wildcards: <code>'users.<em>'</code> instead of <code>'</em>'</code></li>
+<h2>Support</h2>
+<p>For migration issues:</p>
+<ul><li>📖 <a href="./SECURITY.md">Security Guide</a></li>
+<li>📖 <a href="./API_REFERENCE.md">API Reference</a></li>
+<li>🐛 <a href="https://github.com/youruser/pan/issues">GitHub Issues</a></li>
+<li>💬 <a href="https://github.com/youruser/pan/discussions">Discussions</a></li>
+</ul>
+<h2>Checklist</h2>
+<p>Before deploying to production:</p>
+<ul><li>[ ] Updated HTML to use <code>pan-bus-enhanced</code></li>
+<li>[ ] Configured appropriate limits for your app</li>
+<li>[ ] Added error monitoring for <code>pan:sys.error</code></li>
+<li>[ ] Added stats monitoring</li>
+<li>[ ] Tested with production-like load</li>
+<li>[ ] Verified memory doesn't grow unbounded</li>
+<li>[ ] Reviewed security settings</li>
+<li>[ ] Updated documentation for your team</li>
+<li>[ ] Tested rollback procedure</li>
+<li>[ ] Set up monitoring dashboards</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/MIGRATION_ENHANCED.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

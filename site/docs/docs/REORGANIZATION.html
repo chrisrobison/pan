@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Reorganization - Project Structure · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Reorganization - Project Structure">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>REORGANIZATION</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Reorganization - Project Structure</h1>
+<h2>Overview</h2>
+<p>The PAN project has been reorganized with a clean, approachable top-level structure and a clear, layered component architecture. This document explains the new structure and migration path.</p>
+<h2>Top-Level Structure</h2>
+<p>The project now has a simple, welcoming top-level that clearly shows what PAN is about:</p>
+<pre><code class="language-plaintext">pan/
+├── pan/           # 🎯 Component library (the heart of the project)
+├── site/          # 🌐 Website (homepage, gallery, demos viewer)
+├── apps/          # 📱 Demo applications
+├── examples/      # 📚 Example usage pages
+├── docs/          # 📖 Documentation
+│   ├── rfcs/      # (moved from top-level)
+│   └── templates/ # (moved from top-level)
+├── assets/        # 🎨 Shared resources
+│   └── badges/    # (moved from top-level)
+├── scripts/       # 🔧 Build and utility scripts
+├── tests/         # ✅ Test suite
+├── packages/      # 📦 NPM packages
+└── ...            # Config files</code></pre>
+<strong>Benefits:</strong>
+<ul><li><strong>Approachable</strong> - New users immediately understand what's what</li>
+<li><strong>Focused</strong> - The <code>pan/</code> folder clearly contains the component library</li>
+<li><strong>Organized</strong> - Website, apps, examples, and docs are separate</li>
+<li><strong>Professional</strong> - Clean structure reflects project simplicity</li>
+</ul>
+<h2>Component Library Structure</h2>
+<p>Inside the <code>pan/</code> folder, components are organized by complexity and purpose:</p>
+<pre><code class="language-plaintext">pan/
+├── core/          # Core infrastructure (required for PAN to work)
+├── ui/            # Simple, reusable UI building blocks
+├── components/    # Complex, feature-rich widgets
+├── data/          # State management and data layer
+└── app/           # Domain-specific application components
+    ├── invoice/   # Invoice app components
+    └── devtools/  # Developer tools components</code></pre>
+<h2>Component Categories</h2>
+<h3>Core (<code>pan/core/</code>) - Infrastructure</h3>
+<strong>Purpose:</strong> Essential PAN infrastructure required for the system to function.
+<strong>Components:</strong>
+<ul><li><code>pan-bus.mjs</code> - Central message bus</li>
+<li><code>pan-client.mjs</code> - Client library for PAN interaction</li>
+<li><code>pan-autoload.mjs</code> - Automatic component loader</li>
+</ul>
+<strong>When to use:</strong> Always - these are the foundation of PAN.
+<strong>Import example:</strong>
+<pre><code class="language-javascript">import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;</code></pre>
+<hr>
+<h3>UI (<code>pan/ui/</code>) - Simple Building Blocks</h3>
+<strong>Purpose:</strong> Lightweight, single-purpose UI components that are highly reusable.
+<strong>Components:</strong>
+<ul><li><code>pan-card.mjs</code> - Card container</li>
+<li><code>pan-modal.mjs</code> - Modal dialog</li>
+<li><code>pan-dropdown.mjs</code> - Dropdown menu</li>
+<li><code>pan-tabs.mjs</code> - Tabbed interface</li>
+<li><code>pan-link.mjs</code> - Navigation link</li>
+<li><code>pan-search-bar.mjs</code> - Search input</li>
+<li><code>pan-pagination.mjs</code> - Pagination controls</li>
+<li><code>editable-cell.mjs</code> - Inline editable cell</li>
+<li><code>file-upload.mjs</code> - File upload widget</li>
+<li><code>user-avatar.mjs</code> - User avatar display</li>
+</ul>
+<strong>Characteristics:</strong>
+<ul><li>Simple, focused responsibility</li>
+<li>Minimal dependencies</li>
+<li>Highly reusable</li>
+<li>Works in any context</li>
+</ul>
+<strong>When to use:</strong> Building basic UI layouts and interactions.
+<strong>Import example:</strong>
+<pre><code class="language-javascript">import &#039;./pan/ui/pan-card.mjs&#039;;
+import &#039;./pan/ui/pan-modal.mjs&#039;;</code></pre>
+<hr>
+<h3>Components (<code>pan/components/</code>) - Feature-Rich Widgets</h3>
+<strong>Purpose:</strong> Complex, production-ready components with substantial functionality.
+<strong>Components:</strong>
+<ul><li><code>pan-markdown-editor.mjs</code> - Full markdown IDE</li>
+<li><code>pan-markdown-renderer.mjs</code> - Markdown parser/renderer</li>
+<li><code>pan-files.mjs</code> - File system manager (OPFS)</li>
+<li><code>pan-data-table.mjs</code> - Sortable, filterable table</li>
+<li><code>pan-schema-form.mjs</code> - Schema-driven forms</li>
+<li><code>pan-chart.mjs</code> - Data visualization</li>
+<li><code>pan-date-picker.mjs</code> - Date selection</li>
+<li><code>pan-theme-provider.mjs</code> - Theme management</li>
+<li><code>pan-theme-toggle.mjs</code> - Theme switcher</li>
+<li><code>pan-form.mjs</code> - Generic forms</li>
+<li><code>todo-list.mjs</code> - Todo widget</li>
+<li><code>drag-drop-list.mjs</code> - Sortable list</li>
+<li>Plus connectors and utilities...</li>
+</ul>
+<strong>Characteristics:</strong>
+<ul><li>Feature-rich</li>
+<li>Self-contained</li>
+<li>Production-ready</li>
+<li>Complex interactions</li>
+</ul>
+<strong>When to use:</strong> Need complete, ready-to-use functionality.
+<strong>Import example:</strong>
+<pre><code class="language-javascript">import &#039;./pan/components/pan-markdown-editor.mjs&#039;;
+import &#039;./pan/components/pan-files.mjs&#039;;</code></pre>
+<hr>
+<h3>Data (<code>pan/data/</code>) - State Management</h3>
+<strong>Purpose:</strong> Components that manage application state and persistence.
+<strong>Components:</strong>
+<ul><li><code>pan-invoice-store.mjs</code> - Invoice state management</li>
+</ul>
+<strong>Characteristics:</strong>
+<ul><li>No UI (pure logic)</li>
+<li>Manages state</li>
+<li>Handles persistence (localStorage, IndexedDB)</li>
+<li>Coordinates via PAN bus</li>
+</ul>
+<strong>When to use:</strong> Need centralized state management for your application.
+<strong>Import example:</strong>
+<pre><code class="language-javascript">import &#039;./pan/data/pan-invoice-store.mjs&#039;;</code></pre>
+<hr>
+<h3>App (<code>pan/app/</code>) - Domain-Specific Components</h3>
+<strong>Purpose:</strong> Components built for specific applications, not intended for general reuse.
+<strong>Structure:</strong>
+<pre><code class="language-plaintext">app/
+├── invoice/
+│   ├── pan-invoice-header.mjs
+│   ├── pan-invoice-items.mjs
+│   └── pan-invoice-totals.mjs
+└── devtools/
+    ├── pan-inspector.mjs
+    ├── pan-demo-viewer.mjs
+    └── pan-demo-nav.mjs</code></pre>
+<strong>Characteristics:</strong>
+<ul><li>Tightly coupled to specific apps</li>
+<li>Contains domain logic</li>
+<li>Not intended for reuse</li>
+<li>May depend on other app components</li>
+</ul>
+<strong>When to use:</strong> Building application-specific features.
+<strong>Import example:</strong>
+<pre><code class="language-javascript">import &#039;./app/invoice/pan-invoice-header.mjs&#039;;
+import &#039;./app/devtools/pan-inspector.mjs&#039;;</code></pre>
+<hr>
+<h3>Apps (<code>apps/</code>) - Demo Applications</h3>
+<strong>Purpose:</strong> Complete, working applications that demonstrate PAN usage.
+<strong>Applications:</strong>
+<ul><li><code>invoice.html</code> - Invoice creator</li>
+<li><code>markdown-notes.html</code> - Markdown editor</li>
+<li><code>data-browser.html</code> - Data visualization</li>
+<li><code>contact-manager.html</code> - Contact management</li>
+</ul>
+<strong>When to use:</strong> Reference implementations, learning, templates.
+<hr>
+<h2>Migration from Old Structure</h2>
+<h3>Old vs New Paths</h3>
+<p>| Old Path | New Path | Category |
+|----------|----------|----------|
+| <code>components/pan-bus.mjs</code> | <code>pan/core/pan-bus.mjs</code> | Core |
+| <code>components/pan-client.mjs</code> | <code>pan/core/pan-client.mjs</code> | Core |
+| <code>components/pan-autoload.mjs</code> | <code>pan/core/pan-autoload.mjs</code> | Core |
+| <code>components/pan-card.mjs</code> | <code>pan/ui/pan-card.mjs</code> | UI |
+| <code>components/pan-modal.mjs</code> | <code>pan/ui/pan-modal.mjs</code> | UI |
+| <code>components/pan-markdown-editor.mjs</code> | <code>pan/components/pan-markdown-editor.mjs</code> | Components |
+| <code>components/pan-files.mjs</code> | <code>pan/components/pan-files.mjs</code> | Components |
+| <code>components/pan-invoice-store.mjs</code> | <code>pan/data/pan-invoice-store.mjs</code> | Data |
+| <code>components/pan-invoice-header.mjs</code> | <code>pan/app/invoice/pan-invoice-header.mjs</code> | App |
+| <code>components/pan-inspector.mjs</code> | <code>pan/app/devtools/pan-inspector.mjs</code> | App |
+| <code>demo-apps/</code> | <code>apps/</code> | Apps |</p>
+<h3>Automated Migration</h3>
+<p>All import paths have been automatically updated in:
+<ul><li>HTML files in <code>apps/</code>, <code>examples/</code>, and root</li>
+<li>JavaScript/module files throughout the project</li>
+<li>Documentation and README files</li>
+</ul>
+<strong>No action needed</strong> - your existing code will work with the new structure.</p>
+<h3>Manual Migration (if needed)</h3>
+<p>If you have external projects using PAN:</p>
+<pre><code class="language-javascript">// Old
+import { PanClient } from &#039;./components/pan-client.mjs&#039;;
+import &#039;./components/pan-card.mjs&#039;;
+
+// New
+import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+import &#039;./pan/ui/pan-card.mjs&#039;;</code></pre>
+<hr>
+<h2>Decision Criteria</h2>
+<strong>When creating a new component, where does it go?</strong>
+<h3>Core</h3>
+<ul><li>Required for PAN to function</li>
+<li>No dependencies</li>
+<li>Used by everything</li>
+</ul>
+<h3>UI</h3>
+<ul><li>Single, focused purpose</li>
+<li>Reusable across many projects</li>
+<li>Simple, lightweight</li>
+<li>Few or no dependencies</li>
+</ul>
+<h3>Components</h3>
+<ul><li>Complex functionality</li>
+<li>Multiple features</li>
+<li>Production-ready widget</li>
+<li>May have dependencies</li>
+</ul>
+<h3>Data</h3>
+<ul><li>No UI</li>
+<li>Manages state</li>
+<li>Handles persistence</li>
+<li>Coordinates via PAN</li>
+</ul>
+<h3>App</h3>
+<ul><li>Built for specific application</li>
+<li>Tightly coupled to domain</li>
+<li>Not intended for reuse</li>
+<li>Contains business logic</li>
+</ul>
+<hr>
+<h2>Benefits</h2>
+<h3>For Users</h3>
+✅ <strong>Easier to find</strong> - Know where to look by complexity level
+✅ <strong>Clear purpose</strong> - Each directory has a specific role
+✅ <strong>Better learning</strong> - Progress from simple to complex
+✅ <strong>Faster onboarding</strong> - Structure makes sense immediately
+<h3>For Contributors</h3>
+✅ <strong>Clear guidelines</strong> - Know where to put new components
+✅ <strong>Organized codebase</strong> - Easy to navigate
+✅ <strong>Separation of concerns</strong> - Components have clear boundaries
+✅ <strong>Scalable</strong> - Easy to add new categories
+<h3>For the Project</h3>
+✅ <strong>Better documentation</strong> - Each layer documented separately
+✅ <strong>Dependency clarity</strong> - Layers depend on lower layers only
+✅ <strong>Bundle optimization</strong> - Import only what you need
+✅ <strong>Version management</strong> - Can version layers independently
+<hr>
+<h2>Component Dependency Graph</h2>
+<pre><code class="language-plaintext">Apps (apps/)
+  ↓ uses
+App Components (app/)
+  ↓ uses
+Data Layer (data/)
+  ↓ uses
+Complex Components (components/)
+  ↓ uses
+UI Building Blocks (ui/)
+  ↓ uses
+Core Infrastructure (core/)</code></pre>
+<hr>
+<h2>Best Practices</h2>
+<h3>Creating New Components</h3>
+<li><strong>Start simple</strong> - Begin in <code>pan/ui/</code> if possible</li>
+<li><strong>Promote when needed</strong> - Move to <code>pan/components/</code> when complexity grows</li>
+<li><strong>Keep app-specific separate</strong> - Don't try to make everything reusable</li>
+<li><strong>Document dependencies</strong> - Be clear about what layer you depend on</li>
+<li><strong>Use README</strong> - Each directory has a README explaining its purpose</li>
+<h3>Naming Conventions</h3>
+<ul><li><strong>Keep <code>pan-*</code> prefix</strong> - All components maintain consistent naming</li>
+<li><strong>Organize by folder</strong> - Structure shows purpose, not name</li>
+<li><strong>Use descriptive names</strong> - Clear about functionality</li>
+</ul>
+<h3>Import Patterns</h3>
+<pre><code class="language-javascript">// Good - Import from appropriate layer
+import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+import &#039;./pan/ui/pan-card.mjs&#039;;
+import &#039;./pan/components/pan-markdown-editor.mjs&#039;;
+
+// Bad - Reaching across layers inappropriately
+// (app component importing from another app)
+import &#039;./pan/app/invoice/pan-invoice-header.mjs&#039;; // from app/devtools/</code></pre>
+<hr>
+<h2>FAQ</h2>
+<strong>Q: Why not just keep everything in <code>pan/components/</code>?</strong>
+<p>A: It was getting too large and hard to navigate. The layered structure makes it clear what's infrastructure vs. building blocks vs. complete widgets.</p>
+<strong>Q: Can UI components use other UI components?</strong>
+<p>A: Yes, UI components can compose other UI components. They should not depend on complex components though.</p>
+<strong>Q: Can I put connectors (REST, GraphQL, etc.) in components/?</strong>
+<p>A: Yes, connectors are feature-rich components even though they may not have UI.</p>
+<strong>Q: What if a component could fit in multiple categories?</strong>
+<p>A: Use these guidelines:
+<ul><li>Does it have UI? If no → <code>pan/data/</code></li>
+<li>Is it simple and single-purpose? → <code>pan/ui/</code></li>
+<li>Is it complex or feature-rich? → <code>pan/components/</code></li>
+<li>Is it app-specific? → <code>pan/app/</code></li>
+</ul>
+<strong>Q: Will this break my existing code?</strong></p>
+<p>A: No - all import paths have been automatically updated throughout the repository.</p>
+<hr>
+<h2>Future Considerations</h2>
+<p>As the project grows, we may add:
+<ul><li><code>integrations/</code> - Third-party integrations</li>
+<li><code>adapters/</code> - Protocol adapters</li>
+<li><code>providers/</code> - Data providers</li>
+<li><code>layouts/</code> - Layout components</li>
+<li><code>utilities/</code> - Shared utilities</li>
+</ul>
+<hr></p>
+<h2>Resources</h2>
+<ul><li>Core README: <code>pan/core/README.md</code></li>
+<li>UI README: <code>pan/ui/README.md</code></li>
+<li>Components README: <code>pan/components/README.md</code></li>
+<li>Data README: <code>pan/data/README.md</code></li>
+<li>App README: <code>pan/app/README.md</code></li>
+<li>Apps README: <code>apps/README.md</code></li>
+<li>Main README: <code>README.md</code></li>
+</ul>
+<hr>
+<strong>Version:</strong> 1.0.0 (October 2024)
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/REORGANIZATION.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

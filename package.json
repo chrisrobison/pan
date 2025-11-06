@@ -6,6 +6,9 @@
   "description": "LARC (Lightweight Asynchronous Relay Core) — Page Area Network (PAN) examples and tests",
   "scripts": {
     "build": "node scripts/build.js",
+    "build:docs": "node scripts/render-markdown.mjs",
+    "build:all": "npm run build && npm run build:docs",
+    "serve": "node scripts/dev-server.mjs",
     "test": "node tests/lib/run-tests-with-server.mjs",
     "test:headed": "node tests/lib/run-tests-with-server.mjs --headed",
     "test:watch": "node tests/lib/run-tests-with-server.mjs --watch",

@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Topic Conventions · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Topic Conventions">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>TOPICS</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Topic Conventions</h1>
+<p>Comprehensive guide to topic naming patterns and conventions for PAN v1.0.</p>
+<hr>
+<h2>Table of Contents</h2>
+<li><a href="#naming-format">Naming Format</a></li>
+<li><a href="#crud-patterns">CRUD Patterns</a></li>
+<li><a href="#state-management">State Management</a></li>
+<li><a href="#events-vs-commands">Events vs Commands</a></li>
+<li><a href="#reserved-namespaces">Reserved Namespaces</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#common-patterns">Common Patterns</a></li>
+<hr>
+<h2>Naming Format</h2>
+<h3>Standard Pattern</h3>
+<pre><code class="language-plaintext">resource.action.qualifier</code></pre>
+<strong>Components:</strong>
+<ul><li><code>resource</code> - What you're working with (users, posts, nav, ui)</li>
+<li><code>action</code> - What's happening (list, item, get, save, delete, goto)</li>
+<li><code>qualifier</code> - Additional context (state, request, reply, event)</li>
+</ul>
+<h3>Examples</h3>
+<pre><code class="language-plaintext">users.list.state        # User list state (retained)
+users.list.get          # Get user list (request)
+users.item.get          # Get single user (request)
+users.item.save         # Save user (request)
+users.item.delete       # Delete user (request)
+users.item.select       # User selected (event)
+users.item.updated      # User was updated (event)
+
+posts.list.state        # Post list state (retained)
+posts.item.created      # Post created (event)
+
+nav.goto                # Navigate (command)
+nav.back                # Go back (command)
+
+ui.modal.opened         # Modal opened (event)
+ui.modal.closed         # Modal closed (event)
+ui.sidebar.toggle       # Toggle sidebar (command)</code></pre>
+<hr>
+<h2>CRUD Patterns</h2>
+<h3>List Operations</h3>
+<strong>List State</strong> (retained):
+<pre><code class="language-plaintext">${resource}.list.state</code></pre>
+<p>Retained message containing current list data.</p>
+<pre><code class="language-javascript">// Publish list state
+client.publish({
+  topic: &#039;users.list.state&#039;,
+  data: {
+    items: [user1, user2, user3],
+    total: 50,
+    page: 1
+  },
+  retain: true
+});
+
+// Subscribe to list state
+client.subscribe(&#039;users.list.state&#039;, (msg) =&gt; {
+  renderUserList(msg.data.items);
+}, { retained: true });</code></pre>
+<strong>List Get</strong> (request):
+<pre><code class="language-plaintext">${resource}.list.get</code></pre>
+<p>Request to fetch list data.</p>
+<pre><code class="language-javascript">// Request list
+const response = await client.request(&#039;users.list.get&#039;, {
+  page: 1,
+  limit: 20,
+  filter: { active: true }
+});
+
+// Responder
+client.subscribe(&#039;users.list.get&#039;, async (msg) =&gt; {
+  if (!msg.replyTo) return;
+
+  const users = await db.getUsers(msg.data);
+
+  client.publish({
+    topic: msg.replyTo,
+    data: {
+      ok: true,
+      items: users,
+      total: await db.countUsers(msg.data.filter)
+    },
+    correlationId: msg.correlationId
+  });
+
+  // Also update retained state
+  client.publish({
+    topic: &#039;users.list.state&#039;,
+    data: { items: users },
+    retain: true
+  });
+});</code></pre>
+<hr>
+<h3>Item Operations</h3>
+<strong>Item Get</strong> (request):
+<pre><code class="language-plaintext">${resource}.item.get</code></pre>
+<p>Request single item by ID.</p>
+<pre><code class="language-javascript">// Request item
+const response = await client.request(&#039;users.item.get&#039;, { id: 123 });
+
+if (response.data.ok) {
+  console.log(&#039;User:&#039;, response.data.item);
+}
+
+// Responder
+client.subscribe(&#039;users.item.get&#039;, async (msg) =&gt; {
+  if (!msg.replyTo) return;
+
+  const user = await db.getUser(msg.data.id);
+
+  client.publish({
+    topic: msg.replyTo,
+    data: user ? { ok: true, item: user } : { ok: false, error: &#039;Not found&#039; },
+    correlationId: msg.correlationId
+  });
+});</code></pre>
+<strong>Item Save</strong> (request):
+<pre><code class="language-plaintext">${resource}.item.save</code></pre>
+<p>Create or update item.</p>
+<pre><code class="language-javascript">// Save item (create or update)
+const response = await client.request(&#039;users.item.save&#039;, {
+  item: {
+    id: 123,  // Omit for create
+    name: &#039;Alice&#039;,
+    email: &#039;alice@example.com&#039;
+  }
+});
+
+// Responder
+client.subscribe(&#039;users.item.save&#039;, async (msg) =&gt; {
+  if (!msg.replyTo) return;
+
+  const saved = await db.saveUser(msg.data.item);
+
+  client.publish({
+    topic: msg.replyTo,
+    data: { ok: true, item: saved },
+    correlationId: msg.correlationId
+  });
+
+  // Update list state
+  const users = await db.getUsers();
+  client.publish({
+    topic: &#039;users.list.state&#039;,
+    data: { items: users },
+    retain: true
+  });
+
+  // Notify about update
+  client.publish({
+    topic: &#039;users.item.updated&#039;,
+    data: { item: saved }
+  });
+});</code></pre>
+<strong>Item Delete</strong> (request):
+<pre><code class="language-plaintext">${resource}.item.delete</code></pre>
+<p>Delete item by ID.</p>
+<pre><code class="language-javascript">// Delete item
+const response = await client.request(&#039;users.item.delete&#039;, { id: 123 });
+
+// Responder
+client.subscribe(&#039;users.item.delete&#039;, async (msg) =&gt; {
+  if (!msg.replyTo) return;
+
+  await db.deleteUser(msg.data.id);
+
+  client.publish({
+    topic: msg.replyTo,
+    data: { ok: true, id: msg.data.id },
+    correlationId: msg.correlationId
+  });
+
+  // Update list state
+  const users = await db.getUsers();
+  client.publish({
+    topic: &#039;users.list.state&#039;,
+    data: { items: users },
+    retain: true
+  });
+
+  // Notify about deletion
+  client.publish({
+    topic: &#039;users.item.deleted&#039;,
+    data: { id: msg.data.id }
+  });
+});</code></pre>
+<strong>Item Select</strong> (event):
+<pre><code class="language-plaintext">${resource}.item.select</code></pre>
+<p>User selected an item (no reply needed).</p>
+<pre><code class="language-javascript">// Select item
+client.publish({
+  topic: &#039;users.item.select&#039;,
+  data: { id: 123 }
+});
+
+// Handle selection
+client.subscribe(&#039;users.item.select&#039;, (msg) =&gt; {
+  highlightUser(msg.data.id);
+  loadUserDetails(msg.data.id);
+});</code></pre>
+<hr>
+<h3>Per-Item State</h3>
+<strong>Item State</strong> (retained):
+<pre><code class="language-plaintext">${resource}.item.state.${id}</code></pre>
+<p>Retained state for specific item.</p>
+<pre><code class="language-javascript">// Publish item state
+client.publish({
+  topic: `users.item.state.${userId}`,
+  data: {
+    id: userId,
+    online: true,
+    lastSeen: Date.now()
+  },
+  retain: true
+});
+
+// Subscribe to item state
+client.subscribe(`users.item.state.${userId}`, (msg) =&gt; {
+  updateUserStatus(msg.data);
+}, { retained: true });
+
+// Subscribe to all item states
+client.subscribe(&#039;users.item.state.*&#039;, (msg) =&gt; {
+  console.log(&#039;User state changed:&#039;, msg.data.id);
+});</code></pre>
+<hr>
+<h2>State Management</h2>
+<h3>Retained State Pattern</h3>
+<strong>Always use <code>.state</code> suffix for retained topics:</strong>
+<pre><code class="language-javascript">// Good
+&#039;app.config.state&#039;
+&#039;users.list.state&#039;
+&#039;theme.current.state&#039;
+&#039;session.user.state&#039;
+
+// Bad (not clear it&#039;s retained)
+&#039;app.config&#039;
+&#039;users.list&#039;
+&#039;theme&#039;</code></pre>
+<h3>State Update Pattern</h3>
+<pre><code class="language-javascript">class StateManager {
+  constructor(topic, client) {
+    this.topic = topic;
+    this.client = client;
+    this.state = null;
+  }
+
+  // Update state
+  setState(newState) {
+    this.state = newState;
+    this.client.publish({
+      topic: `${this.topic}.state`,
+      data: newState,
+      retain: true
+    });
+  }
+
+  // Patch state (merge)
+  patchState(changes) {
+    this.state = { ...this.state, ...changes };
+    this.setState(this.state);
+  }
+
+  // Subscribe to state
+  subscribe(handler) {
+    return this.client.subscribe(`${this.topic}.state`, (msg) =&gt; {
+      this.state = msg.data;
+      handler(msg.data);
+    }, { retained: true });
+  }
+}
+
+// Usage
+const userState = new StateManager(&#039;users.current&#039;, client);
+
+userState.setState({ id: 123, name: &#039;Alice&#039; });
+userState.patchState({ online: true });
+
+userState.subscribe((state) =&gt; {
+  console.log(&#039;User state:&#039;, state);
+});</code></pre>
+<hr>
+<h2>Events vs Commands</h2>
+<h3>Events</h3>
+<p>Events describe something that <strong>already happened</strong>.</p>
+<strong>Use past tense:</strong>
+<pre><code class="language-plaintext">users.item.created
+users.item.updated
+users.item.deleted
+ui.modal.opened
+ui.modal.closed
+session.started
+session.ended</code></pre>
+<strong>Characteristics:</strong>
+<ul><li>Past tense</li>
+<li>No reply expected</li>
+<li>Fire-and-forget</li>
+<li>Multiple subscribers OK</li>
+</ul>
+<pre><code class="language-javascript">// Publish event
+client.publish({
+  topic: &#039;users.item.created&#039;,
+  data: { item: newUser }
+});
+
+// Multiple handlers
+client.subscribe(&#039;users.item.created&#039;, (msg) =&gt; {
+  logAnalytics(&#039;user_created&#039;, msg.data.item);
+});
+
+client.subscribe(&#039;users.item.created&#039;, (msg) =&gt; {
+  sendWelcomeEmail(msg.data.item);
+});
+
+client.subscribe(&#039;users.item.created&#039;, (msg) =&gt; {
+  updateUserCount();
+});</code></pre>
+<h3>Commands</h3>
+<p>Commands request something to <strong>happen in the future</strong>.</p>
+<strong>Use imperative:</strong>
+<pre><code class="language-plaintext">users.item.save
+users.item.delete
+nav.goto
+nav.back
+ui.modal.open
+ui.modal.close
+session.start
+session.end</code></pre>
+<strong>Characteristics:</strong>
+<ul><li>Imperative/verb form</li>
+<li>May expect reply (request/reply)</li>
+<li>Single handler (one thing does it)</li>
+<li>May fail</li>
+</ul>
+<pre><code class="language-javascript">// Publish command (fire-and-forget)
+client.publish({
+  topic: &#039;nav.goto&#039;,
+  data: { route: &#039;/users/123&#039; }
+});
+
+// Request command (expect reply)
+const response = await client.request(&#039;users.item.save&#039;, {
+  item: { name: &#039;Alice&#039; }
+});
+
+// Handler
+client.subscribe(&#039;nav.goto&#039;, (msg) =&gt; {
+  router.navigateTo(msg.data.route);
+});</code></pre>
+<hr>
+<h2>Reserved Namespaces</h2>
+<h3><code>pan:*</code> - PAN Internals</h3>
+<strong>Reserved for PAN system use. Do not use in application code.</strong>
+<pre><code class="language-plaintext">pan:sys.ready           # System ready
+pan:publish             # Internal publish
+pan:subscribe           # Internal subscribe
+pan:unsubscribe         # Internal unsubscribe
+pan:deliver             # Internal deliver
+pan:hello               # Client hello
+pan:$reply:*            # Auto-generated reply topics</code></pre>
+<h3><code>sys:*</code> - System Topics</h3>
+<strong>Reserved for future system-level topics.</strong>
+<pre><code class="language-plaintext">sys:error               # System errors (future)
+sys:perf                # Performance monitoring (future)
+sys:debug               # Debug information (future)</code></pre>
+<h3>Application Namespaces</h3>
+<strong>Your application should use its own namespaces:</strong>
+<pre><code class="language-plaintext">app.*                   # Application-level topics
+config.*                # Configuration
+session.*               # Session management
+auth.*                  # Authentication
+analytics.*             # Analytics events</code></pre>
+<hr>
+<h2>Best Practices</h2>
+<h3>DO ✅</h3>
+<strong>Use descriptive names:</strong>
+<pre><code class="language-javascript">// Good
+&#039;users.list.state&#039;
+&#039;users.item.updated&#039;
+&#039;nav.goto&#039;
+
+// Bad
+&#039;u.l.s&#039;
+&#039;u.upd&#039;
+&#039;go&#039;</code></pre>
+<strong>Use consistent patterns:</strong>
+<pre><code class="language-javascript">// Good - same pattern for all resources
+&#039;users.list.state&#039;
+&#039;posts.list.state&#039;
+&#039;comments.list.state&#039;
+
+// Bad - inconsistent
+&#039;users.list.state&#039;
+&#039;posts_list&#039;
+&#039;commentList&#039;</code></pre>
+<strong>Use retained for state:</strong>
+<pre><code class="language-javascript">// Good
+client.publish({
+  topic: &#039;app.theme.state&#039;,
+  data: { mode: &#039;dark&#039; },
+  retain: true
+});
+
+// Bad - state without retain
+client.publish({
+  topic: &#039;app.theme.state&#039;,
+  data: { mode: &#039;dark&#039; }
+});</code></pre>
+<strong>Use events for notifications:</strong>
+<pre><code class="language-javascript">// Good - notify about change
+client.publish({
+  topic: &#039;users.item.updated&#039;,
+  data: { item: updatedUser }
+});
+
+// Good - update state too
+client.publish({
+  topic: &#039;users.list.state&#039;,
+  data: { items: updatedList },
+  retain: true
+});</code></pre>
+<h3>DON'T ❌</h3>
+<strong>Don't use underscores:</strong>
+<pre><code class="language-javascript">// Bad
+&#039;users_list_state&#039;
+&#039;user.item_updated&#039;
+
+// Good
+&#039;users.list.state&#039;
+&#039;users.item.updated&#039;</code></pre>
+<strong>Don't use camelCase:</strong>
+<pre><code class="language-javascript">// Bad
+&#039;users.listState&#039;
+&#039;users.itemUpdated&#039;
+
+// Good
+&#039;users.list.state&#039;
+&#039;users.item.updated&#039;</code></pre>
+<strong>Don't use verbs for events:</strong>
+<pre><code class="language-javascript">// Bad - sounds like command
+&#039;users.update&#039;
+
+// Good - past tense
+&#039;users.updated&#039;</code></pre>
+<strong>Don't overuse wildcards:</strong>
+<pre><code class="language-javascript">// Bad - too broad
+client.subscribe(&#039;*&#039;, handler);
+
+// Good - specific
+client.subscribe(&#039;users.*&#039;, handler);</code></pre>
+<hr>
+<h2>Common Patterns</h2>
+<h3>Authentication</h3>
+<pre><code class="language-javascript">// Login (request)
+const response = await client.request(&#039;auth.login&#039;, {
+  email: &#039;alice@example.com&#039;,
+  password: &#039;secret&#039;
+});
+
+// Session state (retained)
+client.publish({
+  topic: &#039;auth.session.state&#039;,
+  data: {
+    user: { id: 123, name: &#039;Alice&#039; },
+    token: &#039;jwt-token&#039;
+  },
+  retain: true
+});
+
+// Logout (command)
+client.publish({
+  topic: &#039;auth.logout&#039;,
+  data: {}
+});
+
+// Events
+&#039;auth.login.success&#039;
+&#039;auth.login.failed&#039;
+&#039;auth.logout&#039;</code></pre>
+<h3>Navigation</h3>
+<pre><code class="language-javascript">// Navigate (command)
+client.publish({
+  topic: &#039;nav.goto&#039;,
+  data: { route: &#039;/users/123&#039; }
+});
+
+// History (commands)
+client.publish({ topic: &#039;nav.back&#039;, data: {} });
+client.publish({ topic: &#039;nav.forward&#039;, data: {} });
+
+// Current route (retained state)
+client.publish({
+  topic: &#039;nav.route.state&#039;,
+  data: { route: &#039;/users/123&#039;, params: { id: 123 } },
+  retain: true
+});
+
+// Events
+&#039;nav.navigated&#039;        # After navigation completes
+&#039;nav.error&#039;            # Navigation failed</code></pre>
+<h3>UI Components</h3>
+<pre><code class="language-javascript">// Modal
+&#039;ui.modal.open&#039;        # Command
+&#039;ui.modal.close&#039;       # Command
+&#039;ui.modal.opened&#039;      # Event
+&#039;ui.modal.closed&#039;      # Event
+&#039;ui.modal.state&#039;       # Retained state
+
+// Sidebar
+&#039;ui.sidebar.toggle&#039;    # Command
+&#039;ui.sidebar.open&#039;      # Command
+&#039;ui.sidebar.close&#039;     # Command
+&#039;ui.sidebar.state&#039;     # Retained state
+
+// Toast/Notifications
+&#039;ui.toast.show&#039;        # Command
+&#039;ui.toast.hide&#039;        # Command
+
+// Loading
+&#039;ui.loading.start&#039;     # Command
+&#039;ui.loading.stop&#039;      # Command
+&#039;ui.loading.state&#039;     # Retained state</code></pre>
+<h3>Data Sync</h3>
+<pre><code class="language-javascript">// Initial load
+const response = await client.request(&#039;users.list.get&#039;, {});
+
+// Publish state
+client.publish({
+  topic: &#039;users.list.state&#039;,
+  data: { items: response.data.items },
+  retain: true
+});
+
+// Subscribe to changes
+client.subscribe(&#039;users.item.updated&#039;, (msg) =&gt; {
+  // Update item in list
+  const items = getCurrentItems();
+  const index = items.findIndex(u =&gt; u.id === msg.data.item.id);
+  if (index &gt;= 0) {
+    items[index] = msg.data.item;
+
+    // Update state
+    client.publish({
+      topic: &#039;users.list.state&#039;,
+      data: { items },
+      retain: true
+    });
+  }
+});
+
+client.subscribe(&#039;users.item.deleted&#039;, (msg) =&gt; {
+  // Remove item from list
+  const items = getCurrentItems().filter(u =&gt; u.id !== msg.data.id);
+
+  // Update state
+  client.publish({
+    topic: &#039;users.list.state&#039;,
+    data: { items },
+    retain: true
+  });
+});</code></pre>
+<h3>Real-time Updates</h3>
+<pre><code class="language-javascript">// Server sends updates
+function handleServerUpdate(update) {
+  client.publish({
+    topic: `users.item.state.${update.userId}`,
+    data: {
+      id: update.userId,
+      online: update.online,
+      typing: update.typing,
+      lastSeen: update.lastSeen
+    },
+    retain: true
+  });
+}
+
+// UI subscribes
+client.subscribe(&#039;users.item.state.*&#039;, (msg) =&gt; {
+  updateUserPresence(msg.data);
+});</code></pre>
+<hr>
+<h2>Topic Catalog Template</h2>
+<p>For larger applications, maintain a topic catalog:</p>
+<pre><code class="language-javascript">// topics.js
+export const TOPICS = {
+  // Users
+  USERS: {
+    LIST: {
+      STATE: &#039;users.list.state&#039;,
+      GET: &#039;users.list.get&#039;
+    },
+    ITEM: {
+      GET: &#039;users.item.get&#039;,
+      SAVE: &#039;users.item.save&#039;,
+      DELETE: &#039;users.item.delete&#039;,
+      SELECT: &#039;users.item.select&#039;,
+      UPDATED: &#039;users.item.updated&#039;,
+      DELETED: &#039;users.item.deleted&#039;,
+      STATE: (id) =&gt; `users.item.state.${id}`
+    }
+  },
+
+  // Navigation
+  NAV: {
+    GOTO: &#039;nav.goto&#039;,
+    BACK: &#039;nav.back&#039;,
+    FORWARD: &#039;nav.forward&#039;,
+    ROUTE_STATE: &#039;nav.route.state&#039;,
+    NAVIGATED: &#039;nav.navigated&#039;
+  },
+
+  // Auth
+  AUTH: {
+    LOGIN: &#039;auth.login&#039;,
+    LOGOUT: &#039;auth.logout&#039;,
+    SESSION_STATE: &#039;auth.session.state&#039;
+  }
+};
+
+// Usage
+client.publish({
+  topic: TOPICS.USERS.ITEM.UPDATED,
+  data: { item: user }
+});
+
+client.subscribe(TOPICS.NAV.GOTO, (msg) =&gt; {
+  router.navigateTo(msg.data.route);
+});</code></pre>
+<hr>
+<h2>Summary</h2>
+<strong>Key Principles:</strong>
+<li>Use <code>resource.action.qualifier</code> format</li>
+<li>Use <code>.state</code> suffix for retained topics</li>
+<li>Use past tense for events, imperative for commands</li>
+<li>Be consistent across your application</li>
+<li>Avoid <code>pan:<em></code> and <code>sys:</em></code> namespaces</li>
+<strong>For more:</strong>
+<ul><li><a href="./API_REFERENCE.md">API Reference</a> - Complete API documentation</li>
+<li><a href="./API_STABILITY.md">API Stability</a> - Stability guarantees</li>
+</ul>
+<hr>
+<strong>Last Updated:</strong> November 2024
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/TOPICS.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

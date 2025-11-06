@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>v0.1.0 — SSE bridge, reactive stores, and live updates · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - v0.1.0 — SSE bridge, reactive stores, and live updates">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>RELEASE_NOTES_v0.1.0</span>
+      </div>
+      <article class="docs-content">
+        <h1>v0.1.0 — SSE bridge, reactive stores, and live updates</h1>
+<p>Tag: v0.1.0
+Date: 2025-10-17</p>
+<h2>Highlights</h2>
+<ul><li>New <code><pan-sse></code> element to bridge Server‑Sent Events into PAN topics.</li>
+<li>Tiny reactive store utils and PAN bridges:</li>
+</ul>  - <code>pan-store</code>: <code>createStore()</code>, <code>bind()</code> for form ↔ state.
+  - <code>pan-store-pan</code>: <code>syncItem()</code> and <code>syncList()</code> for live item/list sync and optional auto‑save.
+<ul><li>Live per‑item updates across components:</li>
+</ul>  - <code>pan-data-table</code> listens to <code>${resource}.item.state.*</code> for granular updates.
+  - <code>pan-form</code> follows <code>${resource}.item.select</code> and live‑syncs the selected item.
+  - Data providers publish per‑item snapshots (retained) and deletions (non‑retained).
+<ul><li>New example: <code>examples/10-sse-store.html</code> (auto‑save store + live updates).</li>
+<li>Minimal Node sidecar for SSE + REST: <code>examples/server/sse-server.js</code>.</li>
+<li>Refreshed demo suite UI and navigation; shared styles in <code>examples/assets/grail.css</code>.</li>
+</ul>
+<h2>Full Changelog</h2>
+See CHANGELOG.md: 0.1.0 for detailed changes.
+<h2>Upgrade Notes</h2>
+<ul><li>No breaking API changes to existing components.</li>
+<li>For realtime flows, providers now emit per‑item state on get/save and deletion notices; consumers can opt‑in via <code>live</code> attributes (default true).</li>
+</ul>
+<h2>Thanks</h2>
+This release introduces realtime updates and store helpers to streamline building reactive demos and apps on the PAN bus.
+
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/RELEASE_NOTES_v0.1.0.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Authentication System - Implementation Complete ✅ · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Authentication System - Implementation Complete ✅">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>AUTHENTICATION_SUMMARY</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Authentication System - Implementation Complete ✅</h1>
+<h2>What We Built</h2>
+<p>A complete JWT authentication system that <strong>eliminates manual header management</strong> - developers never write <code>Authorization: Bearer ${token}</code>.</p>
+<h3>Core Philosophy</h3>
+<strong>"Auth should be invisible infrastructure"</strong> - Developers focus on features, not plumbing.
+<hr>
+<h2>📦 Components Created</h2>
+<h3>1. <code>pan-auth.mjs</code> (12KB)</h3>
+<strong>Location:</strong> <code>pan/core/pan-auth.mjs</code>
+<p>JWT authentication manager:
+<ul><li>✅ Stores tokens in localStorage/sessionStorage/memory</li>
+<li>✅ Publishes retained <code>auth.state</code> (for UI)</li>
+<li>✅ Publishes retained <code>auth.internal.state</code> (for connectors - includes token)</li>
+<li>✅ Handles login/logout/refresh flows</li>
+<li>✅ Auto-refreshes tokens before expiry</li>
+<li>✅ Decodes JWT to check expiration</li>
+</ul>
+<strong>Topics:</strong>
+<ul><li>Commands: <code>auth.login</code>, <code>auth.logout</code>, <code>auth.refresh</code>, <code>auth.setToken</code>, <code>auth.check</code></li>
+<li>Events: <code>auth.state</code>, <code>auth.login.success</code>, <code>auth.login.error</code>, <code>auth.logout.success</code>, <code>auth.refresh.success</code>, <code>auth.refresh.error</code></li>
+</ul>
+<h3>2. <code>pan-fetch.mjs</code> (3.8KB)</h3>
+<strong>Location:</strong> <code>pan/core/pan-fetch.mjs</code></p>
+<p>Authenticated fetch wrapper:
+<ul><li>✅ Drop-in replacement for <code>fetch()</code></li>
+<li>✅ Auto-injects <code>Authorization</code> header</li>
+<li>✅ Convenience methods: <code>get()</code>, <code>post()</code>, <code>put()</code>, <code>patch()</code>, <code>delete()</code></li>
+<li>✅ <code>fetchJson()</code> - auto JSON parse + error handling</li>
+<li>✅ <code>isAuthenticated()</code> - check login status</li>
+</ul>
+<strong>Usage:</strong>
+<pre><code class="language-javascript">import { panFetch } from &#039;./pan/core/pan-fetch.mjs&#039;;
+const users = await panFetch.get(&#039;/api/users&#039;); // Auth header auto-added!</code></pre></p>
+<h3>3. Enhanced Connectors</h3>
+<p>#### <code>pan-data-connector.mjs</code> (Enhanced)
+<strong>Location:</strong> <code>pan/components/pan-data-connector.mjs</code></p>
+<ul><li>✅ Subscribes to <code>auth.internal.state</code></li>
+<li>✅ Auto-injects <code>Authorization: Bearer ${token}</code> in all fetch requests</li>
+<li>✅ Works with existing CRUD topics</li>
+</ul>
+#### <code>pan-graphql-connector.mjs</code> (Enhanced)
+<strong>Location:</strong> <code>pan/components/pan-graphql-connector.mjs</code>
+<ul><li>✅ Subscribes to <code>auth.internal.state</code></li>
+<li>✅ Auto-injects <code>Authorization: Bearer ${token}</code> in GraphQL requests</li>
+<li>✅ Works with existing GraphQL queries/mutations</li>
+</ul>
+<h3>4. Mock Auth API (6.8KB)</h3>
+<strong>Location:</strong> <code>examples/mock-auth-api.mjs</code>
+<p>Client-side JWT simulator for testing:
+<ul><li>✅ Intercepts <code>/api/*</code> requests</li>
+<li>✅ Simulates login/refresh/logout</li>
+<li>✅ Creates & validates mock JWT tokens</li>
+<li>✅ Test users included</li>
+</ul>
+<strong>Test Credentials:</strong>
+<ul><li><code>admin@example.com</code> / <code>admin123</code></li>
+<li><code>user@example.com</code> / <code>user123</code></li>
+<li><code>demo@example.com</code> / <code>demo</code></li>
+</ul>
+<h3>5. Complete Demo (11KB)</h3>
+<strong>Location:</strong> <code>examples/auth-demo.html</code></p>
+<p>Full working example:
+<ul><li>✅ Login form with credentials</li>
+<li>✅ Auth status display</li>
+<li>✅ Protected user list (requires auth)</li>
+<li>✅ Automatic header injection demonstration</li>
+<li>✅ Beautiful UI with gradients</li>
+</ul>
+<strong>Try it:</strong>
+<pre><code class="language-bash">open examples/auth-demo.html</code></pre></p>
+<hr>
+<h2>📚 Documentation</h2>
+<h3>1. Complete Guide (17KB)</h3>
+<strong>Location:</strong> <code>docs/AUTHENTICATION.md</code>
+<p>Comprehensive documentation:
+<ul><li>✅ Quick start</li>
+<li>✅ Architecture explanation</li>
+<li>✅ Component API reference</li>
+<li>✅ Topic reference</li>
+<li>✅ Complete examples</li>
+<li>✅ Token refresh guide</li>
+<li>✅ Storage options</li>
+<li>✅ Backend integration</li>
+<li>✅ Security best practices</li>
+<li>✅ Troubleshooting</li>
+<li>✅ FAQ</li>
+</ul>
+<h3>2. Quick Start (4.1KB)</h3>
+<strong>Location:</strong> <code>docs/AUTH_QUICKSTART.md</code></p>
+<p>TL;DR version:
+<ul><li>✅ 30-second setup</li>
+<li>✅ Login component</li>
+<li>✅ Protected component</li>
+<li>✅ Topics reference</li>
+<li>✅ Testing instructions</li>
+</ul>
+<hr></p>
+<h2>🚀 How It Works</h2>
+<h3>Architecture</h3>
+<pre><code class="language-plaintext">User Component           Data Component
+     │                        │
+     ├─→ auth.login ──────────┤
+     │                        │
+     ▼                        ▼
+┌─────────────────────────────────┐
+│         &lt;pan-auth&gt;              │  ← Manages tokens
+│    Auth State Manager           │
+└─────────────┬───────────────────┘
+              │
+              ├─→ auth.state (public - no token)
+              └─→ auth.internal.state (private - has token)
+                         │
+                         ▼
+              ┌──────────────────────┐
+              │  &lt;pan-connector&gt;     │  ← Auto-injects headers
+              │  Data Connector      │
+              └──────────────────────┘
+                         │
+                         ▼
+                    Authorization: Bearer ${token}
+                         │
+                         ▼
+                    Backend API</code></pre>
+<h3>Flow</h3>
+<li>User logs in via <code>auth.login</code> topic</li>
+<li><code><pan-auth></code> receives request, calls login API</li>
+<li>On success, stores token and publishes <code>auth.state</code> + <code>auth.internal.state</code></li>
+<li>Connectors subscribe to <code>auth.internal.state</code>, get token</li>
+<li>All subsequent requests automatically include <code>Authorization: Bearer ${token}</code></li>
+<li>Before token expires, <code><pan-auth></code> auto-refreshes</li>
+<li>User logs out via <code>auth.logout</code>, tokens cleared</li>
+<hr>
+<h2>✨ Key Features</h2>
+<h3>1. Zero Manual Headers</h3>
+<strong>Before:</strong>
+<pre><code class="language-javascript">const response = await fetch(&#039;/api/users&#039;, {
+  headers: {
+    &#039;Authorization&#039;: `Bearer ${token}` // ❌ Manual!
+  }
+});</code></pre>
+<strong>After:</strong>
+<pre><code class="language-javascript">pc.publish({ topic: &#039;users.list.get&#039;, data: {} }); // ✅ Automatic!</code></pre>
+<h3>2. Declarative Setup</h3>
+<pre><code class="language-html">&lt;!-- Drop on page, done --&gt;
+&lt;pan-auth storage=&quot;localStorage&quot; auto-refresh=&quot;true&quot;&gt;&lt;/pan-auth&gt;
+&lt;pan-data-connector resource=&quot;users&quot; base-url=&quot;/api&quot;&gt;&lt;/pan-data-connector&gt;</code></pre>
+<h3>3. Component Ignorance</h3>
+<p>Components don't know auth exists:
+<pre><code class="language-javascript">customElements.define(&#039;user-list&#039;, class extends HTMLElement {
+  connectedCallback() {
+    const pc = new PanClient(this);
+    // Just request data - auth handled automatically
+    pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+  }
+});</code></pre></p>
+<h3>4. Auto Token Refresh</h3>
+<pre><code class="language-html">&lt;pan-auth auto-refresh=&quot;true&quot; refresh-before=&quot;300&quot;&gt;&lt;/pan-auth&gt;
+&lt;!-- Tokens refresh 5 minutes before expiry - no expired token errors! --&gt;</code></pre>
+<h3>5. Works Everywhere</h3>
+<ul><li>✅ REST APIs via <code><pan-data-connector></code></li>
+<li>✅ GraphQL via <code><pan-graphql-connector></code></li>
+<li>✅ Custom fetches via <code>panFetch</code></li>
+<li>✅ All connectors auto-inject headers</li>
+</ul>
+<hr>
+<h2>📖 Usage Examples</h2>
+<h3>Minimal Setup</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+
+&lt;pan-auth storage=&quot;localStorage&quot; auto-refresh=&quot;true&quot;&gt;&lt;/pan-auth&gt;
+&lt;pan-data-connector resource=&quot;users&quot; base-url=&quot;/api&quot;&gt;&lt;/pan-data-connector&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  const pc = new PanClient();
+
+  // Login
+  await pc.request(&#039;auth.login&#039;, {
+    email: &#039;user@example.com&#039;,
+    password: &#039;pass123&#039;
+  });
+
+  // Fetch data - auth header automatically added!
+  pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+&lt;/script&gt;</code></pre>
+<h3>Login Component</h3>
+<pre><code class="language-javascript">customElements.define(&#039;login-form&#039;, class extends HTMLElement {
+  connectedCallback() {
+    const pc = new PanClient(this);
+
+    this.innerHTML = `
+      &lt;form&gt;
+        &lt;input name=&quot;email&quot; type=&quot;email&quot; required&gt;
+        &lt;input name=&quot;password&quot; type=&quot;password&quot; required&gt;
+        &lt;button&gt;Login&lt;/button&gt;
+      &lt;/form&gt;
+    `;
+
+    this.querySelector(&#039;form&#039;).addEventListener(&#039;submit&#039;, async (e) =&gt; {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      const result = await pc.request(&#039;auth.login&#039;, {
+        email: formData.get(&#039;email&#039;),
+        password: formData.get(&#039;password&#039;)
+      });
+
+      if (result.data.ok) {
+        alert(&#039;Logged in!&#039;);
+      }
+    });
+  }
+});</code></pre>
+<h3>Protected Component</h3>
+<pre><code class="language-javascript">customElements.define(&#039;user-list&#039;, class extends HTMLElement {
+  connectedCallback() {
+    const pc = new PanClient(this);
+
+    // React to auth state
+    pc.subscribe(&#039;auth.state&#039;, msg =&gt; {
+      if (msg.data.authenticated) {
+        pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+      } else {
+        this.innerHTML = &#039;&lt;p&gt;Please log in&lt;/p&gt;&#039;;
+      }
+    }, { retained: true });
+
+    // Display users
+    pc.subscribe(&#039;users.list.state&#039;, msg =&gt; {
+      this.innerHTML = `&lt;ul&gt;${msg.data.items.map(u =&gt;
+        `&lt;li&gt;${u.name}&lt;/li&gt;`
+      ).join(&#039;&#039;)}&lt;/ul&gt;`;
+    }, { retained: true });
+  }
+});</code></pre>
+<h3>Custom Fetch</h3>
+<pre><code class="language-javascript">import { panFetch } from &#039;./pan/core/pan-fetch.mjs&#039;;
+
+// All automatically include auth header
+const users = await panFetch.get(&#039;/api/users&#039;);
+const newUser = await panFetch.post(&#039;/api/users&#039;, { name: &#039;John&#039; });
+const updated = await panFetch.put(&#039;/api/users/1&#039;, { name: &#039;Jane&#039; });
+await panFetch.delete(&#039;/api/users/1&#039;);</code></pre>
+<hr>
+<h2>🎯 What Problem This Solves</h2>
+<h3>The Manual Header Problem</h3>
+<strong>Old way (error-prone):</strong>
+<pre><code class="language-javascript">// Every component needs to:
+const token = localStorage.getItem(&#039;token&#039;);
+const response = await fetch(&#039;/api/users&#039;, {
+  headers: { &#039;Authorization&#039;: `Bearer ${token}` }
+});
+
+// Problems:
+// - Easy to forget header
+// - Repeated code everywhere
+// - Token management in every component
+// - No auto-refresh
+// - Testing is hard</code></pre>
+<strong>New way (automatic):</strong>
+<pre><code class="language-javascript">// Component just requests data
+pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+
+// Benefits:
+// - Never forget headers
+// - No token management code
+// - Components are pure logic
+// - Auto-refresh built-in
+// - Easy to test (mock auth.state)</code></pre>
+<hr>
+<h2>🔒 Security</h2>
+<h3>Best Practices Implemented</h3>
+<li>✅ <strong>Two-tier state</strong></li>
+   - <code>auth.state</code> (public) - no token, safe for UI
+   - <code>auth.internal.state</code> (private) - has token, only for connectors
+<li>✅ <strong>Token storage options</strong></li>
+   - <code>localStorage</code> - persistent
+   - <code>sessionStorage</code> - temporary
+   - <code>memory</code> - no persistence (most secure)
+<li>✅ <strong>Auto-refresh</strong></li>
+   - Prevents expired token errors
+   - Configurable refresh timing
+<li>✅ <strong>HTTPS ready</strong></li>
+   - Works securely over HTTPS
+   - Token never exposed in URL
+<li>✅ <strong>Backend validation</strong></li>
+   - Tokens validated on backend
+   - Short-lived access tokens
+   - Long-lived refresh tokens
+<hr>
+<h2>🧪 Testing</h2>
+<h3>Run the Demo</h3>
+<pre><code class="language-bash"># Open auth demo
+open examples/auth-demo.html
+
+# Test with:
+# - admin@example.com / admin123
+# - user@example.com / user123
+# - demo@example.com / demo</code></pre>
+<h3>Mock API</h3>
+<p>The mock auth API (<code>examples/mock-auth-api.mjs</code>) provides:
+<ul><li>✅ Client-side JWT simulation</li>
+<li>✅ Token validation</li>
+<li>✅ Login/refresh/logout endpoints</li>
+<li>✅ Protected <code>/api/users</code> endpoint</li>
+<li>✅ Test users included</li>
+</ul>
+<h3>Integration Testing</h3></p>
+<pre><code class="language-javascript">// Mock auth state in tests
+pc.publish({
+  topic: &#039;auth.internal.state&#039;,
+  data: {
+    authenticated: true,
+    token: &#039;mock-token&#039;,
+    user: { id: 1, email: &#039;test@example.com&#039; }
+  },
+  retain: true
+});
+
+// Now all requests include mock token</code></pre>
+<hr>
+<h2>📊 Files Modified/Created</h2>
+<h3>New Files</h3>
+<pre><code class="language-plaintext">pan/core/
+  ├── pan-auth.mjs              (12KB) - Auth manager component
+  └── pan-fetch.mjs             (3.8KB) - Authenticated fetch wrapper
+
+examples/
+  ├── auth-demo.html            (11KB) - Complete working demo
+  └── mock-auth-api.mjs         (6.8KB) - Mock backend for testing
+
+docs/
+  ├── AUTHENTICATION.md         (17KB) - Complete documentation
+  └── AUTH_QUICKSTART.md        (4.1KB) - Quick reference</code></pre>
+<h3>Modified Files</h3>
+<pre><code class="language-plaintext">pan/components/
+  ├── pan-data-connector.mjs    - Added auto auth header injection
+  └── pan-graphql-connector.mjs - Added auto auth header injection</code></pre>
+<strong>Total:</strong> 6 new files, 2 enhanced files, ~55KB of code + docs
+<hr>
+<h2>🎓 Documentation</h2>
+<li><strong><code>docs/AUTHENTICATION.md</code></strong> - Complete guide (read this first!)</li>
+<li><strong><code>docs/AUTH_QUICKSTART.md</code></strong> - Quick reference (TL;DR version)</li>
+<li><strong><code>examples/auth-demo.html</code></strong> - Working demo (try it!)</li>
+<li><strong>Inline docs</strong> - All components have JSDoc comments</li>
+<hr>
+<h2>🚢 Ready to Ship</h2>
+<h3>What's Complete</h3>
+<ul><li>✅ JWT authentication manager</li>
+<li>✅ Auto header injection (REST + GraphQL)</li>
+<li>✅ Authenticated fetch wrapper</li>
+<li>✅ Auto token refresh</li>
+<li>✅ Storage options (localStorage/sessionStorage/memory)</li>
+<li>✅ Complete topic-based API</li>
+<li>✅ Mock backend for testing</li>
+<li>✅ Working demo</li>
+<li>✅ Comprehensive documentation</li>
+</ul>
+<h3>Zero Dependencies</h3>
+<ul><li>✅ No build step</li>
+<li>✅ No TypeScript compilation</li>
+<li>✅ No external auth libraries</li>
+<li>✅ Just plain JavaScript ESM</li>
+</ul>
+<h3>Zero Configuration</h3>
+<ul><li>✅ Drop <code><pan-auth></code> on page</li>
+<li>✅ Set storage type</li>
+<li>✅ Done!</li>
+</ul>
+<hr>
+<h2>🎉 Summary</h2>
+<strong>You wanted:</strong> A way to handle auth without manual header management.
+<strong>You got:</strong> A complete authentication system where developers <strong>never write auth headers</strong>. They just:
+<li>Drop <code><pan-auth></code> on page</li>
+<li>Login via <code>auth.login</code> topic</li>
+<li>Make requests - headers auto-injected</li>
+<strong>Philosophy achieved:</strong> Auth is now invisible infrastructure, exactly as it should be.
+<hr>
+<h2>📞 Next Steps</h2>
+<li><strong>Try the demo:</strong> <code>open examples/auth-demo.html</code></li>
+<li><strong>Read the docs:</strong> <code>docs/AUTHENTICATION.md</code></li>
+<li><strong>Integrate with your backend:</strong> See "Backend Integration" section</li>
+<li><strong>Test in your app:</strong> Replace manual headers with <code><pan-auth></code></li>
+<hr>
+<strong>Status:</strong> ✅ <strong>Complete and ready to use!</strong>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/AUTHENTICATION_SUMMARY.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

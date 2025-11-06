@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LARC PAN Demo App Ideas · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - LARC PAN Demo App Ideas">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>DEMO_IDEAS</span>
+      </div>
+      <article class="docs-content">
+        <h1>LARC PAN Demo App Ideas</h1>
+<p>Real-world demonstration applications showcasing PAN's composability and practical applications. These demos are distinct from the examples - examples are code tutorials, while demos are complete, production-quality applications that showcase PAN in real-world scenarios.</p>
+<hr>
+<h2>🌟 Tier 1: Quick Wins (High Impact, Moderate Complexity)</h2>
+<h3>1. Task Manager with Real-time Sync</h3>
+<strong>Components Used:</strong>
+<ul><li><code>todo-list</code>, <code>pan-form</code>, <code>pan-websocket</code>, <code>pan-inspector</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Real-time collaboration between multiple users</li>
+<li>WebSocket synchronization</li>
+<li>Drag-to-reorder tasks</li>
+<li>Filter by status/priority/assignee</li>
+<li>Tags and categories</li>
+<li>Due dates and reminders</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Multi-user real-time updates</li>
+<li>Topic-based state synchronization</li>
+<li>WebSocket bidirectional communication</li>
+<li>Complex filtering and sorting</li>
+</ul>
+<strong>Real-world Value:</strong> Team task coordination and project management
+<strong>Estimated Complexity:</strong> 2-3 days
+<hr>
+<h3>2. Contact/CRM Manager</h3>
+<strong>Components Used:</strong>
+<ul><li><code>pan-data-table</code>, <code>pan-form</code>, <code>pan-idb</code>, <code>pan-router</code>, <code>pan-search-bar</code>, <code>pan-card</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Search and filter contacts</li>
+<li>Offline storage with IndexedDB</li>
+<li>Detail views with routing</li>
+<li>Tags and categories</li>
+<li>Import/export CSV</li>
+<li>Notes and activity timeline</li>
+<li>Custom fields</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>IndexedDB persistence</li>
+<li>Complex filtering and search</li>
+<li>SPA navigation with pan-router</li>
+<li>Offline-first architecture</li>
+<li>Data import/export</li>
+</ul>
+<strong>Real-world Value:</strong> Personal/business contact management
+<strong>Estimated Complexity:</strong> 3-4 days
+<hr>
+<h3>3. Expense Tracker Dashboard</h3>
+<strong>Components Used:</strong>
+<ul><li>Custom chart components, <code>pan-data-table</code>, <code>pan-form</code>, <code>pan-idb</code>, <code>pan-date-picker</code>, <code>pan-card</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Budget tracking by category</li>
+<li>Visual reports (pie, bar, line charts)</li>
+<li>Recurring expenses</li>
+<li>Receipt attachments</li>
+<li>Export to CSV/PDF</li>
+<li>Monthly/yearly summaries</li>
+<li>Budget alerts</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Data visualization</li>
+<li>Reactive calculations</li>
+<li>Local persistence</li>
+<li>File handling</li>
+<li>Date-based queries</li>
+</ul>
+<strong>Real-world Value:</strong> Personal finance management
+<strong>Estimated Complexity:</strong> 3-4 days
+<hr>
+<h2>🚀 Tier 2: Impressive Demos (High Complexity, High Wow Factor)</h2>
+<h3>4. Kanban/Project Board (Like Trello)</h3>
+<strong>Components Used:</strong>
+<ul><li><code>drag-drop-board</code>, <code>task-card</code>, <code>pan-websocket</code>, <code>pan-form</code>, <code>pan-modal</code>, <code>user-avatar</code>, <code>pan-dropdown</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Drag-drop cards between columns</li>
+<li>Real-time multi-user updates</li>
+<li>Card comments and attachments</li>
+<li>Due dates and labels</li>
+<li>User assignments</li>
+<li>Board templates</li>
+<li>Activity feed</li>
+<li>Archive and restore</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Complex state management</li>
+<li>Real-time collaboration</li>
+<li>Drag-and-drop interactions</li>
+<li>WebSocket coordination</li>
+<li>Smooth animations</li>
+</ul>
+<strong>Real-world Value:</strong> Agile project management, sprint planning
+<strong>Estimated Complexity:</strong> 5-7 days
+<hr>
+<h3>5. Live Spreadsheet Application</h3>
+<strong>Components Used:</strong>
+<ul><li><code>editable-grid</code>, <code>formula-engine</code>, <code>chart-component</code>, <code>pan-idb</code>, <code>pan-tabs</code>, <code>pan-dropdown</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Excel-like grid interface</li>
+<li>Cell formulas (SUM, AVERAGE, etc.)</li>
+<li>Auto-calculate on change</li>
+<li>Multiple sheets (tabs)</li>
+<li>Charts from data ranges</li>
+<li>Import/export CSV/Excel</li>
+<li>Cell formatting (bold, colors, alignment)</li>
+<li>Row/column operations</li>
+<li>Freeze panes</li>
+<li>Sort and filter</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Reactive calculations</li>
+<li>Complex grid interactions</li>
+<li>Data binding and updates</li>
+<li>Formula parsing</li>
+<li>Large dataset handling</li>
+</ul>
+<strong>Real-world Value:</strong> Budget planning, data analysis, inventory management
+<strong>Estimated Complexity:</strong> 7-10 days
+<hr>
+<h3>6. Chat/Messaging App</h3>
+<strong>Components Used:</strong>
+<ul><li><code>message-list</code>, <code>message-composer</code>, <code>pan-websocket</code>, <code>user-avatar</code>, <code>pan-tabs</code>, <code>pan-modal</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Real-time message delivery</li>
+<li>Typing indicators</li>
+<li>User presence (online/offline/away)</li>
+<li>Multiple rooms/channels</li>
+<li>Message reactions</li>
+<li>File sharing</li>
+<li>Message search</li>
+<li>User profiles</li>
+<li>Notifications</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>WebSocket bi-directional communication</li>
+<li>Presence tracking</li>
+<li>Message history and pagination</li>
+<li>Real-time indicators</li>
+<li>File upload and preview</li>
+</ul>
+<strong>Real-world Value:</strong> Team communication, customer support
+<strong>Estimated Complexity:</strong> 5-7 days
+<hr>
+<h3>7. E-commerce Product Admin</h3>
+<strong>Components Used:</strong>
+<ul><li><code>product-grid</code>, <code>inventory-form</code>, <code>file-upload</code>, <code>pan-data-table</code>, <code>pan-search-bar</code>, <code>pan-tabs</code>, <code>pan-pagination</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Product CRUD operations</li>
+<li>Image management (upload, crop, multiple images)</li>
+<li>Stock tracking and alerts</li>
+<li>Category management</li>
+<li>Product variants (size, color)</li>
+<li>Pricing rules and discounts</li>
+<li>Import/export products</li>
+<li>Search and filters</li>
+<li>Bulk operations</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Complex forms with validation</li>
+<li>File handling and image processing</li>
+<li>Inventory business logic</li>
+<li>Bulk operations</li>
+<li>Data relationships</li>
+</ul>
+<strong>Real-world Value:</strong> Store management, inventory control
+<strong>Estimated Complexity:</strong> 5-7 days
+<hr>
+<h2>💼 Tier 3: Enterprise Showcases (Production-Ready Complexity)</h2>
+<h3>8. Analytics Dashboard</h3>
+<strong>Components Used:</strong>
+<ul><li>Multiple chart types, <code>metric-cards</code>, <code>pan-date-picker</code>, <code>pan-sse</code>, <code>pan-tabs</code>, <code>pan-dropdown</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Real-time metrics display</li>
+<li>Multiple data sources</li>
+<li>Date range filtering</li>
+<li>Drill-down capabilities</li>
+<li>Custom metric creation</li>
+<li>Export reports</li>
+<li>Scheduled reports</li>
+<li>Alerts and thresholds</li>
+<li>Comparison views (YoY, MoM)</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Server-Sent Events for live data</li>
+<li>Complex data flows</li>
+<li>Multiple visualization types</li>
+<li>Component composition</li>
+<li>Real-time updates</li>
+</ul>
+<strong>Real-world Value:</strong> Business intelligence, KPI monitoring
+<strong>Estimated Complexity:</strong> 7-10 days
+<hr>
+<h3>9. Calendar/Scheduling App</h3>
+<strong>Components Used:</strong>
+<ul><li><code>calendar-grid</code>, <code>event-form</code>, <code>pan-date-picker</code>, <code>pan-idb</code>, <code>pan-modal</code>, <code>pan-dropdown</code>, <code>pan-tabs</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Month/week/day views</li>
+<li>Drag events to reschedule</li>
+<li>Recurring events (daily, weekly, monthly)</li>
+<li>Multiple calendars (work, personal)</li>
+<li>Event reminders</li>
+<li>Time zone support</li>
+<li>Invite attendees</li>
+<li>Color coding</li>
+<li>Search events</li>
+<li>Import/export iCal</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Complex date/time logic</li>
+<li>Drag-and-drop scheduling</li>
+<li>Recurring event patterns</li>
+<li>State persistence</li>
+<li>Multiple view modes</li>
+</ul>
+<strong>Real-world Value:</strong> Appointment scheduling, meeting planning
+<strong>Estimated Complexity:</strong> 7-10 days
+<hr>
+<h3>10. CMS/Blog Editor</h3>
+<strong>Components Used:</strong>
+<ul><li><code>rich-text-editor</code>, <code>media-library</code>, <code>post-preview</code>, <code>pan-router</code>, <code>pan-form</code>, <code>pan-tabs</code>, <code>pan-data-table</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>WYSIWYG text editing</li>
+<li>Media library with upload</li>
+<li>Draft/publish workflow</li>
+<li>SEO meta fields</li>
+<li>Categories and tags</li>
+<li>Featured images</li>
+<li>Preview before publish</li>
+<li>Revision history</li>
+<li>Multi-user editing</li>
+<li>Comment moderation</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Complex forms and editors</li>
+<li>File handling</li>
+<li>Multi-step workflows</li>
+<li>Routing and navigation</li>
+<li>User permissions</li>
+</ul>
+<strong>Real-world Value:</strong> Content management, blogging platform
+<strong>Estimated Complexity:</strong> 7-10 days
+<hr>
+<h3>11. Restaurant Order System</h3>
+<strong>Components Used:</strong>
+<ul><li><code>menu-grid</code>, <code>order-cart</code>, <code>kitchen-display</code>, <code>pan-websocket</code>, <code>pan-card</code>, <code>pan-tabs</code>, <code>pan-modal</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Table management</li>
+<li>Order taking interface</li>
+<li>Kitchen display system (KDS)</li>
+<li>Real-time order updates</li>
+<li>Multiple order stations</li>
+<li>Payment processing integration</li>
+<li>Order history</li>
+<li>Daily reports</li>
+<li>Menu management</li>
+<li>Special instructions</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Real-time order flow</li>
+<li>Multi-screen coordination</li>
+<li>WebSocket for kitchen updates</li>
+<li>Complex business logic</li>
+<li>Print integration</li>
+</ul>
+<strong>Real-world Value:</strong> Restaurant operations, QSR
+<strong>Estimated Complexity:</strong> 7-10 days
+<hr>
+<h3>12. Code Playground/REPL</h3>
+<strong>Components Used:</strong>
+<ul><li><code>code-editor</code>, <code>output-console</code>, <code>preview-frame</code>, <code>pan-worker</code>, <code>pan-tabs</code>, <code>file-tree</code></li>
+</ul>
+<strong>Features:</strong>
+<ul><li>Live code execution</li>
+<li>Multiple file support</li>
+<li>Console output</li>
+<li>Web Worker execution</li>
+<li>Syntax highlighting</li>
+<li>Auto-completion</li>
+<li>Error highlighting</li>
+<li>Save/share code snippets</li>
+<li>Multiple language support</li>
+<li>Package imports</li>
+</ul>
+<strong>What It Demonstrates:</strong>
+<ul><li>Worker integration</li>
+<li>Sandboxed code execution</li>
+<li>Live preview</li>
+<li>Code editor integration</li>
+<li>Real-time feedback</li>
+</ul>
+<strong>Real-world Value:</strong> Education, prototyping, documentation
+<strong>Estimated Complexity:</strong> 7-10 days
+<hr>
+<h2>🎯 Recommended Starting Demos</h2>
+<p>Based on showcasing PAN's strengths and development effort:</p>
+<h3>Top 5 Recommendations:</h3>
+<li><strong>Kanban Board</strong> ⭐⭐⭐⭐⭐</li>
+   - Shows real-time collaboration
+   - Impressive drag-and-drop
+   - Complex state management
+   - Highly visual and interactive
+<li><strong>Contact Manager</strong> ⭐⭐⭐⭐⭐</li>
+   - Complete CRUD showcase
+   - Demonstrates routing
+   - Shows IndexedDB persistence
+   - Very practical
+<li><strong>Chat App</strong> ⭐⭐⭐⭐⭐</li>
+   - WebSocket showcase
+   - Real-time is always impressive
+   - Demonstrates presence
+   - Familiar UX pattern
+<li><strong>Expense Tracker</strong> ⭐⭐⭐⭐</li>
+   - Good balance of features
+   - Data visualization
+   - Practical utility
+   - Moderate complexity
+<li><strong>Live Spreadsheet</strong> ⭐⭐⭐⭐</li>
+   - Unique and impressive
+   - Shows reactive updates
+   - Complex calculations
+   - Demonstrates PAN's power
+<hr>
+<h2>Component Composition Patterns</h2>
+<h3>Reusable Building Blocks Needed:</h3>
+<strong>Basic UI:</strong>
+<ul><li>✅ <code>pan-card</code> - Generic card container</li>
+<li>✅ <code>pan-modal</code> - Modal dialog system</li>
+<li>✅ <code>pan-dropdown</code> - Dropdown menus</li>
+<li>✅ <code>pan-tabs</code> - Tabbed interface</li>
+<li>✅ <code>pan-pagination</code> - Pagination controls</li>
+<li>✅ <code>pan-search-bar</code> - Search with filters</li>
+<li>⏳ <code>pan-date-picker</code> - Date selection</li>
+<li>⏳ <code>pan-chart</code> - Chart wrapper (Chart.js/D3)</li>
+</ul>
+<strong>Advanced UI:</strong>
+<ul><li>⏳ <code>drag-drop-list</code> - Draggable list component</li>
+<li>⏳ <code>editable-cell</code> - In-place editing</li>
+<li>⏳ <code>file-upload</code> - File upload with preview</li>
+<li>⏳ <code>user-avatar</code> - User avatar with status</li>
+</ul>
+<h3>Composed Components (Built from Building Blocks):</h3>
+<ul><li><code>data-grid</code> = <code>editable-cell</code> + <code>pan-pagination</code> + <code>pan-search-bar</code></li>
+<li><code>contact-card</code> = <code>pan-card</code> + <code>user-avatar</code> + <code>pan-dropdown</code></li>
+<li><code>task-board</code> = <code>drag-drop-list</code> + <code>task-card</code> + <code>pan-modal</code></li>
+<li><code>spreadsheet</code> = <code>editable-grid</code> + <code>formula-bar</code> + <code>pan-chart</code></li>
+<li><code>chat-window</code> = <code>message-list</code> + <code>message-composer</code> + <code>user-avatar</code></li>
+</ul>
+<hr>
+<h2>Demo App Structure</h2>
+<p>Each demo should include:</p>
+<li><strong>Standalone HTML file</strong> - Complete working app in one file</li>
+<li><strong>README</strong> - Setup instructions and feature list</li>
+<li><strong>Screenshots</strong> - Visual showcase</li>
+<li><strong>Live demo URL</strong> - GitHub Pages deployment</li>
+<li><strong>Source walkthrough</strong> - Commented code explaining PAN patterns</li>
+<h2>Demo Organization</h2>
+<pre><code class="language-plaintext">demo-apps/
+├── task-manager/
+│   ├── index.html
+│   ├── README.md
+│   ├── screenshots/
+│   └── assets/
+├── contact-manager/
+│   ├── index.html
+│   ├── README.md
+│   └── ...
+├── kanban-board/
+└── ...</code></pre>
+<hr>
+<h2>Success Metrics</h2>
+<p>A successful demo app should:</p>
+<li>✅ Work without build tools (copy-paste-run)</li>
+<li>✅ Demonstrate 3+ PAN components working together</li>
+<li>✅ Show topic-based communication</li>
+<li>✅ Be visually polished</li>
+<li>✅ Solve a real-world problem</li>
+<li>✅ Include clear documentation</li>
+<li>✅ Be under 500 lines for simple demos, under 1000 for complex</li>
+<hr>
+<h2>Next Steps</h2>
+<li>Complete remaining building block components</li>
+<li>Choose first demo app (recommend: Contact Manager or Kanban Board)</li>
+<li>Build demo with detailed comments</li>
+<li>Create README and screenshots</li>
+<li>Deploy to GitHub Pages</li>
+<li>Iterate and add more demos</li>
+<hr>
+<strong>Note:</strong> These demos showcase LARC PAN's philosophy:
+<ul><li>No build required</li>
+<li>Composable components</li>
+<li>Topic-based decoupling</li>
+<li>Real-world utility</li>
+<li>Progressive enhancement</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/DEMO_IDEAS.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

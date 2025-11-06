@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Core Infrastructure · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Core Infrastructure">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">src</a> / <a href="#">core</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>Core Infrastructure</h1>
+<p>Core PAN infrastructure components required for the system to function.</p>
+<h2>Components</h2>
+<h3>pan-bus.mjs</h3>
+<strong>Message Bus</strong> - Central pub/sub message bus for component communication.
+<ul><li>Topic-based routing with wildcard support</li>
+<li>Retained messages</li>
+<li>Cross-shadow-DOM delivery</li>
+<li>Request/reply pattern support</li>
+</ul>
+<h3>pan-client.mjs</h3>
+<strong>Client Library</strong> - JavaScript API for interacting with the PAN bus.
+<ul><li>Subscribe to topics</li>
+<li>Publish messages</li>
+<li>Request/reply helpers</li>
+<li>Wildcard subscriptions</li>
+</ul>
+<h3>pan-autoload.mjs</h3>
+<strong>Component Autoloader</strong> - Automatically loads PAN components from configured directory.
+<ul><li>Scans for pan-* components</li>
+<li>Lazy loading support</li>
+<li>Configurable component path</li>
+</ul>
+<h2>Usage</h2>
+<p>These components are fundamental to PAN and should be included in every PAN application:</p>
+<pre><code class="language-html">&lt;pan-bus&gt;&lt;/pan-bus&gt;
+
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;./core/pan-client.mjs&#039;;
+
+  const pc = new PanClient();
+  pc.subscribe(&#039;my.topic&#039;, (msg) =&gt; {
+    console.log(&#039;Received:&#039;, msg.data);
+  });
+&lt;/script&gt;</code></pre>
+<p>Or use autoload to automatically import all components:</p>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
+<h2>Dependencies</h2>
+<p>None - these are the foundation.</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/src/core/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN v1 — Page Area Network (Concise Spec) · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN v1 — Page Area Network (Concise Spec)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>PAN_SPEC.v1</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN v1 — Page Area Network (Concise Spec)</h1>
+<p>PAN is a DOM‑native message bus and topic convention for web UI interop. It enables loose coupling between components by communicating via CustomEvents instead of imports.</p>
+<p>Non‑goals: distributed consensus, cross‑origin guarantees, security. PAN is for in‑page (and optional same‑origin) coordination.</p>
+<h2>Envelope</h2>
+<p>Message fields:</p>
+<ul><li>topic: string (e.g., <code>users.list.state</code>, <code>nav.goto</code>)</li>
+<li>data: any JSON‑serializable payload</li>
+<li>id?: string (UUID)</li>
+<li>ts?: number (ms epoch)</li>
+<li>replyTo?: string (topic to send reply)</li>
+<li>correlationId?: string (request/reply correlation)</li>
+<li>retain?: boolean (snapshot; last message per topic is replayed to retained subscribers)</li>
+<li>headers?: Record<string,string> (optional metadata)</li>
+</ul>
+<h2>Transport</h2>
+<ul><li>Events bubble and are composed to cross shadow DOM:</li>
+</ul>  - publish: <code>CustomEvent('pan:publish', { detail: PanMessage, bubbles:true, composed:true })</code>
+  - subscribe: <code>CustomEvent('pan:subscribe', { detail: { topics: string[], options?:{retained?:boolean} } })</code>
+  - unsubscribe: <code>CustomEvent('pan:unsubscribe', { detail: { topics: string[] } })</code>
+  - deliver (from bus to client): <code>CustomEvent('pan:deliver', { detail: PanMessage })</code>
+<ul><li>The bus is a custom element <code><pan-bus></code> that listens at the document root.</li>
+<li>Ready signal: bus dispatches <code>pan:sys.ready</code> once connected.</li>
+</ul>
+<h2>Topic Patterns</h2>
+<ul><li>Dotted segments, e.g., <code>resource.section.action</code>.</li>
+<li>Wildcard <code><em></code> matches a single segment: <code>foo.</em></code> matches <code>foo.bar</code> but not <code>foo.bar.baz</code>.</li>
+<li>Exact match otherwise.</li>
+</ul>
+<h2>Semantics</h2>
+<ul><li>Retained: if <code>retain:true</code>, the bus stores the last message per <code>topic</code> and will deliver it immediately to subscribers that opted in (<code>options.retained===true</code>).</li>
+<li>Request/Reply: sender sets <code>replyTo</code> and <code>correlationId</code>; a provider replies by publishing on <code>replyTo</code> with the same <code>correlationId</code>.</li>
+<li>Late joiners: use retained topics or a list/get pattern.</li>
+</ul>
+<h2>CRUD Topic Conventions (v1)</h2>
+<ul><li>List: <code>${resource}.list.get</code> → replies <code>{ items }</code> and publishes <code>${resource}.list.state</code> (retain:true)</li>
+<li>Select: <code>${resource}.item.select</code> with <code>{ id }</code> (view event, no reply)</li>
+<li>Get: <code>${resource}.item.get</code> with <code>{ id }</code> → replies <code>{ ok, item? }</code></li>
+<li>Save: <code>${resource}.item.save</code> with <code>{ item }</code> → replies <code>{ ok, item }</code>; provider updates list state</li>
+<li>Delete: <code>${resource}.item.delete</code> with <code>{ id }</code> → replies <code>{ ok, id }</code>; provider updates list state</li>
+<li>Per‑item state: <code>${resource}.item.state.${id}</code> with <code>{ item }</code>, <code>{ patch }</code>, or <code>{ id, deleted:true }</code></li>
+</ul>
+<h2>Compliance</h2>
+<p>An implementation is PAN v1 compliant if it provides:</p>
+<li>Bus element that supports publish/subscribe with wildcard matching and retained delivery.</li>
+<li>Request/reply via <code>replyTo</code>/<code>correlationId</code> (best‑effort delivery within a page).</li>
+<li><code>pan:sys.ready</code> readiness signal.</li>
+<li>Topic matching semantics: <code>*</code> is single‑segment.</li>
+<p>Optional:</p>
+<ul><li>Inspector tooling, cross‑tab mirroring, connectors/bridges (SSE, Workers, REST, GraphQL, PHP).</li>
+</ul>
+<h2>Reference Implementation</h2>
+<ul><li><code><pan-bus></code> and <code>PanClient</code> are the reference implementations included in this repo (<code>dist/pan-bus.js</code>, <code>dist/pan-client.js</code>).</li>
+<li>A conformance page is available at <code>conformance/index.html</code>.</li>
+</ul>
+<h2>Badge</h2>
+<p>Implementations that pass the conformance page may use the badge: <code>badges/pan-v1.svg</code>.</p>
+
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/PAN_SPEC.v1.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

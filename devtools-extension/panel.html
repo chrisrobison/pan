@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PAN Inspector</title>
+  <link rel="stylesheet" href="styles/panel.css">
+</head>
+<body>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <button id="clear-btn" class="btn" title="Clear messages">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <path d="M2 4h12v1H2z"/>
+          <path d="M4 7h8v1H4z"/>
+          <path d="M5 10h6v1H5z"/>
+        </svg>
+        Clear
+      </button>
+
+      <button id="pause-btn" class="btn" title="Pause recording">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <rect x="5" y="3" width="2" height="10"/>
+          <rect x="9" y="3" width="2" height="10"/>
+        </svg>
+        <span id="pause-text">Pause</span>
+      </button>
+
+      <div class="separator"></div>
+
+      <input
+        type="search"
+        id="filter-input"
+        class="filter-input"
+        placeholder="Filter by topic, type, or data..."
+      />
+
+      <div class="separator"></div>
+
+      <label class="checkbox-label">
+        <input type="checkbox" id="show-deliver" checked> Deliver
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="show-publish" checked> Publish
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="show-subscribe" checked> Subscribe
+      </label>
+    </div>
+
+    <div class="toolbar-right">
+      <span id="message-count" class="message-count">0 messages</span>
+
+      <button id="export-btn" class="btn" title="Export messages">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <path d="M8 3v7M5 7l3 3 3-3M3 12h10"/>
+        </svg>
+        Export
+      </button>
+
+      <button id="import-btn" class="btn" title="Import messages">
+        <svg width="16" height="16" viewBox="0 0 16 16">
+          <path d="M8 10V3M5 6l3-3 3 3M3 12h10"/>
+        </svg>
+        Import
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages table -->
+  <div class="messages-container">
+    <table class="messages-table">
+      <thead>
+        <tr>
+          <th class="col-time">Time</th>
+          <th class="col-type">Type</th>
+          <th class="col-topic">Topic</th>
+          <th class="col-target">Target</th>
+          <th class="col-size">Size</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="messages-body">
+        <!-- Messages will be inserted here -->
+      </tbody>
+    </table>
+
+    <div id="empty-state" class="empty-state">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+        <circle cx="32" cy="32" r="20" stroke-width="2"/>
+        <path d="M32 24v16M24 32h16" stroke-width="2"/>
+      </svg>
+      <h3>No PAN messages yet</h3>
+      <p>Interact with the page to see message traffic</p>
+      <p class="hint">Make sure the page uses <code>&lt;pan-bus&gt;</code></p>
+    </div>
+  </div>
+
+  <!-- Details panel (sidebar) -->
+  <div id="details-panel" class="details-panel hidden">
+    <div class="details-header">
+      <h3>Message Details</h3>
+      <button id="close-details-btn" class="btn-icon">×</button>
+    </div>
+
+    <div class="details-content">
+      <div class="details-section">
+        <h4>Overview</h4>
+        <dl>
+          <dt>Type:</dt>
+          <dd id="detail-type">-</dd>
+
+          <dt>Topic:</dt>
+          <dd id="detail-topic">-</dd>
+
+          <dt>Timestamp:</dt>
+          <dd id="detail-timestamp">-</dd>
+
+          <dt>Target:</dt>
+          <dd id="detail-target">-</dd>
+
+          <dt>Size:</dt>
+          <dd id="detail-size">-</dd>
+        </dl>
+      </div>
+
+      <div class="details-section">
+        <h4>Payload</h4>
+        <pre id="detail-payload" class="code-block">-</pre>
+      </div>
+
+      <div class="details-section">
+        <h4>Actions</h4>
+        <button id="replay-btn" class="btn">Replay Message</button>
+        <button id="copy-btn" class="btn">Copy JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="file-input" accept=".json" style="display: none;">
+
+  <script src="src/panel.js"></script>
+</body>
+</html>

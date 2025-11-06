@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAN Enhanced Security & Memory Management</title>
+  <!-- Strict CSP for production -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+  ">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 { margin-top: 0; color: #333; }
+    h2 { color: #666; margin-top: 0; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #0056b3; }
+    button.danger { background: #dc3545; }
+    button.danger:hover { background: #c82333; }
+    button.success { background: #28a745; }
+    button.success:hover { background: #218838; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .stat {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #007bff;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .log {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .log-entry {
+      padding: 4px;
+      border-bottom: 1px solid #eee;
+    }
+    .log-error { color: #dc3545; }
+    .log-warning { color: #ffc107; }
+    .log-info { color: #17a2b8; }
+    .config {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔒 PAN Enhanced: Security & Memory Management</h1>
+
+  <!-- Enhanced bus with security features -->
+  <script type="module" src="../src/core/pan-bus-enhanced.mjs"></script>
+
+  <pan-bus-enhanced
+    max-retained="20"
+    max-message-size="10240"
+    max-payload-size="8192"
+    rate-limit="50"
+    allow-global-wildcard="false"
+    debug="true">
+  </pan-bus-enhanced>
+
+  <div class="card">
+    <h2>Configuration</h2>
+    <div class="config" id="config"></div>
+  </div>
+
+  <div class="card">
+    <h2>Bus Statistics</h2>
+    <div class="stats" id="stats"></div>
+    <button onclick="refreshStats()">🔄 Refresh</button>
+  </div>
+
+  <div class="card">
+    <h2>Memory Management Tests</h2>
+    <p>Test LRU eviction and memory limits:</p>
+    <button onclick="testRetainedLimit()">📝 Test Retained Limit (50 messages)</button>
+    <button onclick="testLargeMessage()">📦 Test Large Message</button>
+    <button onclick="clearRetained()">🗑️ Clear Retained</button>
+  </div>
+
+  <div class="card">
+    <h2>Security Tests</h2>
+    <p>Test security validations:</p>
+    <button onclick="testGlobalWildcard()" class="danger">⚠️ Test Global Wildcard</button>
+    <button onclick="testRateLimit()" class="danger">⚠️ Test Rate Limit</button>
+    <button onclick="testBadData()" class="danger">⚠️ Test Invalid Data</button>
+    <button onclick="testCircularRef()" class="danger">⚠️ Test Circular Ref</button>
+  </div>
+
+  <div class="card">
+    <h2>Normal Operations</h2>
+    <button onclick="publishNormal()" class="success">✅ Publish Normal Message</button>
+    <button onclick="testScopedWildcard()" class="success">✅ Test Scoped Wildcard</button>
+  </div>
+
+  <div class="card">
+    <h2>Event Log</h2>
+    <div class="log" id="log"></div>
+    <button onclick="clearLog()">Clear Log</button>
+  </div>
+
+  <script type="module">
+    import { PanClient } from '../src/core/pan-client.mjs';
+
+    const client = new PanClient();
+    await client.ready();
+
+    // Show configuration
+    const config = document.querySelector('pan-bus-enhanced');
+    document.getElementById('config').innerHTML = `
+      max-retained: ${config.getAttribute('max-retained')}<br>
+      max-message-size: ${config.getAttribute('max-message-size')} bytes<br>
+      max-payload-size: ${config.getAttribute('max-payload-size')} bytes<br>
+      rate-limit: ${config.getAttribute('rate-limit')} msg/sec<br>
+      allow-global-wildcard: ${config.getAttribute('allow-global-wildcard')}<br>
+      debug: ${config.getAttribute('debug')}
+    `;
+
+    // Subscribe to all test topics
+    client.subscribe('test.*', (msg) => {
+      logEvent('info', `Received: ${msg.topic}`, msg.data);
+    });
+
+    // Subscribe to errors
+    client.subscribe('pan:sys.error', (msg) => {
+      logEvent('error', `Error: ${msg.data.code}`, msg.data.message);
+    });
+
+    // Subscribe to stats
+    client.subscribe('pan:sys.stats', (msg) => {
+      displayStats(msg.data);
+    });
+
+    // Logging
+    function logEvent(type, title, details) {
+      const log = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = `log-entry log-${type}`;
+      entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> ${title}<br>
+        ${details ? `<span style="color: #666">${JSON.stringify(details, null, 2)}</span>` : ''}`;
+      log.insertBefore(entry, log.firstChild);
+    }
+
+    function displayStats(stats) {
+      const container = document.getElementById('stats');
+      container.innerHTML = `
+        <div class="stat">
+          <div class="stat-value">${stats.published}</div>
+          <div class="stat-label">Published</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${stats.delivered}</div>
+          <div class="stat-label">Delivered</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${stats.dropped}</div>
+          <div class="stat-label">Dropped</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${stats.retained}</div>
+          <div class="stat-label">Retained</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${stats.retainedEvicted}</div>
+          <div class="stat-label">Evicted</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">${stats.errors}</div>
+          <div class="stat-label">Errors</div>
+        </div>
+      `;
+    }
+
+    // Make functions global for onclick handlers
+    window.refreshStats = () => {
+      client.publish({ topic: 'pan:sys.stats', data: {} });
+    };
+
+    window.testRetainedLimit = () => {
+      logEvent('info', 'Publishing 50 retained messages (limit is 20)');
+      for (let i = 0; i < 50; i++) {
+        client.publish({
+          topic: `test.retained.${i}`,
+          data: { index: i, timestamp: Date.now() },
+          retain: true
+        });
+      }
+      setTimeout(() => {
+        refreshStats();
+        logEvent('info', 'Check stats - only 20 should be retained (LRU eviction)');
+      }, 100);
+    };
+
+    window.testLargeMessage = () => {
+      const largeData = new Array(10000).fill('x').join('');
+      logEvent('warning', 'Attempting to publish message > size limit');
+      client.publish({
+        topic: 'test.large',
+        data: { huge: largeData }
+      });
+    };
+
+    window.clearRetained = () => {
+      client.publish({ topic: 'pan:sys.clear-retained', data: {} });
+      logEvent('info', 'Cleared all retained messages');
+      setTimeout(refreshStats, 100);
+    };
+
+    window.testGlobalWildcard = () => {
+      logEvent('warning', 'Attempting global wildcard subscription (should fail)');
+      try {
+        client.subscribe('*', (msg) => {
+          logEvent('error', 'This should not happen!');
+        });
+      } catch (e) {
+        logEvent('error', 'Subscribe failed (expected)', e.message);
+      }
+    };
+
+    window.testRateLimit = () => {
+      logEvent('warning', 'Publishing 100 messages rapidly (limit is 50/sec)');
+      for (let i = 0; i < 100; i++) {
+        client.publish({ topic: 'test.spam', data: { index: i } });
+      }
+      setTimeout(refreshStats, 100);
+    };
+
+    window.testBadData = () => {
+      logEvent('warning', 'Publishing message with function (should fail)');
+      client.publish({
+        topic: 'test.bad',
+        data: { fn: () => console.log('bad') }
+      });
+    };
+
+    window.testCircularRef = () => {
+      logEvent('warning', 'Publishing message with circular reference (should fail)');
+      const obj = { name: 'test' };
+      obj.self = obj;
+      client.publish({
+        topic: 'test.circular',
+        data: obj
+      });
+    };
+
+    window.publishNormal = () => {
+      client.publish({
+        topic: 'test.normal',
+        data: { message: 'Hello, PAN!', timestamp: Date.now() }
+      });
+      logEvent('info', 'Published normal message');
+    };
+
+    window.testScopedWildcard = () => {
+      logEvent('info', 'Subscribing to scoped wildcard: test.*');
+      client.subscribe('test.*', (msg) => {
+        logEvent('info', `Wildcard caught: ${msg.topic}`);
+      });
+      publishNormal();
+    };
+
+    window.clearLog = () => {
+      document.getElementById('log').innerHTML = '';
+    };
+
+    // Initial stats
+    refreshStats();
+
+    logEvent('info', 'PAN Enhanced ready!', {
+      security: 'enabled',
+      memoryLimits: 'enforced',
+      validation: 'active'
+    });
+  </script>
+</body>
+</html>

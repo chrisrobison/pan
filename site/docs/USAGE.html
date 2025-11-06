@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LARC (PAN) Usage Guide · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - LARC (PAN) Usage Guide">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>USAGE</span>
+      </div>
+      <article class="docs-content">
+        <h1>LARC (PAN) Usage Guide</h1>
+<p>This guide shows you how to use the <code>larc</code> package in your projects. LARC implements the PAN (Page Area Network) protocol for web component coordination.</p>
+<h2>Installation</h2>
+<pre><code class="language-bash">npm install larc</code></pre>
+<h2>Two Usage Patterns</h2>
+<p>PAN supports two main usage patterns:</p>
+<h3>1. <strong>Bundler Pattern</strong> (Vite, Webpack, etc.)</h3>
+For modern build tools with tree-shaking and module resolution.
+<h3>2. <strong>CDN/Autoload Pattern</strong> (Zero-build)</h3>
+For direct browser usage without build tools.
+<hr>
+<h2>Pattern 1: Bundler Usage (with npm)</h2>
+<h3>Basic Setup</h3>
+<pre><code class="language-javascript">// Import the core client
+import { PanClient } from &#039;larc&#039;;
+
+// Create a client (automatically ensures bus exists)
+const client = new PanClient();
+
+// Wait for bus to be ready
+await client.ready();
+
+// Publish a message
+client.pub(&#039;user.login&#039;, { userId: 123, email: &#039;user@example.com&#039; });
+
+// Subscribe to messages
+const unsubscribe = client.subscribe(&#039;user.*&#039;, (msg) =&gt; {
+  console.log(&#039;Received:&#039;, msg.topic, msg.data);
+});
+
+// Later: unsubscribe
+unsubscribe();</code></pre>
+<h3>Explicit Component Imports</h3>
+<pre><code class="language-javascript">// Import specific components you need
+import &#039;larc/components/pan-store.js&#039;;
+import &#039;larc/components/pan-data-table.js&#039;;
+import &#039;larc/ui/pan-card.js&#039;;
+import &#039;larc/ui/pan-modal.js&#039;;
+
+// Use them in your HTML
+const html = `
+  &lt;pan-card&gt;
+    &lt;h2 slot=&quot;header&quot;&gt;My Data&lt;/h2&gt;
+    &lt;pan-data-table topic=&quot;users.list&quot;&gt;&lt;/pan-data-table&gt;
+  &lt;/pan-card&gt;
+`;</code></pre>
+<h3>Helper Functions</h3>
+<pre><code class="language-javascript">import { ensureBus, createClient } from &#039;larc&#039;;
+
+// Ensure bus exists (if not using createClient)
+const bus = ensureBus();
+
+// Or create client with automatic bus creation
+const client = createClient();</code></pre>
+<h3>Request/Reply Pattern</h3>
+<pre><code class="language-javascript">import { PanClient } from &#039;larc&#039;;
+
+const client = new PanClient();
+await client.ready();
+
+// Set up a responder
+client.subscribe(&#039;math.add&#039;, (msg) =&gt; {
+  if (msg.replyTo) {
+    const result = msg.data.a + msg.data.b;
+    client.publish({
+      topic: msg.replyTo,
+      data: { result },
+      correlationId: msg.correlationId
+    });
+  }
+});
+
+// Make a request
+try {
+  const reply = await client.request(&#039;math.add&#039;, { a: 5, b: 3 }, { timeoutMs: 2000 });
+  console.log(&#039;Result:&#039;, reply.data.result); // 8
+} catch (err) {
+  console.error(&#039;Request timed out&#039;);
+}</code></pre>
+<h3>TypeScript Support</h3>
+<p>TypeScript definitions are included. Your IDE will provide autocomplete and type checking:</p>
+<pre><code class="language-typescript">import { PanClient, PanMessage, PanBus } from &#039;larc&#039;;
+
+const client = new PanClient();
+
+client.subscribe(&#039;app.event&#039;, (msg: PanMessage) =&gt; {
+  console.log(msg.topic, msg.data);
+});</code></pre>
+<hr>
+<h2>Pattern 2: CDN/Autoload Usage (Zero-build)</h2>
+<h3>Basic Setup</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;My PAN App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- Declare components anywhere --&gt;
+  &lt;pan-card&gt;
+    &lt;h2 slot=&quot;header&quot;&gt;Welcome&lt;/h2&gt;
+    &lt;p&gt;This card will be autoloaded!&lt;/p&gt;
+  &lt;/pan-card&gt;
+
+  &lt;pan-data-table topic=&quot;users.list&quot;&gt;&lt;/pan-data-table&gt;
+
+  &lt;!-- Configure autoload for CDN --&gt;
+  &lt;script type=&quot;module&quot;&gt;
+    window.panAutoload = {
+      baseUrl: &#039;https://unpkg.com/larc@latest/&#039;,
+      extension: &#039;.js&#039;
+    };
+  &lt;/script&gt;
+
+  &lt;!-- Load autoload script --&gt;
+  &lt;script type=&quot;module&quot; src=&quot;https://unpkg.com/larc@latest/autoload.js&quot;&gt;&lt;/script&gt;
+
+  &lt;!-- Your app code --&gt;
+  &lt;script type=&quot;module&quot;&gt;
+    import { PanClient } from &#039;https://unpkg.com/larc@latest/index.js&#039;;
+
+    const client = new PanClient();
+    await client.ready();
+
+    client.pub(&#039;app.ready&#039;, { version: &#039;1.0&#039; });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h3>Local Development (No CDN)</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;pan-card&gt;
+    &lt;h2 slot=&quot;header&quot;&gt;Local Development&lt;/h2&gt;
+  &lt;/pan-card&gt;
+
+  &lt;!-- Configure for local paths --&gt;
+  &lt;script type=&quot;module&quot;&gt;
+    window.panAutoload = {
+      componentsPath: &#039;./pan/&#039;,
+      extension: &#039;.mjs&#039;
+    };
+  &lt;/script&gt;
+
+  &lt;!-- Load autoload --&gt;
+  &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+
+    const client = new PanClient();
+    // Your app code...
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<h3>Override Component Paths</h3>
+<pre><code class="language-html">&lt;!-- Load specific component from custom location --&gt;
+&lt;my-custom-widget data-module=&quot;/path/to/my-widget.js&quot;&gt;&lt;/my-custom-widget&gt;
+
+&lt;!-- This will be autoloaded from the configured base --&gt;
+&lt;pan-card&gt;&lt;/pan-card&gt;</code></pre>
+<h3>Programmatic Component Loading</h3>
+<pre><code class="language-html">&lt;script type=&quot;module&quot;&gt;
+  import { panAutoload } from &#039;https://unpkg.com/larc@latest/autoload.js&#039;;
+
+  // Manually trigger loading for a specific element
+  const el = document.createElement(&#039;pan-modal&#039;);
+  document.body.appendChild(el);
+  await panAutoload.maybeLoadFor(el);
+
+  // Observe a specific tree
+  panAutoload.observeTree(document.getElementById(&#039;app&#039;));
+&lt;/script&gt;</code></pre>
+<hr>
+<h2>Choosing a Pattern</h2>
+<h3>Use <strong>Bundler Pattern</strong> when:</h3>
+<ul><li>✅ You're using a modern build tool (Vite, Webpack, Rollup, etc.)</li>
+<li>✅ You want tree-shaking for optimal bundle size</li>
+<li>✅ You're building a large application with many dependencies</li>
+<li>✅ You need TypeScript support</li>
+<li>✅ You want to import only specific components</li>
+</ul>
+<h3>Use <strong>CDN/Autoload Pattern</strong> when:</h3>
+<ul><li>✅ You want zero build step (rapid prototyping)</li>
+<li>✅ You're building a simple app or demo</li>
+<li>✅ You want lazy-loading of components</li>
+<li>✅ You prefer HTML-first development</li>
+<li>✅ You want to quickly test PAN without setup</li>
+</ul>
+<hr>
+<h2>Publishing to npm</h2>
+<p>Once you've finalized your package:</p>
+<pre><code class="language-bash"># Build the package
+npm run build
+
+# Publish to npm (from dist/ folder)
+cd dist
+npm publish</code></pre>
+<p>The <code>dist/</code> folder contains everything needed for npm:
+<ul><li><code>index.js</code> - Core bundle (bus + client)</li>
+<li><code>index.d.ts</code> - TypeScript definitions</li>
+<li><code>autoload.js</code> - Component autoloader</li>
+<li><code>inspector.js</code> - DevTools inspector</li>
+<li><code>components/</code> - All feature components</li>
+<li><code>ui/</code> - UI building blocks</li>
+<li><code>package.json</code> - Package manifest with exports map</li>
+</ul>
+<hr></p>
+<h2>CDN Providers</h2>
+<p>Once published, your package will be available on these CDNs:</p>
+<h3>unpkg</h3>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;https://unpkg.com/larc@1.0.0/index.js&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot;https://unpkg.com/larc@latest/autoload.js&quot;&gt;&lt;/script&gt;</code></pre>
+<h3>jsDelivr</h3>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;https://cdn.jsdelivr.net/npm/larc@1.0.0/index.js&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot;https://cdn.jsdelivr.net/npm/larc@latest/autoload.js&quot;&gt;&lt;/script&gt;</code></pre>
+<h3>esm.sh</h3>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;https://esm.sh/larc@1.0.0&quot;&gt;&lt;/script&gt;</code></pre>
+<hr>
+<h2>Examples</h2>
+<p>See the <code>test/</code> directory for working examples:
+<ul><li><code>test-bundler-pattern.html</code> - Explicit imports</li>
+<li><code>test-autoload-pattern.html</code> - Zero-build autoload</li>
+</ul>
+See the <code>examples/</code> directory for more comprehensive demos.</p>
+<hr>
+<h2>Next Steps</h2>
+<ul><li>📖 Read the <a href="PAN_SPEC.v1.md">PAN Specification</a></li>
+<li>🔧 Check out the <a href="COMPONENTS.md">component documentation</a></li>
+<li>🎨 Explore <a href="apps/">demo applications</a></li>
+<li>🐛 Use the <a href="pan/app/pan-inspector.mjs">Inspector</a> for debugging</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/USAGE.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

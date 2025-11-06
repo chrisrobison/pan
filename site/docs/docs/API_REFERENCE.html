@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN v1.0 API Reference · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN v1.0 API Reference">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>API_REFERENCE</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN v1.0 API Reference</h1>
+<p>Complete reference documentation for the Page Area Network (PAN) v1.0 API.</p>
+<strong>Quick Links:</strong>
+<ul><li><a href="#panclient-api">PanClient API</a></li>
+<li><a href="#panmessage-format">PanMessage Format</a></li>
+<li><a href="#topic-patterns">Topic Patterns</a></li>
+<li><a href="#requestreply-pattern">Request/Reply Pattern</a></li>
+<li><a href="#retained-messages">Retained Messages</a></li>
+<li><a href="#error-handling">Error Handling</a></li>
+</ul>
+<hr>
+<h2>Getting Started</h2>
+<h3>Installation</h3>
+<pre><code class="language-html">&lt;!-- Include PAN bus and autoloader --&gt;
+&lt;pan-bus&gt;&lt;/pan-bus&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
+<h3>Basic Usage</h3>
+<pre><code class="language-javascript">import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+
+// Create client
+const client = new PanClient();
+await client.ready();
+
+// Publish a message
+client.publish({
+  topic: &#039;users.updated&#039;,
+  data: { id: 123, name: &#039;Alice&#039; }
+});
+
+// Subscribe to messages
+client.subscribe(&#039;users.*&#039;, (msg) =&gt; {
+  console.log(&#039;Received:&#039;, msg.topic, msg.data);
+});</code></pre>
+<hr>
+<h2>PanClient API</h2>
+<h3>Constructor</h3>
+<p>Creates a new PAN client instance.</p>
+<pre><code class="language-javascript">new PanClient(host?, busSelector?)</code></pre>
+<p>#### Parameters</p>
+<p>| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| <code>host</code> | <code>HTMLElement \| Document</code> | <code>document</code> | Element to dispatch/receive events from |
+| <code>busSelector</code> | <code>string</code> | <code>'pan-bus'</code> | CSS selector for bus element |</p>
+<p>#### Returns</p>
+<p>New <code>PanClient</code> instance</p>
+<p>#### Examples</p>
+<pre><code class="language-javascript">// Default: use document as host
+const client = new PanClient();
+
+// Use specific element as host
+const myComponent = document.querySelector(&#039;my-component&#039;);
+const client = new PanClient(myComponent);
+
+// Custom bus selector
+const client = new PanClient(document, &#039;custom-bus&#039;);</code></pre>
+<p>#### Use Cases</p>
+<strong>Document-level client</strong> (most common):
+<pre><code class="language-javascript">// All components can communicate through document
+const client = new PanClient();</code></pre>
+<strong>Component-scoped client</strong>:
+<pre><code class="language-javascript">// Isolate communication to specific component subtree
+class MyComponent extends HTMLElement {
+  connectedCallback() {
+    this.client = new PanClient(this);
+  }
+}</code></pre>
+<hr>
+<h3>ready()</h3>
+<p>Returns a promise that resolves when the PAN bus is ready.</p>
+<pre><code class="language-javascript">client.ready(): Promise&lt;void&gt;</code></pre>
+<p>#### Returns</p>
+<code>Promise<void></code> - Resolves when bus emits <code>pan:sys.ready</code>
+<p>#### Examples</p>
+<pre><code class="language-javascript">// Wait for bus before publishing
+const client = new PanClient();
+await client.ready();
+client.publish({ topic: &#039;app.started&#039;, data: {} });</code></pre>
+<pre><code class="language-javascript">// Use .then() syntax
+client.ready().then(() =&gt; {
+  console.log(&#039;Bus is ready!&#039;);
+});</code></pre>
+<pre><code class="language-javascript">// Safe to call multiple times (returns same promise)
+await client.ready();
+await client.ready(); // No-op, already ready</code></pre>
+<p>#### Best Practices</p>
+<p>✅ <strong>DO:</strong> Always wait for <code>ready()</code> before publishing
+<pre><code class="language-javascript">await client.ready();
+client.publish({ topic: &#039;app.init&#039;, data: {} });</code></pre></p>
+<p>❌ <strong>DON'T:</strong> Publish before bus is ready
+<pre><code class="language-javascript">// May be lost if bus not ready yet
+client.publish({ topic: &#039;app.init&#039;, data: {} });</code></pre></p>
+<hr>
+<h3>publish()</h3>
+<p>Publishes a message to the PAN bus.</p>
+<pre><code class="language-javascript">client.publish(message: PanMessage): void</code></pre>
+<p>#### Parameters</p>
+<p>| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| <code>message</code> | <code>PanMessage</code> | Yes | Message object to publish |
+| <code>message.topic</code> | <code>string</code> | Yes | Topic name |
+| <code>message.data</code> | <code>any</code> | Yes | Message payload |
+| <code>message.retain</code> | <code>boolean</code> | No | Retain message for late subscribers |
+| <code>message.replyTo</code> | <code>string</code> | No | Topic to send reply to |
+| <code>message.correlationId</code> | <code>string</code> | No | Correlation ID for request/reply |
+| <code>message.headers</code> | <code>object</code> | No | Optional metadata |</p>
+<p>#### Returns</p>
+<code>void</code> - Fire and forget
+<p>#### Examples</p>
+<strong>Simple publish:</strong>
+<pre><code class="language-javascript">client.publish({
+  topic: &#039;users.updated&#039;,
+  data: { id: 123, name: &#039;Alice&#039; }
+});</code></pre>
+<strong>Retained message:</strong>
+<pre><code class="language-javascript">// Last message stored and replayed to new subscribers
+client.publish({
+  topic: &#039;app.theme&#039;,
+  data: { mode: &#039;dark&#039; },
+  retain: true
+});</code></pre>
+<strong>With metadata headers:</strong>
+<pre><code class="language-javascript">client.publish({
+  topic: &#039;analytics.event&#039;,
+  data: { action: &#039;click&#039;, target: &#039;button&#039; },
+  headers: {
+    userId: &#039;123&#039;,
+    sessionId: &#039;abc&#039;,
+    timestamp: Date.now().toString()
+  }
+});</code></pre>
+<p>#### Common Patterns</p>
+<strong>State updates:</strong>
+<pre><code class="language-javascript">// Publish retained state for late joiners
+function updateUserList(users) {
+  client.publish({
+    topic: &#039;users.list.state&#039;,
+    data: { users },
+    retain: true
+  });
+}</code></pre>
+<strong>Commands:</strong>
+<pre><code class="language-javascript">// Fire-and-forget command
+function navigateTo(route) {
+  client.publish({
+    topic: &#039;nav.goto&#039;,
+    data: { route }
+  });
+}</code></pre>
+<strong>Events:</strong>
+<pre><code class="language-javascript">// Notify about user actions
+button.addEventListener(&#039;click&#039;, () =&gt; {
+  client.publish({
+    topic: &#039;ui.button.clicked&#039;,
+    data: { buttonId: button.id }
+  });
+});</code></pre>
+<hr>
+<h3>subscribe()</h3>
+<p>Subscribes to one or more topic patterns.</p>
+<pre><code class="language-javascript">client.subscribe(
+  topics: string | string[],
+  handler: (message: PanMessage) =&gt; void,
+  options?: SubscribeOptions
+): UnsubscribeFunction</code></pre>
+<p>#### Parameters</p>
+<p>| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| <code>topics</code> | <code>string \| string[]</code> | Yes | Topic pattern(s) to subscribe to |
+| <code>handler</code> | <code>function</code> | Yes | Callback receiving PanMessage |
+| <code>options</code> | <code>SubscribeOptions</code> | No | Subscription options |
+| <code>options.retained</code> | <code>boolean</code> | No | Receive retained messages immediately |
+| <code>options.signal</code> | <code>AbortSignal</code> | No | AbortSignal for automatic cleanup |</p>
+<p>#### Returns</p>
+<code>UnsubscribeFunction</code> - Call to unsubscribe: <code>() => void</code>
+<p>#### Examples</p>
+<strong>Simple subscription:</strong>
+<pre><code class="language-javascript">const unsub = client.subscribe(&#039;users.updated&#039;, (msg) =&gt; {
+  console.log(&#039;User updated:&#039;, msg.data);
+});
+
+// Later: unsubscribe
+unsub();</code></pre>
+<strong>Multiple topics:</strong>
+<pre><code class="language-javascript">client.subscribe([&#039;users.*&#039;, &#039;posts.*&#039;], (msg) =&gt; {
+  console.log(&#039;Received:&#039;, msg.topic, msg.data);
+});</code></pre>
+<strong>Wildcard patterns:</strong>
+<pre><code class="language-javascript">// Match all user-related topics
+client.subscribe(&#039;users.*&#039;, (msg) =&gt; {
+  console.log(&#039;User event:&#039;, msg.topic);
+});
+
+// Match everything
+client.subscribe(&#039;*&#039;, (msg) =&gt; {
+  console.log(&#039;Any message:&#039;, msg.topic);
+});</code></pre>
+<strong>Retained messages:</strong>
+<pre><code class="language-javascript">// Receive current state immediately
+client.subscribe(&#039;app.theme&#039;, (msg) =&gt; {
+  applyTheme(msg.data.mode);
+}, { retained: true });</code></pre>
+<strong>With AbortSignal:</strong>
+<pre><code class="language-javascript">const controller = new AbortController();
+
+client.subscribe(&#039;events.*&#039;, (msg) =&gt; {
+  console.log(&#039;Event:&#039;, msg.topic);
+}, { signal: controller.signal });
+
+// Later: unsubscribe automatically
+controller.abort();</code></pre>
+<p>#### Common Patterns</p>
+<strong>State synchronization:</strong>
+<pre><code class="language-javascript">// Keep UI in sync with state
+client.subscribe(&#039;users.list.state&#039;, (msg) =&gt; {
+  renderUserList(msg.data.users);
+}, { retained: true });</code></pre>
+<strong>Event handling:</strong>
+<pre><code class="language-javascript">// Handle navigation events
+client.subscribe(&#039;nav.goto&#039;, (msg) =&gt; {
+  router.navigateTo(msg.data.route);
+});</code></pre>
+<strong>Component cleanup:</strong>
+<pre><code class="language-javascript">class MyComponent extends HTMLElement {
+  connectedCallback() {
+    this.client = new PanClient(this);
+
+    // Store unsubscribe function
+    this.unsub = this.client.subscribe(&#039;data.*&#039;, (msg) =&gt; {
+      this.handleData(msg.data);
+    });
+  }
+
+  disconnectedCallback() {
+    // Clean up subscription
+    this.unsub();
+  }
+}</code></pre>
+<strong>Automatic cleanup:</strong>
+<pre><code class="language-javascript">class MyComponent extends HTMLElement {
+  connectedCallback() {
+    this.abortController = new AbortController();
+
+    // Will auto-cleanup on abort
+    this.client.subscribe(&#039;data.*&#039;, (msg) =&gt; {
+      this.handleData(msg.data);
+    }, { signal: this.abortController.signal });
+  }
+
+  disconnectedCallback() {
+    // Unsubscribe all at once
+    this.abortController.abort();
+  }
+}</code></pre>
+<hr>
+<h3>request()</h3>
+<p>Sends a request and waits for a reply.</p>
+<pre><code class="language-javascript">client.request(
+  topic: string,
+  data: any,
+  options?: RequestOptions
+): Promise&lt;PanMessage&gt;</code></pre>
+<p>#### Parameters</p>
+<p>| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| <code>topic</code> | <code>string</code> | Yes | Request topic name |
+| <code>data</code> | <code>any</code> | Yes | Request payload |
+| <code>options</code> | <code>RequestOptions</code> | No | Request options |
+| <code>options.timeoutMs</code> | <code>number</code> | No | Timeout in ms (default: 5000) |</p>
+<p>#### Returns</p>
+<code>Promise<PanMessage></code> - Resolves with reply message
+<p>#### Throws</p>
+<code>Error</code> - If request times out
+<p>#### Examples</p>
+<strong>Simple request:</strong>
+<pre><code class="language-javascript">try {
+  const response = await client.request(&#039;users.get&#039;, { id: 123 });
+  console.log(&#039;User:&#039;, response.data);
+} catch (err) {
+  console.error(&#039;Request failed:&#039;, err);
+}</code></pre>
+<strong>Custom timeout:</strong>
+<pre><code class="language-javascript">const response = await client.request(&#039;slow.operation&#039;, { ... }, {
+  timeoutMs: 10000  // 10 second timeout
+});</code></pre>
+<strong>CRUD operations:</strong>
+<pre><code class="language-javascript">// Create
+const created = await client.request(&#039;users.item.save&#039;, {
+  item: { name: &#039;Alice&#039;, email: &#039;alice@example.com&#039; }
+});
+
+// Read
+const user = await client.request(&#039;users.item.get&#039;, { id: 123 });
+
+// Update
+const updated = await client.request(&#039;users.item.save&#039;, {
+  item: { id: 123, name: &#039;Alice Updated&#039; }
+});
+
+// Delete
+const deleted = await client.request(&#039;users.item.delete&#039;, { id: 123 });</code></pre>
+<strong>Error handling:</strong>
+<pre><code class="language-javascript">async function loadUser(id) {
+  try {
+    const response = await client.request(&#039;users.item.get&#039;, { id });
+
+    if (!response.data.ok) {
+      throw new Error(response.data.error);
+    }
+
+    return response.data.item;
+  } catch (err) {
+    if (err.message.includes(&#039;timeout&#039;)) {
+      console.error(&#039;Request timed out&#039;);
+    } else {
+      console.error(&#039;Failed to load user:&#039;, err);
+    }
+    return null;
+  }
+}</code></pre>
+<p>#### Implementing a Responder</p>
+<pre><code class="language-javascript">// Listen for requests
+client.subscribe(&#039;users.item.get&#039;, async (msg) =&gt; {
+  // Only respond to requests (have replyTo)
+  if (!msg.replyTo) return;
+
+  // Process request
+  const user = await db.getUser(msg.data.id);
+
+  // Send reply
+  client.publish({
+    topic: msg.replyTo,
+    data: { ok: true, item: user },
+    correlationId: msg.correlationId
+  });
+});</code></pre>
+<hr>
+<h3>matches() (static)</h3>
+<p>Tests if a topic matches a pattern.</p>
+<pre><code class="language-javascript">PanClient.matches(topic: string, pattern: string): boolean</code></pre>
+<p>#### Parameters</p>
+<p>| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| <code>topic</code> | <code>string</code> | Yes | Topic to test |
+| <code>pattern</code> | <code>string</code> | Yes | Pattern to match |</p>
+<p>#### Returns</p>
+<code>boolean</code> - <code>true</code> if topic matches pattern
+<p>#### Pattern Rules</p>
+<ul><li><strong>Exact match</strong>: <code>users.list.state</code> matches <code>users.list.state</code></li>
+<li><strong>Single wildcard</strong>: <code>users.*</code> matches <code>users.list</code> but NOT <code>users.list.state</code></li>
+<li><strong>Global wildcard</strong>: <code>*</code> matches any topic</li>
+<li><strong>Wildcard position</strong>: Can be anywhere (<code><em>.updated</code>, <code>users.</em>.state</code>)</li>
+</ul>
+#### Examples
+<pre><code class="language-javascript">// Exact match
+PanClient.matches(&#039;users.list.state&#039;, &#039;users.list.state&#039;)  // true
+
+// Single segment wildcard
+PanClient.matches(&#039;users.list&#039;, &#039;users.*&#039;)         // true
+PanClient.matches(&#039;users.list.state&#039;, &#039;users.*&#039;)  // false (2 segments)
+
+// Global wildcard
+PanClient.matches(&#039;users.list.state&#039;, &#039;*&#039;)         // true
+PanClient.matches(&#039;any.topic.here&#039;, &#039;*&#039;)           // true
+
+// Wildcard positions
+PanClient.matches(&#039;users.item.updated&#039;, &#039;*.item.updated&#039;)  // true
+PanClient.matches(&#039;users.item.123&#039;, &#039;users.item.*&#039;)        // true
+
+// No match
+PanClient.matches(&#039;users.list&#039;, &#039;posts.*&#039;)         // false</code></pre>
+<p>#### Use Cases</p>
+<strong>Manual filtering:</strong>
+<pre><code class="language-javascript">client.subscribe(&#039;*&#039;, (msg) =&gt; {
+  if (PanClient.matches(msg.topic, &#039;users.*&#039;)) {
+    handleUserEvent(msg);
+  } else if (PanClient.matches(msg.topic, &#039;posts.*&#039;)) {
+    handlePostEvent(msg);
+  }
+});</code></pre>
+<strong>Testing patterns:</strong>
+<pre><code class="language-javascript">const pattern = &#039;users.*&#039;;
+const topics = [&#039;users.list&#039;, &#039;users.item&#039;, &#039;posts.list&#039;];
+
+const matching = topics.filter(t =&gt; PanClient.matches(t, pattern));
+console.log(matching); // [&#039;users.list&#039;, &#039;users.item&#039;]</code></pre>
+<hr>
+<h2>PanMessage Format</h2>
+<p>All messages follow this structure:</p>
+<pre><code class="language-typescript">interface PanMessage {
+  // Required fields
+  topic: string;      // Topic name (e.g., &quot;users.list.state&quot;)
+  data: any;          // Message payload (any JSON-serializable value)
+
+  // Optional fields (auto-generated by bus if not provided)
+  id?: string;        // Unique message ID (UUID)
+  ts?: number;        // Timestamp in milliseconds (epoch)
+
+  // Optional fields (features)
+  retain?: boolean;           // If true, message is retained by bus
+  replyTo?: string;           // Topic to send reply to
+  correlationId?: string;     // Correlation ID for request/reply
+  headers?: Record&lt;string, string&gt;;  // Optional metadata
+}</code></pre>
+<h3>Field Descriptions</h3>
+<p>#### topic (required)</p>
+<p>Topic name using dotted notation.</p>
+<strong>Format:</strong> <code>resource.action.qualifier</code>
+<strong>Examples:</strong>
+<ul><li><code>users.list.state</code> - User list state</li>
+<li><code>users.item.get</code> - Get user request</li>
+<li><code>nav.goto</code> - Navigation command</li>
+<li><code>ui.modal.opened</code> - UI event</li>
+</ul>
+<strong>Best Practices:</strong>
+<ul><li>Use lowercase</li>
+<li>Use dots to separate segments</li>
+<li>Be specific but concise</li>
+<li>Follow conventions (see <a href="#topic-patterns">Topic Patterns</a>)</li>
+</ul>
+#### data (required)
+<p>Message payload - any JSON-serializable value.</p>
+<strong>Supported types:</strong>
+<ul><li>Object: <code>{ id: 123, name: 'Alice' }</code></li>
+<li>Array: <code>[1, 2, 3]</code></li>
+<li>String: <code>"hello"</code></li>
+<li>Number: <code>42</code></li>
+<li>Boolean: <code>true</code> / <code>false</code></li>
+<li>Null: <code>null</code></li>
+</ul>
+<strong>Not supported:</strong>
+<ul><li>Functions</li>
+<li>undefined (use null instead)</li>
+<li>Circular references (will throw)</li>
+<li>DOM nodes (serialize to plain objects)</li>
+</ul>
+<strong>Examples:</strong>
+<pre><code class="language-javascript">// Object payload
+{ topic: &#039;users.updated&#039;, data: { id: 123, name: &#039;Alice&#039; } }
+
+// Array payload
+{ topic: &#039;users.list.state&#039;, data: [user1, user2, user3] }
+
+// Simple value
+{ topic: &#039;counter.value&#039;, data: 42 }
+
+// Null
+{ topic: &#039;users.selected&#039;, data: null }  // No selection</code></pre>
+<p>#### id (optional)</p>
+<p>Unique message identifier (UUID).</p>
+<strong>Auto-generated:</strong> Bus creates UUID if not provided
+<strong>Format:</strong> <code>"550e8400-e29b-41d4-a716-446655440000"</code>
+<strong>Use cases:</strong>
+<ul><li>Message deduplication</li>
+<li>Tracking specific messages</li>
+<li>Debugging</li>
+</ul>
+<pre><code class="language-javascript">// Let bus generate ID (recommended)
+client.publish({ topic: &#039;users.updated&#039;, data: { ... } });
+
+// Provide custom ID
+client.publish({
+  topic: &#039;users.updated&#039;,
+  data: { ... },
+  id: &#039;custom-id-123&#039;
+});</code></pre>
+<p>#### ts (optional)</p>
+<p>Timestamp in milliseconds since epoch.</p>
+<strong>Auto-generated:</strong> Bus adds timestamp if not provided
+<strong>Format:</strong> Number (e.g., <code>1699564800000</code>)
+<strong>Use cases:</strong>
+<ul><li>Message ordering</li>
+<li>Time-based filtering</li>
+<li>Analytics</li>
+</ul>
+<pre><code class="language-javascript">// Let bus generate timestamp (recommended)
+client.publish({ topic: &#039;event&#039;, data: { ... } });
+
+// Provide custom timestamp
+client.publish({
+  topic: &#039;event&#039;,
+  data: { ... },
+  ts: Date.now()
+});</code></pre>
+<p>#### retain (optional)</p>
+<p>If <code>true</code>, bus stores this message and replays it to new subscribers.</p>
+<strong>Default:</strong> <code>false</code>
+<strong>Type:</strong> <code>boolean</code>
+<strong>Use cases:</strong>
+<ul><li>Application state</li>
+<li>Configuration</li>
+<li>Last known value</li>
+</ul>
+<pre><code class="language-javascript">// Retained state message
+client.publish({
+  topic: &#039;app.theme&#039;,
+  data: { mode: &#039;dark&#039; },
+  retain: true
+});
+
+// New subscribers get current theme
+client.subscribe(&#039;app.theme&#039;, (msg) =&gt; {
+  console.log(&#039;Current theme:&#039;, msg.data.mode);
+}, { retained: true });</code></pre>
+<strong>See:</strong> <a href="#retained-messages">Retained Messages</a>
+<p>#### replyTo (optional)</p>
+<p>Topic to send reply to (for request/reply pattern).</p>
+<strong>Type:</strong> <code>string</code>
+<strong>Auto-generated:</strong> By <code>client.request()</code>
+<strong>Use cases:</strong>
+<ul><li>Request/reply pattern</li>
+<li>Async responses</li>
+</ul>
+<pre><code class="language-javascript">// Manually set replyTo
+client.publish({
+  topic: &#039;users.item.get&#039;,
+  data: { id: 123 },
+  replyTo: &#039;users.item.get.reply.abc123&#039;,
+  correlationId: &#039;req-001&#039;
+});
+
+// Or use client.request() (recommended)
+const response = await client.request(&#039;users.item.get&#039;, { id: 123 });</code></pre>
+<strong>See:</strong> <a href="#requestreply-pattern">Request/Reply Pattern</a>
+<p>#### correlationId (optional)</p>
+<p>Correlation identifier for matching requests and replies.</p>
+<strong>Type:</strong> <code>string</code>
+<strong>Auto-generated:</strong> By <code>client.request()</code>
+<strong>Use cases:</strong>
+<ul><li>Match request with reply</li>
+<li>Track conversation</li>
+</ul>
+<pre><code class="language-javascript">// Auto-generated by client.request()
+const response = await client.request(&#039;users.item.get&#039;, { id: 123 });
+// correlationId is automatically created and matched
+
+// Manual correlation
+const corrId = crypto.randomUUID();
+client.publish({
+  topic: &#039;task.start&#039;,
+  data: { task: &#039;process&#039; },
+  correlationId: corrId
+});
+
+client.subscribe(&#039;task.complete&#039;, (msg) =&gt; {
+  if (msg.correlationId === corrId) {
+    console.log(&#039;Our task completed!&#039;);
+  }
+});</code></pre>
+<p>#### headers (optional)</p>
+<p>Free-form metadata as string key-value pairs.</p>
+<strong>Type:</strong> <code>Record<string, string></code>
+<strong>Default:</strong> <code>undefined</code>
+<strong>Use cases:</strong>
+<ul><li>User context (userId, sessionId)</li>
+<li>Tracing (traceId, spanId)</li>
+<li>Metadata (source, version)</li>
+</ul>
+<pre><code class="language-javascript">client.publish({
+  topic: &#039;analytics.event&#039;,
+  data: { action: &#039;click&#039;, target: &#039;button&#039; },
+  headers: {
+    userId: &#039;123&#039;,
+    sessionId: &#039;abc&#039;,
+    timestamp: Date.now().toString(),
+    source: &#039;mobile-app&#039;
+  }
+});</code></pre>
+<hr>
+<h2>Topic Patterns</h2>
+<h3>Naming Conventions</h3>
+<strong>Standard format:</strong> <code>resource.action.qualifier</code>
+<strong>Examples:</strong>
+<pre><code class="language-plaintext">users.list.state        # Resource: users, Action: list, Qualifier: state
+users.item.get          # Resource: users, Action: item (single), Qualifier: get
+users.item.save         # Resource: users, Action: item, Qualifier: save
+nav.goto                # Resource: nav, Action: goto
+ui.modal.opened         # Resource: ui (modal), Action: opened</code></pre>
+<h3>Wildcard Matching</h3>
+<strong>Single segment:</strong> <code>*</code> matches exactly one segment
+<pre><code class="language-javascript">&#039;users.*&#039;              # Matches: users.list, users.item
+                       # Does NOT match: users.list.state, users.item.get
+
+&#039;*.updated&#039;            # Matches: users.updated, posts.updated
+                       # Does NOT match: users.item.updated
+
+&#039;users.*.state&#039;        # Matches: users.list.state, users.item.state
+                       # Does NOT match: users.state, users.list.item.state</code></pre>
+<strong>Global wildcard:</strong> <code>*</code> alone matches any topic
+<pre><code class="language-javascript">&#039;*&#039;                    # Matches: ALL topics</code></pre>
+<h3>Reserved Namespaces</h3>
+<strong><code>pan:*</code></strong> - Reserved for PAN internals
+<pre><code class="language-plaintext">pan:sys.ready          # System ready event
+pan:publish            # Internal publish event
+pan:subscribe          # Internal subscribe event
+pan:deliver            # Internal deliver event</code></pre>
+<p>❌ <strong>DO NOT</strong> use <code>pan:*</code> topics in application code</p>
+<strong><code>pan:$reply:*</code></strong> - Auto-generated reply topics
+<pre><code class="language-plaintext">pan:$reply:client-id:correlation-id</code></pre>
+<p>❌ <strong>DO NOT</strong> manually create <code>pan:$reply:*</code> topics</p>
+<hr>
+<h2>Request/Reply Pattern</h2>
+<h3>Overview</h3>
+<p>Request/reply enables async request-response communication between components.</p>
+<strong>How it works:</strong>
+<li>Requester calls <code>client.request(topic, data)</code></li>
+<li>Request is published with auto-generated <code>replyTo</code> and <code>correlationId</code></li>
+<li>Responder listens for request topic</li>
+<li>Responder publishes reply to <code>replyTo</code> topic with same <code>correlationId</code></li>
+<li>Requester receives reply (promise resolves)</li>
+<h3>Basic Example</h3>
+<strong>Requester:</strong>
+<pre><code class="language-javascript">try {
+  const response = await client.request(&#039;users.item.get&#039;, { id: 123 });
+  console.log(&#039;User:&#039;, response.data.item);
+} catch (err) {
+  console.error(&#039;Request failed:&#039;, err);
+}</code></pre>
+<strong>Responder:</strong>
+<pre><code class="language-javascript">client.subscribe(&#039;users.item.get&#039;, async (msg) =&gt; {
+  if (!msg.replyTo) return;  // Not a request
+
+  const user = await database.getUser(msg.data.id);
+
+  client.publish({
+    topic: msg.replyTo,
+    data: { ok: true, item: user },
+    correlationId: msg.correlationId
+  });
+});</code></pre>
+<h3>Response Format</h3>
+<strong>Recommended format:</strong>
+<pre><code class="language-javascript">{
+  ok: boolean,         // Success flag
+  item?: any,          // Result data (on success)
+  error?: string,      // Error message (on failure)
+  code?: string        // Error code (on failure)
+}</code></pre>
+<strong>Example responses:</strong>
+<pre><code class="language-javascript">// Success
+{ ok: true, item: { id: 123, name: &#039;Alice&#039; } }
+
+// Error
+{ ok: false, error: &#039;User not found&#039;, code: &#039;NOT_FOUND&#039; }
+
+// List result
+{ ok: true, items: [user1, user2, user3], total: 50 }</code></pre>
+<h3>Complete CRUD Example</h3>
+<pre><code class="language-javascript">// CREATE
+async function createUser(userData) {
+  const response = await client.request(&#039;users.item.save&#039;, {
+    item: userData
+  });
+
+  if (!response.data.ok) {
+    throw new Error(response.data.error);
+  }
+
+  return response.data.item;
+}
+
+// READ (single)
+async function getUser(id) {
+  const response = await client.request(&#039;users.item.get&#039;, { id });
+  return response.data.ok ? response.data.item : null;
+}
+
+// READ (list)
+async function listUsers() {
+  const response = await client.request(&#039;users.list.get&#039;, {});
+  return response.data.items || [];
+}
+
+// UPDATE
+async function updateUser(id, changes) {
+  const response = await client.request(&#039;users.item.save&#039;, {
+    item: { id, ...changes }
+  });
+  return response.data.item;
+}
+
+// DELETE
+async function deleteUser(id) {
+  const response = await client.request(&#039;users.item.delete&#039;, { id });
+  return response.data.ok;
+}</code></pre>
+<h3>Timeout Handling</h3>
+<pre><code class="language-javascript">async function getUserWithRetry(id, maxRetries = 3) {
+  for (let i = 0; i &lt; maxRetries; i++) {
+    try {
+      return await client.request(&#039;users.item.get&#039;, { id }, {
+        timeoutMs: 5000
+      });
+    } catch (err) {
+      if (err.message.includes(&#039;timeout&#039;) &amp;&amp; i &lt; maxRetries - 1) {
+        console.log(`Timeout, retrying (${i + 1}/${maxRetries})...`);
+        continue;
+      }
+      throw err;
+    }
+  }
+}</code></pre>
+<hr>
+<h2>Retained Messages</h2>
+<h3>Overview</h3>
+<p>Retained messages are the last message published to a topic, stored by the bus and replayed to new subscribers who opt-in.</p>
+<strong>Use cases:</strong>
+<ul><li>Application state</li>
+<li>Configuration</li>
+<li>Last known value</li>
+<li>Avoid "no data" state on load</li>
+</ul>
+<h3>Publishing Retained Messages</h3>
+<pre><code class="language-javascript">// Publish retained state
+client.publish({
+  topic: &#039;app.theme&#039;,
+  data: { mode: &#039;dark&#039; },
+  retain: true
+});
+
+// Later: publish new state (replaces previous)
+client.publish({
+  topic: &#039;app.theme&#039;,
+  data: { mode: &#039;light&#039; },
+  retain: true
+});</code></pre>
+<h3>Subscribing to Retained Messages</h3>
+<pre><code class="language-javascript">// Receive current state immediately
+client.subscribe(&#039;app.theme&#039;, (msg) =&gt; {
+  applyTheme(msg.data.mode);
+}, { retained: true });
+
+// Without retained option (only new messages)
+client.subscribe(&#039;app.theme&#039;, (msg) =&gt; {
+  applyTheme(msg.data.mode);
+});  // Won&#039;t receive current state</code></pre>
+<h3>Complete State Example</h3>
+<pre><code class="language-javascript">// State manager
+class UserListManager {
+  constructor(client) {
+    this.client = client;
+    this.users = [];
+  }
+
+  // Publish state
+  updateState(users) {
+    this.users = users;
+    this.client.publish({
+      topic: &#039;users.list.state&#039;,
+      data: { users: this.users },
+      retain: true
+    });
+  }
+
+  // Add user
+  addUser(user) {
+    this.users.push(user);
+    this.updateState(this.users);
+  }
+
+  // Remove user
+  removeUser(id) {
+    this.users = this.users.filter(u =&gt; u.id !== id);
+    this.updateState(this.users);
+  }
+}
+
+// UI component
+class UserListComponent extends HTMLElement {
+  connectedCallback() {
+    this.client = new PanClient(this);
+
+    // Get current state + future updates
+    this.client.subscribe(&#039;users.list.state&#039;, (msg) =&gt; {
+      this.render(msg.data.users);
+    }, { retained: true });
+  }
+
+  render(users) {
+    this.innerHTML = users.map(u =&gt; `&lt;li&gt;${u.name}&lt;/li&gt;`).join(&#039;&#039;);
+  }
+}</code></pre>
+<h3>Best Practices</h3>
+<p>✅ <strong>DO:</strong>
+<ul><li>Use retained messages for state</li>
+<li>One retained message per topic (last value)</li>
+<li>Keep retained data reasonably sized</li>
+</ul>
+❌ <strong>DON'T:</strong>
+<ul><li>Use retained for events (use normal publish)</li>
+<li>Rely on retained for history (only last value stored)</li>
+<li>Retain huge datasets (consider pagination)</li>
+</ul>
+<hr></p>
+<h2>Error Handling</h2>
+<h3>Request Timeouts</h3>
+<pre><code class="language-javascript">async function safeRequest(topic, data) {
+  try {
+    return await client.request(topic, data, { timeoutMs: 5000 });
+  } catch (err) {
+    if (err.message.includes(&#039;timeout&#039;)) {
+      console.error(&#039;Request timed out&#039;);
+      return { data: { ok: false, error: &#039;Timeout&#039; } };
+    }
+    throw err;
+  }
+}</code></pre>
+<h3>Invalid Data</h3>
+<pre><code class="language-javascript">try {
+  client.publish({
+    topic: &#039;users.updated&#039;,
+    data: { circular: selfReference }  // Will throw
+  });
+} catch (err) {
+  console.error(&#039;Failed to publish:&#039;, err);
+}</code></pre>
+<h3>Missing Responders</h3>
+<pre><code class="language-javascript">// Set reasonable timeout for potentially missing responders
+const response = await client.request(&#039;optional.service&#039;, data, {
+  timeoutMs: 1000  // Fail fast
+}).catch(err =&gt; {
+  // Handle gracefully
+  return { data: { ok: false, error: &#039;Service unavailable&#039; } };
+});</code></pre>
+<hr>
+<h2>Next Steps</h2>
+<ul><li><strong>Topic Conventions:</strong> See <a href="./TOPICS.md">TOPICS.md</a> for detailed conventions</li>
+<li><strong>Code Examples:</strong> See <a href="../examples/">examples/</a> for complete working examples</li>
+<li><strong>API Stability:</strong> See <a href="./API_STABILITY.md">API_STABILITY.md</a> for guarantees</li>
+</ul>
+<hr>
+<strong>Last Updated:</strong> November 2024
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/API_REFERENCE.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

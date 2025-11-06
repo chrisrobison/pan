@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TypeScript Guide for PAN · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - TypeScript Guide for PAN">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>TYPESCRIPT</span>
+      </div>
+      <article class="docs-content">
+        <h1>TypeScript Guide for PAN</h1>
+<p>PAN (Page Area Network) includes complete TypeScript definitions for full type safety without requiring a build step. This guide shows you how to use PAN with TypeScript.</p>
+<h2>Table of Contents</h2>
+<ul><li><a href="#installation">Installation</a></li>
+<li><a href="#basic-setup">Basic Setup</a></li>
+<li><a href="#type-safety-benefits">Type Safety Benefits</a></li>
+<li><a href="#common-patterns">Common Patterns</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#tips--best-practices">Tips & Best Practices</a></li>
+</ul>
+<h2>Installation</h2>
+<p>PAN's TypeScript definitions are included automatically. No additional packages needed!</p>
+<pre><code class="language-bash">npm install larc</code></pre>
+<h2>Basic Setup</h2>
+<h3>1. TypeScript Configuration</h3>
+<p>Create or update your <code>tsconfig.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;compilerOptions&quot;: {
+    &quot;target&quot;: &quot;ES2022&quot;,
+    &quot;module&quot;: &quot;ES2022&quot;,
+    &quot;moduleResolution&quot;: &quot;bundler&quot;,
+    &quot;lib&quot;: [&quot;ES2022&quot;, &quot;DOM&quot;, &quot;DOM.Iterable&quot;],
+    &quot;strict&quot;: true,
+    &quot;esModuleInterop&quot;: true,
+    &quot;skipLibCheck&quot;: true,
+    &quot;allowSyntheticDefaultImports&quot;: true,
+    &quot;resolveJsonModule&quot;: true
+  },
+  &quot;include&quot;: [&quot;src/**/*&quot;],
+  &quot;exclude&quot;: [&quot;node_modules&quot;, &quot;dist&quot;]
+}</code></pre>
+<h3>2. Import PAN</h3>
+<pre><code class="language-typescript">import { PanClient, PanMessage } from &#039;larc&#039;;</code></pre>
+<h3>3. Your First Typed Message</h3>
+<pre><code class="language-typescript">interface UserLoginData {
+  userId: number;
+  username: string;
+  timestamp: Date;
+}
+
+const client = new PanClient();
+await client.ready();
+
+// Type-safe publishing
+client.publish&lt;UserLoginData&gt;({
+  topic: &#039;user.login&#039;,
+  data: {
+    userId: 123,
+    username: &#039;alice&#039;,
+    timestamp: new Date()
+  }
+});
+
+// Type-safe subscription
+client.subscribe&lt;UserLoginData&gt;(
+  &#039;user.*&#039;,
+  (msg: PanMessage&lt;UserLoginData&gt;) =&gt; {
+    console.log(`User ${msg.data.username} logged in`);
+    // TypeScript knows msg.data is UserLoginData!
+  }
+);</code></pre>
+<h2>Type Safety Benefits</h2>
+<h3>1. <strong>Auto-completion</strong></h3>
+<p>Your IDE will suggest available methods and properties:</p>
+<pre><code class="language-typescript">const client = new PanClient();
+client.  // IDE suggests: ready(), publish(), subscribe(), request()</code></pre>
+<h3>2. <strong>Compile-Time Type Checking</strong></h3>
+<p>TypeScript catches errors before runtime:</p>
+<pre><code class="language-typescript">interface User {
+  id: number;
+  name: string;
+}
+
+client.publish&lt;User&gt;({
+  topic: &#039;user.created&#039;,
+  data: {
+    id: 123,
+    name: &#039;Alice&#039;,
+    age: 30  // ❌ Error: &#039;age&#039; does not exist in type &#039;User&#039;
+  }
+});</code></pre>
+<h3>3. <strong>Type Inference</strong></h3>
+<p>TypeScript infers types automatically:</p>
+<pre><code class="language-typescript">client.subscribe&lt;User&gt;(&#039;user.*&#039;, (msg) =&gt; {
+  // msg.data is automatically typed as User
+  console.log(msg.data.name);  // ✅ TypeScript knows this is a string
+});</code></pre>
+<h3>4. <strong>Refactoring Safety</strong></h3>
+<p>Rename types confidently - TypeScript finds all usages:</p>
+<pre><code class="language-typescript">// Rename UserLoginData → UserAuthEvent
+// TypeScript will flag all locations that need updating</code></pre>
+<h2>Common Patterns</h2>
+<h3>Pattern 1: Request/Reply with Types</h3>
+<pre><code class="language-typescript">interface GetUserRequest {
+  userId: number;
+}
+
+interface GetUserResponse {
+  userId: number;
+  username: string;
+  email: string;
+}
+
+// Requester
+const response = await client.request&lt;GetUserRequest, GetUserResponse&gt;(
+  &#039;api.user.get&#039;,
+  { userId: 123 }
+);
+
+console.log(response.data.username); // ✅ Type-safe!
+
+// Responder
+client.subscribe&lt;GetUserRequest&gt;(&#039;api.user.get&#039;, (msg) =&gt; {
+  const user: GetUserResponse = {
+    userId: msg.data.userId,
+    username: &#039;alice&#039;,
+    email: &#039;alice@example.com&#039;
+  };
+
+  if (msg.replyTo) {
+    client.publish&lt;GetUserResponse&gt;({
+      topic: msg.replyTo,
+      data: user,
+      correlationId: msg.correlationId
+    });
+  }
+});</code></pre>
+<h3>Pattern 2: Union Types for Event Variants</h3>
+<pre><code class="language-typescript">interface UserCreatedEvent {
+  type: &#039;created&#039;;
+  userId: number;
+  username: string;
+}
+
+interface UserUpdatedEvent {
+  type: &#039;updated&#039;;
+  userId: number;
+  changes: Record&lt;string, unknown&gt;;
+}
+
+interface UserDeletedEvent {
+  type: &#039;deleted&#039;;
+  userId: number;
+}
+
+type UserEvent = UserCreatedEvent | UserUpdatedEvent | UserDeletedEvent;
+
+client.subscribe&lt;UserEvent&gt;(&#039;user.*&#039;, (msg) =&gt; {
+  // Discriminated union - TypeScript narrows the type
+  switch (msg.data.type) {
+    case &#039;created&#039;:
+      console.log(`Created user: ${msg.data.username}`);
+      break;
+    case &#039;updated&#039;:
+      console.log(`Updated user: ${msg.data.userId}`);
+      break;
+    case &#039;deleted&#039;:
+      console.log(`Deleted user: ${msg.data.userId}`);
+      break;
+  }
+});</code></pre>
+<h3>Pattern 3: Generic Data Provider</h3>
+<pre><code class="language-typescript">class DataProvider&lt;T&gt; {
+  constructor(
+    private client: PanClient,
+    private resource: string
+  ) {}
+
+  async list(): Promise&lt;T[]&gt; {
+    const response = await this.client.request&lt;void, T[]&gt;(
+      `${this.resource}.list.get`,
+      undefined
+    );
+    return response.data;
+  }
+
+  async get(id: number | string): Promise&lt;T&gt; {
+    const response = await this.client.request&lt;{ id: number | string }, T&gt;(
+      `${this.resource}.item.get`,
+      { id }
+    );
+    return response.data;
+  }
+}
+
+// Usage with full type safety
+interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+const todoProvider = new DataProvider&lt;Todo&gt;(client, &#039;todos&#039;);
+const todos: Todo[] = await todoProvider.list();</code></pre>
+<h3>Pattern 4: Type Guards for Runtime Validation</h3>
+<pre><code class="language-typescript">interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+function isUser(data: unknown): data is User {
+  return (
+    typeof data === &#039;object&#039; &amp;&amp;
+    data !== null &amp;&amp;
+    &#039;id&#039; in data &amp;&amp; typeof (data as any).id === &#039;number&#039; &amp;&amp;
+    &#039;name&#039; in data &amp;&amp; typeof (data as any).name === &#039;string&#039; &amp;&amp;
+    &#039;email&#039; in data &amp;&amp; typeof (data as any).email === &#039;string&#039;
+  );
+}
+
+client.subscribe(&#039;user.*&#039;, (msg: PanMessage) =&gt; {
+  if (isUser(msg.data)) {
+    // TypeScript now knows msg.data is User
+    console.log(`User: ${msg.data.name}`);
+  } else {
+    console.error(&#039;Invalid user data&#039;);
+  }
+});</code></pre>
+<h3>Pattern 5: Const Assertions for Topics</h3>
+<pre><code class="language-typescript">// Define topics as const for type safety
+const TOPICS = {
+  user: {
+    list: {
+      get: &#039;users.list.get&#039;,
+      state: &#039;users.list.state&#039;
+    },
+    item: {
+      get: &#039;users.item.get&#039;,
+      save: &#039;users.item.save&#039;,
+      state: (id: number) =&gt; `users.item.state.${id}` as const
+    }
+  }
+} as const;
+
+// Usage with autocomplete
+client.publish({
+  topic: TOPICS.user.list.state,
+  data: [...]
+});</code></pre>
+<h2>Configuration</h2>
+<h3>Strict Mode (Recommended)</h3>
+<p>Enable strict mode in <code>tsconfig.json</code> for maximum safety:</p>
+<pre><code class="language-json">{
+  &quot;compilerOptions&quot;: {
+    &quot;strict&quot;: true,
+    &quot;noImplicitAny&quot;: true,
+    &quot;strictNullChecks&quot;: true,
+    &quot;strictFunctionTypes&quot;: true,
+    &quot;strictBindCallApply&quot;: true,
+    &quot;strictPropertyInitialization&quot;: true,
+    &quot;noImplicitThis&quot;: true,
+    &quot;alwaysStrict&quot;: true
+  }
+}</code></pre>
+<h3>Module Resolution</h3>
+<p>PAN works with both Node and Bundler module resolution:</p>
+<pre><code class="language-json">{
+  &quot;compilerOptions&quot;: {
+    &quot;moduleResolution&quot;: &quot;bundler&quot;  // or &quot;node&quot;
+  }
+}</code></pre>
+<h3>Path Aliases (Optional)</h3>
+<p>For cleaner imports:</p>
+<pre><code class="language-json">{
+  &quot;compilerOptions&quot;: {
+    &quot;baseUrl&quot;: &quot;.&quot;,
+    &quot;paths&quot;: {
+      &quot;@/pan&quot;: [&quot;./node_modules/larc/index.js&quot;],
+      &quot;@/types&quot;: [&quot;./src/types/*&quot;]
+    }
+  }
+}</code></pre>
+<p>Then import as:</p>
+<pre><code class="language-typescript">import { PanClient } from &#039;@/pan&#039;;</code></pre>
+<h2>Examples</h2>
+<h3>Web Component with TypeScript</h3>
+<pre><code class="language-typescript">interface TodoItem {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
+class TodoList extends HTMLElement {
+  private client: PanClient;
+  private unsubscribe?: () =&gt; void;
+
+  constructor() {
+    super();
+    this.client = new PanClient(this);
+  }
+
+  async connectedCallback() {
+    await this.client.ready();
+
+    this.unsubscribe = this.client.subscribe&lt;TodoItem[]&gt;(
+      &#039;todos.list.state&#039;,
+      (msg) =&gt; this.render(msg.data),
+      { retained: true }
+    );
+
+    // Request initial data
+    this.client.publish({ topic: &#039;todos.list.get&#039;, data: {} });
+  }
+
+  disconnectedCallback() {
+    this.unsubscribe?.();
+  }
+
+  private render(todos: TodoItem[]) {
+    this.innerHTML = `
+      &lt;ul&gt;
+        ${todos.map(t =&gt; `
+          &lt;li&gt;${t.title} ${t.completed ? &#039;✓&#039; : &#039;&#039;}&lt;/li&gt;
+        `).join(&#039;&#039;)}
+      &lt;/ul&gt;
+    `;
+  }
+}
+
+customElements.define(&#039;todo-list&#039;, TodoList);</code></pre>
+<h3>Service Layer with Types</h3>
+<pre><code class="language-typescript">interface ApiConfig {
+  baseUrl: string;
+  timeout: number;
+}
+
+class UserService {
+  constructor(
+    private client: PanClient,
+    private config: ApiConfig
+  ) {}
+
+  async getUser(userId: number): Promise&lt;User&gt; {
+    const response = await this.client.request&lt;
+      { userId: number },
+      User
+    &gt;(&#039;api.user.get&#039;, { userId }, {
+      timeoutMs: this.config.timeout
+    });
+
+    return response.data;
+  }
+
+  async listUsers(): Promise&lt;User[]&gt; {
+    const response = await this.client.request&lt;void, User[]&gt;(
+      &#039;api.user.list&#039;,
+      undefined
+    );
+
+    return response.data;
+  }
+
+  subscribeToUserChanges(callback: (users: User[]) =&gt; void): () =&gt; void {
+    return this.client.subscribe&lt;User[]&gt;(
+      &#039;api.user.state&#039;,
+      (msg) =&gt; callback(msg.data),
+      { retained: true }
+    );
+  }
+}
+
+// Usage
+const service = new UserService(client, {
+  baseUrl: &#039;https://api.example.com&#039;,
+  timeout: 5000
+});
+
+const user = await service.getUser(123);
+console.log(user.name);</code></pre>
+<h3>Error Handling with Typed Errors</h3>
+<pre><code class="language-typescript">interface ApiError {
+  code: string;
+  message: string;
+  details?: Record&lt;string, unknown&gt;;
+}
+
+// Global error handler
+client.subscribe&lt;ApiError&gt;(&#039;*.error&#039;, (msg) =&gt; {
+  console.error(`Error on ${msg.topic}:`, msg.data.message);
+
+  if (msg.data.code === &#039;AUTH_FAILED&#039;) {
+    // Handle authentication error
+    redirectToLogin();
+  }
+});
+
+// Publish typed errors
+try {
+  // some operation
+} catch (err) {
+  client.publish&lt;ApiError&gt;({
+    topic: &#039;api.error&#039;,
+    data: {
+      code: &#039;OPERATION_FAILED&#039;,
+      message: err instanceof Error ? err.message : &#039;Unknown error&#039;,
+      details: { originalError: err }
+    }
+  });
+}</code></pre>
+<h2>Tips & Best Practices</h2>
+<h3>1. <strong>Define Interfaces at the Top</strong></h3>
+<p>Keep all message type definitions in a central location:</p>
+<pre><code class="language-typescript">// types/messages.ts
+export interface UserLoginData {
+  userId: number;
+  username: string;
+}
+
+export interface UserLogoutData {
+  userId: number;
+  reason?: string;
+}
+
+// Import and use everywhere
+import { UserLoginData } from &#039;./types/messages&#039;;</code></pre>
+<h3>2. <strong>Use Generic Constraints</strong></h3>
+<p>Constrain generic types for better type safety:</p>
+<pre><code class="language-typescript">interface BaseEntity {
+  id: number | string;
+}
+
+class EntityProvider&lt;T extends BaseEntity&gt; {
+  async get(id: T[&#039;id&#039;]): Promise&lt;T&gt; {
+    // TypeScript knows id is number | string
+    const response = await this.client.request&lt;{ id: T[&#039;id&#039;] }, T&gt;(
+      `${this.resource}.get`,
+      { id }
+    );
+    return response.data;
+  }
+}</code></pre>
+<h3>3. <strong>Leverage Type Inference</strong></h3>
+<p>Don't over-annotate - let TypeScript infer when possible:</p>
+<pre><code class="language-typescript">// ❌ Too verbose
+const client: PanClient = new PanClient();
+
+// ✅ Let TypeScript infer
+const client = new PanClient();
+
+// ❌ Redundant type
+client.subscribe&lt;User&gt;(&#039;user.*&#039;, (msg: PanMessage&lt;User&gt;) =&gt; {
+  // ...
+});
+
+// ✅ Infer from generic
+client.subscribe&lt;User&gt;(&#039;user.*&#039;, (msg) =&gt; {
+  // msg is automatically PanMessage&lt;User&gt;
+});</code></pre>
+<h3>4. <strong>Use <code>unknown</code> for Dynamic Data</strong></h3>
+<p>When you don't know the shape, use <code>unknown</code> and validate:</p>
+<pre><code class="language-typescript">client.subscribe(&#039;external.*&#039;, (msg: PanMessage&lt;unknown&gt;) =&gt; {
+  // Validate before using
+  if (isValidData(msg.data)) {
+    processData(msg.data);
+  }
+});</code></pre>
+<h3>5. <strong>AbortSignal for Cleanup</strong></h3>
+<p>Use AbortController with TypeScript for automatic cleanup:</p>
+<pre><code class="language-typescript">const controller = new AbortController();
+
+client.subscribe&lt;User&gt;(
+  &#039;user.*&#039;,
+  (msg) =&gt; console.log(msg.data),
+  { signal: controller.signal }
+);
+
+// Later: cleanup all subscriptions
+controller.abort();</code></pre>
+<h3>6. <strong>Avoid <code>any</code></strong></h3>
+<p>Never use <code>any</code> - it defeats the purpose of TypeScript:</p>
+<pre><code class="language-typescript">// ❌ Bad
+client.publish({ topic: &#039;foo&#039;, data: someData as any });
+
+// ✅ Good - define proper types
+interface FooData {
+  value: string;
+}
+client.publish&lt;FooData&gt;({ topic: &#039;foo&#039;, data: { value: &#039;bar&#039; } });
+
+// ✅ Good - use unknown if truly dynamic
+client.publish&lt;unknown&gt;({ topic: &#039;foo&#039;, data: someData });</code></pre>
+<h2>IDE Setup</h2>
+<h3>VS Code</h3>
+<p>PAN works great with VS Code out of the box! Install these extensions for the best experience:</p>
+<ul><li><strong>TypeScript</strong> (built-in)</li>
+<li><strong>ESLint</strong> for code quality</li>
+<li><strong>Path Intellisense</strong> for import autocomplete</li>
+</ul>
+<h3>WebStorm / IntelliJ IDEA</h3>
+<p>TypeScript support is built-in. Enable:</p>
+<ul><li>Settings → Languages & Frameworks → TypeScript → Enable TypeScript Language Service</li>
+</ul>
+<h2>Advanced: Custom Type Utilities</h2>
+<pre><code class="language-typescript">// Extract data type from PanMessage
+type MessageData&lt;T&gt; = T extends PanMessage&lt;infer D&gt; ? D : never;
+
+// Create typed topic constants
+type TopicPattern = `${string}.${string}` | `${string}.${string}.${string}`;
+
+const createTopic = &lt;T extends TopicPattern&gt;(topic: T): T =&gt; topic;
+
+const USER_TOPICS = {
+  login: createTopic(&#039;user.login&#039;),
+  logout: createTopic(&#039;user.logout&#039;),
+  state: createTopic(&#039;user.list.state&#039;)
+} as const;
+
+// Typed message creator
+function createMessage&lt;T&gt;(
+  topic: string,
+  data: T,
+  options?: Partial&lt;Omit&lt;PanMessage&lt;T&gt;, &#039;topic&#039; | &#039;data&#039;&gt;&gt;
+): PanMessage&lt;T&gt; {
+  return {
+    topic,
+    data,
+    ...options
+  };
+}
+
+// Usage
+const msg = createMessage(&#039;user.login&#039;, { userId: 123, username: &#039;alice&#039; });</code></pre>
+<h2>Migration from JavaScript</h2>
+<p>If you're migrating existing JavaScript code:</p>
+<li><strong>Rename files</strong> from <code>.js</code> to <code>.ts</code></li>
+<li><strong>Add type annotations</strong> gradually:</li>
+   <pre><code class="language-typescript">// Before (JS)
+   function handleMessage(msg) {
+     console.log(msg.data);
+   }
+
+   // After (TS)
+   function handleMessage(msg: PanMessage&lt;User&gt;) {
+     console.log(msg.data.username);
+   }</code></pre>
+<li><strong>Fix type errors</strong> one at a time</li>
+<li><strong>Enable strict mode</strong> when ready</li>
+<h2>Getting Help</h2>
+<ul><li>See <a href="../examples/18-typescript-usage.ts">examples/18-typescript-usage.ts</a> for complete examples</li>
+<li>Check <a href="../src/types/index.d.ts">src/types/index.d.ts</a> for all available types</li>
+<li>Report issues: <a href="https://github.com/chrisrobison/pan/issues">GitHub Issues</a></li>
+</ul>
+<h2>Summary</h2>
+<p>TypeScript with PAN provides:</p>
+<ul><li>✅ <strong>Full type safety</strong> without build overhead</li>
+<li>✅ <strong>Excellent IDE support</strong> with autocomplete</li>
+<li>✅ <strong>Catch errors at compile-time</strong> instead of runtime</li>
+<li>✅ <strong>Better refactoring</strong> with confidence</li>
+<li>✅ <strong>Self-documenting code</strong> with type signatures</li>
+</ul>
+Start using TypeScript with PAN today for a better development experience!
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/TYPESCRIPT.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

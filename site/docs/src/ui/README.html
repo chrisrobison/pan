@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI Components · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - UI Components">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">src</a> / <a href="#">ui</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>UI Components</h1>
+<p>Simple, reusable UI building blocks. These are lightweight components that provide basic UI functionality.</p>
+<h2>Components</h2>
+<h3>pan-card.mjs</h3>
+Container component with header, body, footer, and variants.
+<ul><li>Multiple elevation levels</li>
+<li>Color variants (primary, secondary, danger, success)</li>
+<li>Hoverable option</li>
+<li>Slot-based content</li>
+</ul>
+<h3>pan-modal.mjs</h3>
+Modal dialog component with backdrop and animations.
+<ul><li>Open/close API</li>
+<li>Customizable header and footer</li>
+<li>Backdrop click to close</li>
+<li>ESC key support</li>
+</ul>
+<h3>pan-dropdown.mjs</h3>
+Dropdown menu component with positioning.
+<ul><li>Auto-positioning (bottom, top, left, right)</li>
+<li>Keyboard navigation</li>
+<li>Click-outside to close</li>
+<li>Dividers and disabled items</li>
+</ul>
+<h3>pan-tabs.mjs</h3>
+Tabbed interface component.
+<ul><li>Multiple tab styles</li>
+<li>Slot-based content</li>
+<li>Active tab tracking</li>
+<li>PAN event integration</li>
+</ul>
+<h3>pan-link.mjs</h3>
+Navigation link component with routing support.
+<ul><li>Active state management</li>
+<li>Router integration via PAN</li>
+<li>Custom styling support</li>
+</ul>
+<h3>pan-search-bar.mjs</h3>
+Search input with debouncing and clear button.
+<ul><li>Debounced input events</li>
+<li>Clear button</li>
+<li>PAN event integration</li>
+<li>Configurable placeholder</li>
+</ul>
+<h3>pan-pagination.mjs</h3>
+Pagination control component.
+<ul><li>Page navigation</li>
+<li>First/last buttons</li>
+<li>Configurable page size</li>
+<li>PAN event broadcasting</li>
+</ul>
+<h3>editable-cell.mjs</h3>
+Inline editable cell for tables.
+<ul><li>Click to edit</li>
+<li>ESC to cancel</li>
+<li>Enter to save</li>
+<li>Auto-save option</li>
+</ul>
+<h3>file-upload.mjs</h3>
+File upload component with drag-drop support.
+<ul><li>Drag and drop</li>
+<li>Multiple file support</li>
+<li>File type filtering</li>
+<li>Progress indication</li>
+</ul>
+<h3>user-avatar.mjs</h3>
+User avatar display with fallback initials.
+<ul><li>Image support</li>
+<li>Fallback to initials</li>
+<li>Size variants</li>
+<li>Online status indicator</li>
+</ul>
+<h2>Usage</h2>
+<p>Import and use directly in your HTML:</p>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./ui/pan-card.mjs&quot;&gt;&lt;/script&gt;
+
+&lt;pan-card header=&quot;Card Title&quot; elevation=&quot;2&quot;&gt;
+  &lt;p&gt;Card content goes here&lt;/p&gt;
+  &lt;div slot=&quot;footer&quot;&gt;Footer content&lt;/div&gt;
+&lt;/pan-card&gt;</code></pre>
+<h2>Design Philosophy</h2>
+<p>UI components are:
+<ul><li><strong>Simple</strong> - Single, focused responsibility</li>
+<li><strong>Reusable</strong> - Work in any context</li>
+<li><strong>Lightweight</strong> - Minimal dependencies</li>
+<li><strong>Themeable</strong> - Respect CSS variables</li>
+<li><strong>Composable</strong> - Can be combined to build complex UIs</li>
+</ul>
+<h2>Dependencies</h2></p>
+<ul><li>Core: pan-bus (optional, for PAN event integration)</li>
+<li>Theme: CSS variables from <code>assets/theme.css</code></li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/src/ui/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LARC Test Suite · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - LARC Test Suite">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">tests</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>LARC Test Suite</h1>
+<p>Comprehensive test suite for all LARC (PAN) components.</p>
+<strong>Philosophy:</strong> Zero-build, plain JavaScript tests that align with the project's ethos of simplicity.
+<h2>Test Structure</h2>
+<pre><code class="language-plaintext">tests/
+├── helpers/
+│   └── test-utils.ts          # Shared test utilities and helpers
+├── core/
+│   ├── pan-bus.spec.ts        # Message bus tests
+│   ├── pan-client.spec.ts     # Client API tests
+│   └── pan-autoload.spec.ts   # Component autoloader tests (TODO)
+├── ui/
+│   ├── pan-card.spec.ts       # Card component tests
+│   ├── pan-modal.spec.ts      # Modal dialog tests
+│   ├── pan-tabs.spec.ts       # Tabs component tests
+│   └── ...                    # More UI component tests
+└── components/
+    ├── pan-store.spec.ts      # State management tests
+    ├── pan-router.spec.ts     # Router tests
+    └── ...                    # More feature component tests</code></pre>
+<h2>Running Tests</h2>
+<h3>Using npm scripts</h3>
+<pre><code class="language-bash"># Run all tests (headless)
+npm test
+
+# Run tests with visible browser
+npm run test:headed
+
+# Run a specific test file
+npm run test:file tests/core/pan-bus.test.mjs
+
+# Open browser-based test runner
+npm run test:browser</code></pre>
+<h3>Using make (recommended)</h3>
+<pre><code class="language-bash"># Run all tests (headless)
+make test
+
+# Run tests with visible browser
+make test-headed
+
+# Open browser-based test runner
+make test-browser
+
+# Run a specific test file
+make test-file FILE=tests/core/pan-bus.test.mjs
+
+# Show help
+make help</code></pre>
+<h3>Using the CLI directly</h3>
+<pre><code class="language-bash"># Run all tests
+node tests/lib/cli-runner.mjs
+
+# Run with headed browser
+node tests/lib/cli-runner.mjs --headed
+
+# Run specific file
+node tests/lib/cli-runner.mjs tests/core/pan-bus.test.mjs
+
+# Filter by pattern
+node tests/lib/cli-runner.mjs --pattern=&quot;pan-bus&quot;</code></pre>
+<h3>Browser-based test runner</h3>
+<p>Open <code>tests/index.html</code> in your browser for an interactive test runner with:
+<ul><li>Visual test results</li>
+<li>Real-time updates</li>
+<li>Filter/search functionality</li>
+<li>Test details and error messages</li>
+</ul>
+<pre><code class="language-bash"># Option 1: Open directly
+open tests/index.html
+
+# Option 2: Serve with local server (recommended)
+python3 -m http.server 8000
+# Then open http://localhost:8000/tests/</code></pre></p>
+<h2>Test Utilities</h2>
+<p>The <code>lib/test-utils.mjs</code> file provides common utilities:</p>
+<ul><li><strong>fileUrl(path)</strong> - Convert relative path to file:// URL</li>
+<li><strong>createTestPage(page, content)</strong> - Create test page with PAN bus</li>
+<li><strong>waitForCustomElement(page, tagName)</strong> - Wait for custom element definition</li>
+<li><strong>waitForPanMessage(page, topic)</strong> - Wait for PAN message on topic</li>
+<li><strong>publishPanMessage(page, topic, data)</strong> - Publish PAN message from test</li>
+<li><strong>getPanMessages(page)</strong> - Get all retained messages</li>
+<li><strong>clearPanMessages(page)</strong> - Clear retained messages</li>
+</ul>
+<h2>Test Runner API</h2>
+<p>The <code>lib/test-runner.mjs</code> provides a lightweight test framework:</p>
+<ul><li><strong>describe(name, fn)</strong> - Create a test suite</li>
+<li><strong>test(name, fn)</strong> / <strong>it(name, fn)</strong> - Define a test</li>
+<li><strong>expect(value)</strong> - Assertion helpers</li>
+<li><strong>beforeEach(fn)</strong> / <strong>afterEach(fn)</strong> - Setup/teardown hooks</li>
+<li><strong>beforeAll(fn)</strong> / <strong>afterAll(fn)</strong> - Suite-level hooks</li>
+</ul>
+<h2>Writing Tests</h2>
+<h3>Basic Test Structure</h3>
+<pre><code class="language-javascript">import { chromium } from &#039;@playwright/test&#039;;
+import { describe, test, expect, beforeAll, afterAll } from &#039;../lib/test-runner.mjs&#039;;
+import { fileUrl } from &#039;../lib/test-utils.mjs&#039;;
+
+let browser, page;
+
+beforeAll(async () =&gt; {
+  browser = await chromium.launch({ headless: true });
+  page = await browser.newPage();
+});
+
+afterAll(async () =&gt; {
+  await browser.close();
+});
+
+describe(&#039;my-component&#039;, () =&gt; {
+  test(&#039;does something&#039;, async () =&gt; {
+    await page.goto(fileUrl(&#039;examples/my-example.html&#039;));
+
+    await page.waitForFunction(() =&gt; customElements.get(&#039;my-component&#039;) !== undefined);
+
+    const exists = await page.evaluate(() =&gt; {
+      return document.querySelector(&#039;my-component&#039;) !== null;
+    });
+    expect(exists).toBeTruthy();
+
+    // Your test assertions...
+  });
+});</code></pre>
+<h3>Testing PAN Messages</h3>
+<pre><code class="language-javascript">test(&#039;publishes message on action&#039;, async () =&gt; {
+  await page.goto(fileUrl(&#039;examples/test.html&#039;));
+
+  const messagePromise = page.evaluate(() =&gt; {
+    return new Promise((resolve) =&gt; {
+      document.addEventListener(&#039;pan:deliver&#039;, (e) =&gt; {
+        if (e.detail.topic === &#039;my.topic&#039;) {
+          resolve(e.detail.data);
+        }
+      }, { once: true });
+    });
+  });
+
+  // Trigger the action
+  await page.click(&#039;#trigger-button&#039;);
+
+  const data = await messagePromise;
+  expect(data.expected).toBe(&#039;value&#039;);
+});</code></pre>
+<h3>Testing Component Interactions</h3>
+<pre><code class="language-javascript">test(&#039;updates on user input&#039;, async () =&gt; {
+  await page.goto(fileUrl(&#039;examples/form.html&#039;));
+
+  // Fill input
+  await page.evaluate(() =&gt; {
+    const input = document.querySelector(&#039;#my-input&#039;);
+    input.value = &#039;test value&#039;;
+    input.dispatchEvent(new Event(&#039;input&#039;));
+  });
+
+  // Check output
+  const outputText = await page.evaluate(() =&gt; {
+    return document.querySelector(&#039;#output&#039;).textContent;
+  });
+  expect(outputText).toBe(&#039;test value&#039;);
+});</code></pre>
+<h2>Test Coverage Goals</h2>
+<ul><li>✅ <strong>Core Components</strong> (pan-bus, pan-client, pan-autoload)</li>
+<li>✅ <strong>UI Components</strong> (pan-card, pan-modal, pan-tabs, etc.)</li>
+<li>⏳ <strong>Feature Components</strong> (pan-store, pan-router, pan-data-table, etc.)</li>
+<li>⏳ <strong>Integration Tests</strong> (component combinations)</li>
+<li>⏳ <strong>Performance Tests</strong> (large datasets, many messages)</li>
+<li>⏳ <strong>Accessibility Tests</strong> (ARIA, keyboard navigation)</li>
+</ul>
+<h2>Current Test Status</h2>
+<h3>Completed (8 test files)</h3>
+<ul><li>✅ pan-bus (7 tests) - Message bus core functionality</li>
+<li>✅ pan-client (9 tests) - Client API and patterns</li>
+<li>✅ pan-card (3 tests) - Card component rendering</li>
+<li>✅ pan-modal (3 tests) - Modal open/close behavior</li>
+<li>✅ pan-tabs (3 tests) - Tab switching and keyboard nav</li>
+<li>✅ pan-store (4 tests) - State management and persistence</li>
+<li>✅ pan-router (5 tests) - Routing and navigation</li>
+</ul>
+<h3>To Do</h3>
+<ul><li>pan-autoload - Component lazy loading</li>
+<li>pan-data-table - Table rendering and sorting</li>
+<li>pan-form - Form validation</li>
+<li>pan-theme-provider - Theming</li>
+<li>pan-markdown-editor - Markdown editing</li>
+<li>pan-websocket - WebSocket bridge</li>
+<li>pan-idb - IndexedDB operations</li>
+<li>All remaining UI components (10+)</li>
+<li>All remaining feature components (20+)</li>
+</ul>
+<h2>Contributing Tests</h2>
+<p>When adding new tests:</p>
+<li>Create test file in appropriate directory (core/, ui/, or components/)</li>
+<li>Use descriptive test names that explain what is being tested</li>
+<li>Use the helpers from test-utils.ts for common operations</li>
+<li>Test both happy paths and error cases</li>
+<li>Ensure tests are isolated (don't depend on other tests)</li>
+<li>Clean up any side effects (localStorage, etc.)</li>
+<li>Add comments for complex test logic</li>
+<h2>Debugging Tests</h2>
+<h3>Debug single test</h3>
+<pre><code class="language-bash">npx playwright test tests/core/pan-bus.spec.ts --debug</code></pre>
+<h3>Generate test report</h3>
+<pre><code class="language-bash">npx playwright test
+npx playwright show-report</code></pre>
+<h3>Update snapshots</h3>
+<pre><code class="language-bash">npx playwright test --update-snapshots</code></pre>
+<h2>CI/CD Integration</h2>
+<p>Tests run automatically on:
+<ul><li>Every commit (pre-commit hook)</li>
+<li>Every pull request</li>
+<li>Before publishing to npm</li>
+</ul>
+<h2>Performance Considerations</h2></p>
+<ul><li>Tests should complete in < 30 seconds each</li>
+<li>Use <code>page.waitForFunction()</code> instead of fixed <code>setTimeout()</code></li>
+<li>Clean up event listeners and subscriptions</li>
+<li>Use <code>{ once: true }</code> for one-time event listeners</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/tests/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

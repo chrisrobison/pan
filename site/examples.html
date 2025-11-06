@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Examples · PAN</title>
+  <link rel="stylesheet" href="assets/theme.css">
+  <link rel="stylesheet" href="assets/docs.css">
+  <style>
+    .examples-hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .examples-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .examples-hero p {
+      font-size: 1.25rem;
+      color: var(--color-text-muted);
+    }
+
+    .examples-grid {
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .example-card {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      padding: 2rem;
+      text-decoration: none;
+      display: block;
+      transition: all 0.2s;
+    }
+
+    .example-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--color-primary);
+    }
+
+    .example-number {
+      display: inline-block;
+      width: 2rem;
+      height: 2rem;
+      background: var(--color-primary);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 2rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .example-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--color-text);
+    }
+
+    .example-card p {
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .example-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .example-tag {
+      padding: 0.25rem 0.625rem;
+      background: var(--color-bg-alt);
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="index.html" class="logo">PAN</a>
+      <nav class="docs-nav">
+        <a href="index.html">Home</a>
+        <a href="docs/index.html">Docs</a>
+        <a href="examples.html" class="active">Examples</a>
+        <a href="apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="examples-hero">
+    <h1>Examples</h1>
+    <p>Progressive examples showing PAN's capabilities, from simple counters to complex integrations</p>
+  </div>
+
+  <div class="examples-grid" id="examples-grid">
+    <!-- Will be populated by JavaScript -->
+  </div>
+
+  <script>
+    const examples = [
+      {
+        number: '00',
+        title: 'Introduction',
+        description: 'Overview of PAN concepts and architecture',
+        tags: ['basics', 'intro'],
+        file: '00-intro.html'
+      },
+      {
+        number: '01',
+        title: 'Hello Counter',
+        description: 'Simple counter demonstrating pub/sub basics',
+        tags: ['basics', 'counter'],
+        file: '01-hello.html'
+      },
+      {
+        number: '02',
+        title: 'Todo List + Inspector',
+        description: 'Todo app with real-time message inspection',
+        tags: ['basics', 'inspector', 'todos'],
+        file: '02-todos-and-inspector.html'
+      },
+      {
+        number: '03',
+        title: 'BroadcastChannel',
+        description: 'Cross-tab communication with BroadcastChannel API',
+        tags: ['advanced', 'cross-tab'],
+        file: '03-broadcastchannel.html'
+      },
+      {
+        number: '04',
+        title: 'React Wrapper',
+        description: 'Integrate PAN with React components',
+        tags: ['frameworks', 'react'],
+        file: '04-react-wrapper.html'
+      },
+      {
+        number: '05',
+        title: 'Lit Wrapper',
+        description: 'Integrate PAN with Lit web components',
+        tags: ['frameworks', 'lit'],
+        file: '05-lit-wrapper.html'
+      },
+      {
+        number: '06',
+        title: 'CRUD Stack',
+        description: 'Complete CRUD operations with data provider',
+        tags: ['data', 'crud'],
+        file: '06-crud.html'
+      },
+      {
+        number: '07',
+        title: 'REST Connector',
+        description: 'Connect to REST APIs automatically',
+        tags: ['data', 'rest', 'api'],
+        file: '07-rest-connector.html'
+      },
+      {
+        number: '08',
+        title: 'Web Workers',
+        description: 'Offload work to background threads',
+        tags: ['advanced', 'workers'],
+        file: '08-workers.html'
+      },
+      {
+        number: '09',
+        title: 'Schema-Driven Forms',
+        description: 'Generate forms from JSON schemas',
+        tags: ['forms', 'schemas'],
+        file: '09-schema-form.html'
+      },
+      {
+        number: '10',
+        title: 'Server-Sent Events',
+        description: 'Real-time updates with SSE',
+        tags: ['realtime', 'sse'],
+        file: '10-sse-store.html'
+      },
+      {
+        number: '11',
+        title: 'GraphQL Connector',
+        description: 'Query GraphQL APIs declaratively',
+        tags: ['data', 'graphql', 'api'],
+        file: '11-graphql-connector.html'
+      },
+      {
+        number: '12',
+        title: 'PHP Connector',
+        description: 'Connect to PHP backend services',
+        tags: ['data', 'php', 'api'],
+        file: '12-php-connector.html'
+      },
+      {
+        number: '13',
+        title: 'SSE Bridge',
+        description: 'Bidirectional SSE communication',
+        tags: ['realtime', 'sse', 'advanced'],
+        file: '13-sse-pan.html'
+      },
+      {
+        number: '14',
+        title: 'Event Forwarder',
+        description: 'Forward events between PAN instances',
+        tags: ['advanced', 'routing'],
+        file: '14-forwarder.html'
+      },
+      {
+        number: '15',
+        title: 'Router',
+        description: 'Client-side routing with PAN',
+        tags: ['routing', 'spa'],
+        file: '15-router.html'
+      },
+      {
+        number: '16',
+        title: 'WebSocket',
+        description: 'Real-time bidirectional communication',
+        tags: ['realtime', 'websocket'],
+        file: '16-websocket.html'
+      },
+      {
+        number: '17',
+        title: 'Enhanced Security',
+        description: 'Rate limiting, validation, and memory management',
+        tags: ['security', 'advanced'],
+        file: '17-enhanced-security.html'
+      },
+      {
+        number: '18',
+        title: 'TypeScript Usage',
+        description: 'Complete TypeScript integration examples',
+        tags: ['typescript', 'types'],
+        file: '18-typescript-usage.ts'
+      }
+    ];
+
+    const grid = document.getElementById('examples-grid');
+
+    examples.forEach(example => {
+      const card = document.createElement('a');
+      card.className = 'example-card';
+      card.href = `../examples/${example.file}`;
+
+      card.innerHTML = `
+        <div class="example-number">${example.number}</div>
+        <h3>${example.title}</h3>
+        <p>${example.description}</p>
+        <div class="example-tags">
+          ${example.tags.map(tag => `<span class="example-tag">${tag}</span>`).join('')}
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

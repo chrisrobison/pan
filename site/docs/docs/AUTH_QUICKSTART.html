@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Authentication Quick Start · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Authentication Quick Start">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>AUTH_QUICKSTART</span>
+      </div>
+      <article class="docs-content">
+        <h1>Authentication Quick Start</h1>
+<strong>TL;DR:</strong> Drop <code><pan-auth></code> on page, never write auth headers again.
+<h2>30 Second Setup</h2>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+
+&lt;!-- 1. Add auth manager --&gt;
+&lt;pan-auth storage=&quot;localStorage&quot; auto-refresh=&quot;true&quot;&gt;&lt;/pan-auth&gt;
+
+&lt;!-- 2. Add connector --&gt;
+&lt;pan-data-connector resource=&quot;users&quot; base-url=&quot;/api&quot;&gt;&lt;/pan-data-connector&gt;
+
+&lt;!-- 3. Use it! --&gt;
+&lt;script type=&quot;module&quot;&gt;
+  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  const pc = new PanClient();
+
+  // Login
+  await pc.request(&#039;auth.login&#039;, {
+    email: &#039;user@example.com&#039;,
+    password: &#039;pass123&#039;
+  });
+
+  // Fetch data - auth header automatically added!
+  pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+&lt;/script&gt;</code></pre>
+<p>Done! All requests now automatically include <code>Authorization: Bearer ${token}</code>.</p>
+<h2>Login Component</h2>
+<pre><code class="language-javascript">customElements.define(&#039;login-form&#039;, class extends HTMLElement {
+  connectedCallback() {
+    const pc = new PanClient(this);
+
+    this.innerHTML = `
+      &lt;form id=&quot;login&quot;&gt;
+        &lt;input name=&quot;email&quot; type=&quot;email&quot; placeholder=&quot;Email&quot; required&gt;
+        &lt;input name=&quot;password&quot; type=&quot;password&quot; placeholder=&quot;Password&quot; required&gt;
+        &lt;button&gt;Login&lt;/button&gt;
+      &lt;/form&gt;
+      &lt;div id=&quot;message&quot;&gt;&lt;/div&gt;
+    `;
+
+    this.querySelector(&#039;#login&#039;).addEventListener(&#039;submit&#039;, async (e) =&gt; {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      const result = await pc.request(&#039;auth.login&#039;, {
+        email: formData.get(&#039;email&#039;),
+        password: formData.get(&#039;password&#039;)
+      });
+
+      if (result.data.ok) {
+        this.querySelector(&#039;#message&#039;).textContent = &#039;Login successful!&#039;;
+      }
+    });
+  }
+});</code></pre>
+<h2>Protected Component</h2>
+<pre><code class="language-javascript">customElements.define(&#039;user-list&#039;, class extends HTMLElement {
+  connectedCallback() {
+    const pc = new PanClient(this);
+
+    // Listen for auth state
+    pc.subscribe(&#039;auth.state&#039;, msg =&gt; {
+      if (msg.data.authenticated) {
+        // User logged in - fetch data
+        pc.publish({ topic: &#039;users.list.get&#039;, data: {} });
+      } else {
+        this.innerHTML = &#039;&lt;p&gt;Please log in&lt;/p&gt;&#039;;
+      }
+    }, { retained: true });
+
+    // Display users
+    pc.subscribe(&#039;users.list.state&#039;, msg =&gt; {
+      this.innerHTML = `&lt;ul&gt;${msg.data.items.map(u =&gt;
+        `&lt;li&gt;${u.name}&lt;/li&gt;`
+      ).join(&#039;&#039;)}&lt;/ul&gt;`;
+    }, { retained: true });
+  }
+});</code></pre>
+<h2>Logout Button</h2>
+<pre><code class="language-javascript">document.querySelector(&#039;#logout-btn&#039;).addEventListener(&#039;click&#039;, () =&gt; {
+  const pc = new PanClient();
+  pc.publish({ topic: &#039;auth.logout&#039;, data: {} });
+});</code></pre>
+<h2>Custom Fetch</h2>
+<p>For custom API calls outside connectors:</p>
+<pre><code class="language-javascript">import { panFetch } from &#039;./pan/core/pan-fetch.mjs&#039;;
+
+// Automatically includes auth header
+const users = await panFetch.get(&#039;/api/users&#039;);
+const newUser = await panFetch.post(&#039;/api/users&#039;, { name: &#039;John&#039; });</code></pre>
+<h2>Topics Reference</h2>
+<pre><code class="language-javascript">// Login
+await pc.request(&#039;auth.login&#039;, { email, password });
+
+// Logout
+pc.publish({ topic: &#039;auth.logout&#039;, data: {} });
+
+// Check if logged in
+pc.subscribe(&#039;auth.state&#039;, msg =&gt; {
+  if (msg.data.authenticated) {
+    console.log(&#039;Logged in as:&#039;, msg.data.user);
+  }
+}, { retained: true });
+
+// Login events
+pc.subscribe(&#039;auth.login.success&#039;, msg =&gt; {
+  console.log(&#039;Welcome!&#039;, msg.data.user);
+});
+
+pc.subscribe(&#039;auth.login.error&#039;, msg =&gt; {
+  console.error(&#039;Login failed:&#039;, msg.data.error);
+});</code></pre>
+<h2>Test It</h2>
+<pre><code class="language-bash"># Open the demo
+open examples/auth-demo.html
+
+# Test credentials:
+# - admin@example.com / admin123
+# - user@example.com / user123
+# - demo@example.com / demo</code></pre>
+<h2>What Gets Auto-Injected</h2>
+<p>Every request automatically includes:</p>
+<pre><code class="language-plaintext">Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+<strong>Works with:</strong>
+<ul><li>✅ <code><pan-data-connector></code> (REST API)</li>
+<li>✅ <code><pan-graphql-connector></code> (GraphQL)</li>
+<li>✅ <code>panFetch</code> (custom fetches)</li>
+</ul>
+<strong>You never write:</strong>
+<ul><li>❌ <code>headers: { 'Authorization': ... }</code></li>
+<li>❌ Token management code</li>
+<li>❌ Token refresh logic</li>
+</ul>
+<h2>Full Documentation</h2>
+<p>See <a href="./AUTHENTICATION.md">docs/AUTHENTICATION.md</a> for complete documentation.</p>
+<hr>
+<strong>Philosophy:</strong> Auth should be invisible infrastructure. Developers should focus on features, not plumbing.
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/AUTH_QUICKSTART.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

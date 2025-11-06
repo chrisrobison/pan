@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository Guidelines · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Repository Guidelines">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <span>LARC_AGENTS</span>
+      </div>
+      <article class="docs-content">
+        <h1>Repository Guidelines</h1>
+<h2>Project Structure & Module Organization</h2>
+<ul><li><code>README.md</code>: overview, quickstart, API, and recipes.</li>
+</ul> - <code>LARC_SPEC.v0.md</code>: draft spec, architecture, and compliance notes.
+<ul><li><code>examples/</code>: single‑file HTML demos runnable directly in a browser.</li>
+<li><code>demo.html</code>: compact reference/mini‑demo of the bus and client.</li>
+<li>No build system; artifacts (if produced) would live under <code>dist/</code>.</li>
+</ul>
+<h2>Build, Test, and Development Commands</h2>
+<ul><li>Run locally: open <code>examples/01-hello.html</code> or <code>demo.html</code> in a browser.</li>
+<li>Static server (optional): <code>python3 -m http.server 8080</code> → visit <code>http://localhost:8080/examples/</code>.</li>
+<li>No bundler required: use <code><script type="module"></code> with ESM.</li>
+</ul>
+<h2>Coding Style & Naming Conventions</h2>
+<ul><li>Indentation: 2 spaces; keep modules small and readable.</li>
+<li>JavaScript: modern ESM, <code>const</code>/<code>let</code>, avoid transpilers and globals.</li>
+<li>Custom elements: kebab‑case tags (e.g., <code>pan-bus</code>, <code>pan-inspector</code>).</li>
+<li>Topics: dotted lowercase with optional <code>@version</code> (e.g., <code>todos.change</code>, <code>user.update@2</code>).</li>
+<li>Events: dispatch PAN events with <code>{ bubbles:true, composed:true }</code> so they cross shadow DOM.</li>
+</ul>
+<h2>Testing Guidelines</h2>
+<ul><li>Manual smoke tests via <code>examples/*</code>:</li>
+</ul>  - <code>02-todos-and-inspector.html</code>: add/remove/toggle; inspector shows traffic and retained state.
+  - <code>03-broadcastchannel.html</code>: open two tabs; confirm mirrored topics sync.
+ - Future automation: compliance tests (Web Test Runner/Playwright) as outlined in <code>LARC_SPEC.v0.md</code>.
+<h2>Commit & Pull Request Guidelines</h2>
+<ul><li>Commits: follow Conventional Commits (<code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>refactor:</code>, <code>test:</code>, <code>chore:</code>). Keep scope focused.</li>
+<li>PRs: include a clear description, linked issues, and screenshots/GIFs for example UI changes. Update <code>README.md</code>/<code>examples/</code> when behavior changes.</li>
+<li>Checks: verify in at least one Chromium‑based browser and Firefox; ensure examples still open from <code>file://</code> and via a static server.</li>
+</ul>
+<h2>Security & Configuration Tips</h2>
+<ul><li>Mirror only explicit topics across tabs; avoid sensitive data in mirrored channels.</li>
+<li>Message payloads must be JSON‑serializable; keep sizes small and use headers for schema/version when needed.</li>
+</ul>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/LARC_AGENTS.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

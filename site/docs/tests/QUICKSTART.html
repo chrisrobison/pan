@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test System Quick Start · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Test System Quick Start">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">tests</a> / <span>QUICKSTART</span>
+      </div>
+      <article class="docs-content">
+        <h1>Test System Quick Start</h1>
+<h2>🎉 What We Built</h2>
+<p>A <strong>zero-build, TypeScript-free</strong> test system that embodies LARC's philosophy of simplicity.</p>
+<h2>🚀 Try It Now</h2>
+<pre><code class="language-bash"># Run tests from command line
+npm test
+
+# Or with make
+make test
+
+# Run with visible browser (for debugging)
+make test-headed
+
+# Run a single test
+node tests/lib/cli-runner.mjs tests/simple.test.mjs</code></pre>
+<h2>🌐 Browser Test Runner</h2>
+<pre><code class="language-bash"># Serve locally
+python3 -m http.server 8000
+
+# Open http://localhost:8000/tests/
+# Click &quot;Run All Tests&quot; to see results</code></pre>
+<h2>✍️ Write a Test</h2>
+<p>Create <code>tests/my-feature.test.mjs</code>:</p>
+<pre><code class="language-javascript">import { describe, test, expect } from &#039;./lib/test-runner.mjs&#039;;
+
+describe(&#039;my feature&#039;, () =&gt; {
+  test(&#039;works correctly&#039;, () =&gt; {
+    expect(1 + 1).toBe(2);
+  });
+
+  test(&#039;handles async&#039;, async () =&gt; {
+    const result = await Promise.resolve(42);
+    expect(result).toBe(42);
+  });
+});</code></pre>
+<p>Run it:
+<pre><code class="language-bash">node tests/lib/cli-runner.mjs tests/my-feature.test.mjs</code></pre></p>
+<h2>📦 What You Get</h2>
+<ul><li>✅ <strong>Zero build</strong> - No TypeScript, no transpilation</li>
+<li>✅ <strong>CLI runner</strong> - <code>make test</code> or <code>npm test</code></li>
+<li>✅ <strong>Browser runner</strong> - Visual test results at <code>tests/index.html</code></li>
+<li>✅ <strong>Simple API</strong> - <code>describe</code>, <code>test</code>, <code>expect</code></li>
+<li>✅ <strong>Async support</strong> - Tests can be async</li>
+<li>✅ <strong>Hooks</strong> - <code>beforeAll</code>, <code>afterAll</code>, <code>beforeEach</code>, <code>afterEach</code></li>
+<li>✅ <strong>Playwright ready</strong> - Easy integration for browser tests</li>
+<li>✅ <strong>Colorized output</strong> - Beautiful CLI results</li>
+</ul>
+<h2>🎯 Philosophy</h2>
+<p>This test system follows LARC's core principles:</p>
+<li><strong>No build step</strong> - Write a test, run it immediately</li>
+<li><strong>No dependencies</strong> - Just Playwright for browser automation</li>
+<li><strong>Plain JavaScript</strong> - <code>.mjs</code> files, no compilation</li>
+<li><strong>Transparent</strong> - ~300 lines of readable code</li>
+<li><strong>Flexible</strong> - Works in CLI, browser, and CI/CD</li>
+<h2>📚 More Info</h2>
+<ul><li><strong>Full migration guide</strong>: <code>tests/MIGRATION.md</code></li>
+<li><strong>Test utilities docs</strong>: <code>tests/README.md</code></li>
+<li><strong>Example tests</strong>:</li>
+</ul>  - <code>tests/simple.test.mjs</code> - Basic unit tests
+  - <code>tests/core/pan-bus.test.mjs</code> - Playwright integration
+  - <code>tests/examples/02-todos.test.mjs</code> - Full app test
+<h2>🔧 Commands Reference</h2>
+<pre><code class="language-bash"># CLI
+npm test                           # All tests
+npm run test:headed                # With browser visible
+make test                          # All tests (via Makefile)
+make test-headed                   # With browser visible
+make test-file FILE=path/to/test   # Single test
+
+# Direct
+node tests/lib/cli-runner.mjs                    # All tests
+node tests/lib/cli-runner.mjs tests/my.test.mjs  # Single test
+node tests/lib/cli-runner.mjs --headed           # Show browser</code></pre>
+<h2>🎨 Test Output</h2>
+<pre><code class="language-plaintext">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PAN Test Results
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ simple.test.mjs (0ms)
+  basic test runner
+    ✓ can run a simple test (0ms)
+    ✓ has working assertions (0ms)
+    ✓ supports async tests (0ms)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✓ Test Summary
+
+  Files:   1 total, 1 passed, 0 failed
+  Tests:   3 total, 3 passed, 0 failed, 0 skipped
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</code></pre>
+<hr>
+<strong>🎊 Ready to test!</strong> No build process, no TypeScript, just plain JavaScript.
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/tests/QUICKSTART.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

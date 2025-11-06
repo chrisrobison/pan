@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Inspector - Chrome DevTools Extension · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN Inspector - Chrome DevTools Extension">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">devtools-extension</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN Inspector - Chrome DevTools Extension</h1>
+<p>Professional debugging and inspection tool for Page Area Network (PAN) message bus.</p>
+<p>!<a href="screenshot.png">PAN Inspector Screenshot</a></p>
+<h2>Features</h2>
+<h3>🔍 <strong>Real-Time Message Monitoring</strong></h3>
+<ul><li>Captures all PAN messages (publish, deliver, subscribe)</li>
+<li>Shows message details: topic, data, timestamp, target, size</li>
+<li>Color-coded message types for quick identification</li>
+</ul>
+<h3>🎯 <strong>Powerful Filtering</strong></h3>
+<ul><li>Filter by topic, type, or data content</li>
+<li>Toggle message types on/off</li>
+<li>Search across all message properties</li>
+</ul>
+<h3>📊 <strong>Message Inspector</strong></h3>
+<ul><li>Detailed view of message payload</li>
+<li>JSON formatting with syntax highlighting</li>
+<li>Copy message as JSON</li>
+</ul>
+<h3>🔄 <strong>Message Replay</strong></h3>
+<ul><li>Replay any captured message</li>
+<li>Perfect for debugging and testing</li>
+<li>Works with live applications</li>
+</ul>
+<h3>💾 <strong>Export/Import</strong></h3>
+<ul><li>Export message logs as JSON</li>
+<li>Import logs for analysis</li>
+<li>Share debugging sessions with team</li>
+</ul>
+<h3>⏸️ <strong>Recording Control</strong></h3>
+<ul><li>Pause/resume message capture</li>
+<li>Clear message history</li>
+<li>Real-time message counter</li>
+</ul>
+<hr>
+<h2>Installation</h2>
+<h3>From Source (Development)</h3>
+<li><strong>Clone the repository:</strong></li>
+   <pre><code class="language-bash">cd /Users/cdr/Projects/pan</code></pre>
+<li><strong>Open Chrome Extensions:</strong></li>
+   - Navigate to <code>chrome://extensions/</code>
+   - Enable "Developer mode" (top right)
+<li><strong>Load extension:</strong></li>
+   - Click "Load unpacked"
+   - Select the <code>devtools-extension/</code> folder
+<li><strong>Verify installation:</strong></li>
+   - Open Chrome DevTools (F12)
+   - Look for the "PAN" tab
+<h3>From Chrome Web Store (Coming Soon)</h3>
+<p>Once published, install directly from the Chrome Web Store.</p>
+<hr>
+<h2>Usage</h2>
+<h3>Basic Usage</h3>
+<li><strong>Open DevTools</strong> on any page with PAN bus:</li>
+   <pre><code class="language-plaintext">F12 or Right-click → Inspect</code></pre>
+<li><strong>Switch to PAN tab:</strong></li>
+   <pre><code class="language-plaintext">DevTools → PAN (tab)</code></pre>
+<li><strong>Interact with the page:</strong></li>
+   - Messages appear in real-time
+   - Click any message to see details
+<h3>Features Walkthrough</h3>
+<p>#### Filtering Messages</p>
+<strong>Text Search:</strong>
+<pre><code class="language-plaintext">Type in filter box: &quot;user.login&quot;
+→ Shows only messages matching &quot;user.login&quot;</code></pre>
+<strong>By Type:</strong>
+<pre><code class="language-plaintext">Uncheck &quot;Publish&quot; → Hides all publish events
+Uncheck &quot;Subscribe&quot; → Hides all subscribe events</code></pre>
+<strong>Combined:</strong>
+<pre><code class="language-plaintext">Search &quot;error&quot; + Uncheck &quot;Deliver&quot;
+→ Shows only publish/subscribe with &quot;error&quot; in data</code></pre>
+<p>#### Viewing Message Details</p>
+<li>Click any message row</li>
+<li>Details panel opens on right</li>
+<li>See:</li>
+   - Complete message structure
+   - Formatted JSON payload
+   - Message metadata
+<p>#### Replaying Messages</p>
+<strong>From table:</strong>
+<pre><code class="language-plaintext">Click &quot;Replay&quot; button → Message sent again</code></pre>
+<strong>From details panel:</strong>
+<pre><code class="language-plaintext">1. Select message
+2. Click &quot;Replay Message&quot;
+3. Message dispatched on page</code></pre>
+<strong>Use Case:</strong>
+<pre><code class="language-plaintext">Test how components handle specific messages
+without needing to trigger the action again</code></pre>
+<p>#### Export/Import</p>
+<strong>Export:</strong>
+<pre><code class="language-plaintext">1. Click &quot;Export&quot; button
+2. Save JSON file
+3. Share with team or keep for records</code></pre>
+<strong>Import:</strong>
+<pre><code class="language-plaintext">1. Click &quot;Import&quot; button
+2. Select JSON file
+3. Messages loaded into inspector</code></pre>
+<strong>Use Case:</strong>
+<pre><code class="language-plaintext">- Reproduce bugs from production logs
+- Share debugging sessions
+- Compare message flows</code></pre>
+<hr>
+<h2>Examples</h2>
+<h3>Debugging a Login Flow</h3>
+<li>Open PAN Inspector</li>
+<li>Clear messages</li>
+<li>Perform login</li>
+<li>Filter by "user" to see login-related messages</li>
+<li>Inspect <code>user.login</code> message payload</li>
+<li>Verify authentication data</li>
+<h3>Testing Error Handling</h3>
+<li>Capture an error message</li>
+<li>Export to JSON file</li>
+<li>Modify payload to test edge cases</li>
+<li>Import modified messages</li>
+<li>Replay to component</li>
+<h3>Performance Analysis</h3>
+<li>Monitor message frequency</li>
+<li>Check message sizes</li>
+<li>Identify bottlenecks</li>
+<li>Look for unexpected message storms</li>
+<hr>
+<h2>Keyboard Shortcuts</h2>
+<p>| Key | Action |
+|-----|--------|
+| <code>Ctrl/Cmd + K</code> | Focus filter input |
+| <code>Ctrl/Cmd + L</code> | Clear messages |
+| <code>Esc</code> | Close details panel |
+| <code>Space</code> | Pause/Resume recording |</p>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>"No messages appearing"</h3>
+<strong>Check:</strong>
+<li>✅ Page uses <code><pan-bus></code> or <code><pan-bus-enhanced></code></li>
+<li>✅ Components are publishing messages</li>
+<li>✅ Recording is not paused</li>
+<li>✅ Filters are not hiding messages</li>
+<strong>Solution:</strong>
+<pre><code class="language-javascript">// Test in console
+import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+const client = new PanClient();
+client.publish({ topic: &#039;test&#039;, data: { hello: &#039;world&#039; } });
+// Should appear in PAN Inspector</code></pre>
+<h3>"Replay not working"</h3>
+<strong>Check:</strong>
+<li>✅ Content script is injected</li>
+<li>✅ Page has PAN bus</li>
+<li>✅ Message is valid</li>
+<strong>Debug:</strong>
+<pre><code class="language-plaintext">Check console for errors
+Look for &quot;PAN DevTools&quot; messages</code></pre>
+<h3>"Extension not loading"</h3>
+<strong>Check:</strong>
+<li>✅ Chrome version 88+ (Manifest V3)</li>
+<li>✅ All files present in extension folder</li>
+<li>✅ No errors in <code>chrome://extensions/</code></li>
+<strong>Solution:</strong>
+<pre><code class="language-plaintext">Reload extension:
+chrome://extensions/ → Click reload icon</code></pre>
+<hr>
+<h2>Architecture</h2>
+<h3>Message Flow</h3>
+<pre><code class="language-plaintext">Page Context (PAN Bus)
+   ↓ (CustomEvent intercept)
+Injected Script (src/injected.js)
+   ↓ (postMessage)
+Content Script (src/content-script.js)
+   ↓ (chrome.runtime.sendMessage)
+Background Service Worker (src/background.js)
+   ↓ (port.postMessage)
+DevTools Panel (panel.html/js)
+   ↓ (Render)
+User Interface</code></pre>
+<h3>Files Overview</h3>
+<pre><code class="language-plaintext">devtools-extension/
+├── manifest.json          # Extension config (Manifest V3)
+├── devtools.html/js       # DevTools entry point
+├── panel.html             # Main UI
+├── src/
+│   ├── devtools.js        # Panel creator
+│   ├── background.js      # Message router
+│   ├── content-script.js  # Bridge script
+│   ├── injected.js        # Page context interceptor
+│   └── panel.js           # UI logic
+├── styles/
+│   └── panel.css          # DevTools-style UI
+└── icons/
+    └── icon-*.png         # Extension icons</code></pre>
+<hr>
+<h2>Development</h2>
+<h3>Building</h3>
+<p>No build step required! Pure JavaScript.</p>
+<h3>Testing</h3>
+<li>Make changes to source files</li>
+<li>Reload extension: <code>chrome://extensions/</code> → Reload</li>
+<li>Reload DevTools panel: Right-click panel → Reload</li>
+<li>Test with <code>examples/17-enhanced-security.html</code></li>
+<h3>Debugging</h3>
+<strong>Background script:</strong>
+<pre><code class="language-plaintext">chrome://extensions/ → Inspect views: service worker</code></pre>
+<strong>Content script:</strong>
+<pre><code class="language-plaintext">DevTools → Console → Filter: [PAN DevTools]</code></pre>
+<strong>Panel:</strong>
+<pre><code class="language-plaintext">Right-click PAN tab → Inspect</code></pre>
+<h3>Contributing</h3>
+<li>Fork the repository</li>
+<li>Create feature branch</li>
+<li>Make changes</li>
+<li>Test thoroughly</li>
+<li>Submit pull request</li>
+<hr>
+<h2>Roadmap</h2>
+<h3>v1.1</h3>
+<ul><li>[ ] Timeline view (visual message flow)</li>
+<li>[ ] Performance metrics</li>
+<li>[ ] Message stats dashboard</li>
+<li>[ ] Dark mode toggle</li>
+</ul>
+<h3>v1.2</h3>
+<ul><li>[ ] Network waterfall view</li>
+<li>[ ] Message diff tool</li>
+<li>[ ] Breakpoints on topics</li>
+<li>[ ] Advanced filters (regex, JSON path)</li>
+</ul>
+<h3>v1.3</h3>
+<ul><li>[ ] Record/replay sessions</li>
+<li>[ ] Test generation from recordings</li>
+<li>[ ] Playwright integration</li>
+<li>[ ] Export to HAR format</li>
+</ul>
+<hr>
+<h2>Known Issues</h2>
+<li><strong>Messages before DevTools open</strong> - Can't capture messages sent before DevTools opens (by design)</li>
+<li><strong>Large message counts</strong> - UI slows down with 10,000+ messages (limited to last 1,000 rendered)</li>
+<li><strong>Cross-origin iframes</strong> - Can't inspect messages in cross-origin iframes (security restriction)</li>
+<hr>
+<h2>Browser Support</h2>
+<ul><li>✅ Chrome 88+ (Manifest V3)</li>
+<li>✅ Edge 88+ (Chromium-based)</li>
+<li>⏳ Firefox (Coming soon - needs Manifest V2 version)</li>
+<li>❌ Safari (Not supported - WebExtensions API differences)</li>
+</ul>
+<hr>
+<h2>Privacy</h2>
+<p>This extension:
+<ul><li>✅ Does <strong>NOT</strong> collect any data</li>
+<li>✅ Does <strong>NOT</strong> make external network requests</li>
+<li>✅ Does <strong>NOT</strong> track usage</li>
+<li>✅ Only runs on pages you inspect</li>
+<li>✅ All data stays local in DevTools</li>
+</ul>
+<hr></p>
+<h2>License</h2>
+<p>MIT License - Same as PAN framework</p>
+<hr>
+<h2>Credits</h2>
+<p>Built with ❤️ by the PAN team</p>
+<p>Inspired by:
+<ul><li>Chrome DevTools Network panel</li>
+<li>Redux DevTools</li>
+<li>Vue DevTools</li>
+</ul>
+<hr></p>
+<h2>Support</h2>
+<ul><li>📖 <a href="../docs/">Documentation</a></li>
+<li>🐛 <a href="https://github.com/youruser/pan/issues">Report Issue</a></li>
+<li>💬 <a href="https://github.com/youruser/pan/discussions">Discussions</a></li>
+<li>📧 <a href="mailto:support@pan.dev">Email</a></li>
+</ul>
+<hr>
+<h2>Quick Start Example</h2>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;title&gt;PAN Inspector Test&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script type=&quot;module&quot; src=&quot;../src/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quot;../src/core/pan-client.mjs&quot;&gt;&lt;/script&gt;
+
+  &lt;pan-bus&gt;&lt;/pan-bus&gt;
+
+  &lt;button id=&quot;test-btn&quot;&gt;Send Test Message&lt;/button&gt;
+
+  &lt;script type=&quot;module&quot;&gt;
+    import { PanClient } from &#039;../src/core/pan-client.mjs&#039;;
+
+    const client = new PanClient();
+    await client.ready();
+
+    document.getElementById(&#039;test-btn&#039;).onclick = () =&gt; {
+      client.publish({
+        topic: &#039;test.click&#039;,
+        data: { timestamp: Date.now() }
+      });
+    };
+
+    // Subscribe to see it work
+    client.subscribe(&#039;test.*&#039;, (msg) =&gt; {
+      console.log(&#039;Received:&#039;, msg);
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<li>Save as <code>test.html</code></li>
+<li>Open in Chrome</li>
+<li>Open DevTools → PAN tab</li>
+<li>Click "Send Test Message"</li>
+<li>See message appear in inspector!</li>
+<hr>
+<strong>Enjoy debugging with PAN Inspector!</strong> 🚀
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/devtools-extension/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

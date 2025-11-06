@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice Creator Demo App · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - Invoice Creator Demo App">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">apps</a> / <a href="#">invoice</a> / <span>README</span>
+      </div>
+      <article class="docs-content">
+        <h1>Invoice Creator Demo App</h1>
+<p>A modern, web-based invoice creation tool built entirely with PAN components. Create, manage, and export professional invoices with an intuitive contenteditable interface.</p>
+<h2>Features</h2>
+<h3>🎨 Modern UI</h3>
+<ul><li>Clean, professional design with automatic light/dark mode</li>
+<li>Contenteditable fields for natural, app-like editing</li>
+<li>No forms - just click and type</li>
+<li>Responsive layout for desktop and mobile</li>
+</ul>
+<h3>📝 Invoice Management</h3>
+<ul><li>Create unlimited invoices</li>
+<li>Auto-save as you type</li>
+<li>Switch between invoices instantly</li>
+<li>Delete unwanted invoices</li>
+<li>Persistent localStorage storage</li>
+</ul>
+<h3>✏️ Inline Editing</h3>
+<ul><li>Click-to-edit fields throughout</li>
+<li>No "edit mode" needed</li>
+<li>Natural contenteditable experience</li>
+<li>Tab between fields</li>
+<li>Enter to confirm and move to next field</li>
+</ul>
+<h3>📊 Line Items Grid</h3>
+<ul><li>Click "+" to add line items</li>
+<li>Contenteditable cells for description, hours, rate</li>
+<li>Auto-calculate line totals (hours × rate)</li>
+<li>Auto-calculate invoice subtotal</li>
+<li>Delete rows with × button</li>
+<li>Date field with placeholder format</li>
+</ul>
+<h3>💰 Automatic Calculations</h3>
+<ul><li>Real-time subtotal calculation</li>
+<li>Adjustable tax rate</li>
+<li>Automatic tax calculation</li>
+<li>Prominent total display</li>
+<li>Notes/payment terms section</li>
+</ul>
+<h3>💾 Data Management</h3>
+<ul><li>Auto-save on every change (1-second debounce)</li>
+<li>Manual save option</li>
+<li>Export single invoice to JSON</li>
+<li>Import invoices from JSON</li>
+<li>All data stored in localStorage</li>
+<li>No server required - fully offline capable</li>
+</ul>
+<h3>🖨️ Print & Export</h3>
+<ul><li>Print-optimized layout</li>
+<li>Clean print view (hides UI elements)</li>
+<li>Export to JSON for backup</li>
+<li>Import/Export for data portability</li>
+</ul>
+<h3>⌨️ Keyboard Shortcuts</h3>
+<ul><li><code>Ctrl/Cmd + S</code>: Save invoice</li>
+<li><code>Ctrl/Cmd + P</code>: Print invoice</li>
+<li><code>Ctrl/Cmd + N</code>: New invoice</li>
+<li><code>Enter</code>: Confirm field and move to next</li>
+<li><code>Tab</code>: Navigate between fields</li>
+</ul>
+<h2>Components</h2>
+<p>The app is built from 4 custom PAN components:</p>
+<h3>1. <code><pan-invoice-header></code></h3>
+Manages invoice header with from/to customer information.
+<strong>Features:</strong>
+<ul><li>Contenteditable from/to sections</li>
+<li>Invoice number, date, due date fields</li>
+<li>Integration point for contact selection</li>
+<li>Broadcasts changes via PAN</li>
+</ul>
+<strong>PAN Events:</strong>
+<ul><li>Publishes: <code>invoice.header.changed</code></li>
+<li>Subscribes: <code>invoice.load</code>, <code>invoice.clear</code>, <code>contact.selected</code></li>
+</ul>
+<h3>2. <code><pan-invoice-items></code></h3>
+Editable grid for invoice line items.
+<strong>Features:</strong>
+<ul><li>Click to add new rows</li>
+<li>Contenteditable cells (date, description, hours, rate)</li>
+<li>Auto-calculate line totals</li>
+<li>Delete rows</li>
+<li>Tab/Enter navigation</li>
+</ul>
+<strong>PAN Events:</strong>
+<ul><li>Publishes: <code>invoice.items.changed</code>, <code>invoice.totals.changed</code></li>
+<li>Subscribes: <code>invoice.load</code>, <code>invoice.clear</code></li>
+</ul>
+<h3>3. <code><pan-invoice-totals></code></h3>
+Displays and calculates invoice totals.
+<strong>Features:</strong>
+<ul><li>Auto-updates from line items</li>
+<li>Editable tax rate</li>
+<li>Subtotal, tax, total calculations</li>
+<li>Notes/payment terms field</li>
+<li>Large, prominent total display</li>
+</ul>
+<strong>PAN Events:</strong>
+<ul><li>Publishes: <code>invoice.total.calculated</code></li>
+<li>Subscribes: <code>invoice.totals.changed</code>, <code>invoice.load</code>, <code>invoice.clear</code></li>
+</ul>
+<h3>4. <code><pan-invoice-store></code></h3>
+Centralized state management and persistence.
+<strong>Features:</strong>
+<ul><li>localStorage persistence</li>
+<li>Multiple invoice management</li>
+<li>Auto-save with debouncing</li>
+<li>Import/Export JSON</li>
+<li>Coordinates all components via PAN</li>
+</ul>
+<strong>PAN Events:</strong>
+<ul><li>Publishes: <code>invoice.load</code>, <code>invoice.saved</code>, <code>invoice.list-updated</code>, <code>invoice.current-changed</code></li>
+<li>Subscribes: <code>invoice.*</code> (all invoice commands)</li>
+</ul>
+<h2>Architecture</h2>
+<h3>State Flow</h3>
+<pre><code class="language-plaintext">User Edit → Component → PAN Event → Store → localStorage
+                ↓                      ↓
+             UI Update ← PAN Event ← Store</code></pre>
+<li>User edits a field (contenteditable)</li>
+<li>Component emits change via PAN</li>
+<li>Store receives change and updates state</li>
+<li>Store saves to localStorage (auto-save)</li>
+<li>Store broadcasts updated state</li>
+<li>All components receive and sync</li>
+<h3>Data Model</h3>
+<pre><code class="language-typescript">interface Invoice {
+  id: string;
+  created: string; // ISO date
+  modified: string; // ISO date
+  header: {
+    from: ContactInfo;
+    to: ContactInfo;
+    invoiceNumber: string;
+    invoiceDate: string;
+    dueDate: string;
+  };
+  items: LineItem[];
+  totals: {
+    subtotal: number;
+    tax: number;
+    taxRate: number;
+    total: number;
+    notes: string;
+  };
+}
+
+interface ContactInfo {
+  name: string;
+  address: string;
+  city: string;
+  phone: string;
+  email: string;
+}
+
+interface LineItem {
+  id: number;
+  date: string;
+  description: string;
+  hours: string;
+  rate: string;
+  total: number;
+}</code></pre>
+<h2>Usage</h2>
+<h3>Basic Usage</h3>
+<li>Open <code>demo-apps/invoice.html</code></li>
+<li>Start typing in any field</li>
+<li>Add line items by clicking "+ Click to add line item"</li>
+<li>Invoice auto-saves as you type</li>
+<li>Use toolbar to create new invoices, export, print, etc.</li>
+<h3>Creating Your First Invoice</h3>
+<li><strong>Fill in "From" section</strong> (your business info)</li>
+   - This will be remembered for future invoices
+<li><strong>Fill in "Bill To" section</strong> (customer info)</li>
+   - Or click "Select from Contacts" (if integrated)
+<li><strong>Set invoice number and dates</strong></li>
+<li><strong>Add line items</strong></li>
+   - Click the "+" area
+   - Enter description, hours, and rate
+   - Total calculates automatically
+<li><strong>Adjust tax rate</strong> if needed</li>
+<li><strong>Add notes</strong> for payment terms</li>
+<li><strong>Print or export</strong> when ready</li>
+<h3>Managing Multiple Invoices</h3>
+<ul><li>Use the dropdown to switch between invoices</li>
+<li>Click "New" to create a new invoice</li>
+<li>Previous invoice auto-saves before switching</li>
+<li>"Delete" removes current invoice (with confirmation)</li>
+</ul>
+<h3>Importing/Exporting</h3>
+<strong>Export single invoice:</strong>
+<li>Click "Export" button</li>
+<li>JSON file downloads automatically</li>
+<strong>Import invoices:</strong>
+<li>Click "Import" button</li>
+<li>Select JSON file</li>
+<li>Invoice(s) are added to your collection</li>
+<strong>JSON format:</strong>
+<ul><li>Single invoice: <code>{ id, created, modified, header, items, totals }</code></li>
+<li>Multiple invoices: <code>[ invoice1, invoice2, ... ]</code></li>
+</ul>
+<h2>Integration</h2>
+<h3>Adding Contact Selection</h3>
+<p>The invoice app is designed to integrate with a contact management system:</p>
+<pre><code class="language-javascript">// Listen for contact selector request
+bus.subscribe(&#039;invoice.open-contact-selector&#039;, () =&gt; {
+  // Show your contact selector UI
+  showContactModal();
+});
+
+// Send selected contact
+function selectContact(contact) {
+  bus.publish(&#039;contact.selected&#039;, {
+    name: contact.name,
+    address: contact.address,
+    city: contact.city,
+    phone: contact.phone,
+    email: contact.email
+  });
+}</code></pre>
+<h3>Custom Branding</h3>
+<p>Override CSS variables in your theme:</p>
+<pre><code class="language-css">:root {
+  --color-primary: #your-brand-color;
+}</code></pre>
+<h3>Adding PDF Export</h3>
+<p>The app currently exports to JSON. To add PDF export:</p>
+<pre><code class="language-javascript">// Using html2pdf.js or similar
+document.getElementById(&#039;btn-pdf&#039;).addEventListener(&#039;click&#039;, async () =&gt; {
+  const element = document.querySelector(&#039;.main-content&#039;);
+  await html2pdf().from(element).save(&#039;invoice.pdf&#039;);
+});</code></pre>
+<h2>Extending</h2>
+<h3>Adding New Fields</h3>
+<li><strong>Update data model</strong> in <code>pan-invoice-store.mjs</code></li>
+<li><strong>Add field to component</strong> (header, items, or totals)</li>
+<li><strong>Handle in PAN events</strong></li>
+<p>Example - Adding a "PO Number" field:</p>
+<pre><code class="language-javascript">// In pan-invoice-header.mjs
+&lt;div class=&quot;field&quot;&gt;
+  &lt;div class=&quot;field-label&quot;&gt;PO Number&lt;/div&gt;
+  &lt;div class=&quot;field-value&quot;
+       contenteditable=&quot;true&quot;
+       data-field=&quot;poNumber&quot;
+       data-placeholder=&quot;PO-12345&quot;&gt;
+    ${this._data.poNumber || &#039;&#039;}
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<h3>Custom Line Item Types</h3>
+<p>Extend <code>pan-invoice-items</code> to support different item types:</p>
+<pre><code class="language-javascript">// Add item type column
+&lt;th class=&quot;col-type&quot;&gt;Type&lt;/th&gt;
+
+// Add select or contenteditable for type
+&lt;td contenteditable=&quot;true&quot; data-field=&quot;type&quot;&gt;
+  ${item.type || &#039;Service&#039;}
+&lt;/td&gt;</code></pre>
+<h3>Advanced Calculations</h3>
+<p>Add discounts, fees, or complex calculations in <code>pan-invoice-totals</code>:</p>
+<pre><code class="language-javascript">_calculate() {
+  const discount = this._subtotal * (this._discountRate / 100);
+  this._subtotal = this._subtotal - discount;
+  this._tax = this._subtotal * (this._taxRate / 100);
+  this._total = this._subtotal + this._tax + this._fees;
+}</code></pre>
+<h2>Browser Support</h2>
+<ul><li>✅ Chrome 90+</li>
+<li>✅ Firefox 88+</li>
+<li>✅ Safari 14+</li>
+<li>✅ Edge 90+</li>
+</ul>
+Requires:
+<ul><li>ES6 Modules</li>
+<li>Web Components</li>
+<li>localStorage</li>
+<li>contenteditable</li>
+<li>CSS Custom Properties</li>
+</ul>
+<h2>Offline Usage</h2>
+<p>The app works completely offline:
+<ul><li>No external dependencies</li>
+<li>All data stored locally</li>
+<li>No network requests</li>
+<li>Can be saved as standalone HTML</li>
+</ul>
+<h2>Security & Privacy</h2></p>
+<ul><li><strong>All data stays local</strong> - stored only in browser localStorage</li>
+<li><strong>No server communication</strong> - fully client-side</li>
+<li><strong>No tracking</strong> - zero analytics or external calls</li>
+<li><strong>Export for backup</strong> - never lose your data</li>
+<li><strong>Clear data</strong> - clear localStorage to remove all invoices</li>
+</ul>
+<h2>Performance</h2>
+<ul><li><strong>Fast</strong> - No server round-trips</li>
+<li><strong>Instant switching</strong> - Invoices load from localStorage</li>
+<li><strong>Auto-save</strong> - Debounced to prevent excessive writes</li>
+<li><strong>Lightweight</strong> - < 50KB total (all components)</li>
+</ul>
+<h2>License</h2>
+<p>Part of the PAN (Page Area Network) project - MIT License</p>
+<h2>Acknowledgments</h2>
+<p>Inspired by the classic contenteditable invoice tool, modernized with web components and the PAN architecture.</p>
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/apps/invoice/README.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>

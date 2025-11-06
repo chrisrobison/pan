@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN v1.0 Release Roadmap · PAN Documentation</title>
+  <meta name="description" content="PAN (Page Area Network) Documentation - PAN v1.0 Release Roadmap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/theme.css">
+  <link rel="stylesheet" href="../assets/docs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+  <header class="docs-header">
+    <div class="docs-header-content">
+      <a href="../index.html" class="logo">
+        <span>PAN</span>
+      </a>
+      <nav class="docs-nav">
+        <a href="../index.html">Home</a>
+        <a href="index.html" class="active">Docs</a>
+        <a href="../examples.html">Examples</a>
+        <a href="../apps.html">Apps</a>
+        <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="docs-sidebar-content">
+        <h3>Documentation</h3>
+        <nav class="docs-menu" id="docs-menu">
+          <!-- Will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a> / <a href="#">docs</a> / <span>V1_ROADMAP</span>
+      </div>
+      <article class="docs-content">
+        <h1>PAN v1.0 Release Roadmap</h1>
+<h2>Current Status: v0.1.0 → v1.0.0</h2>
+<p>PAN is currently at <strong>v0.1.0</strong> with a solid foundation. This document outlines what's needed to reach <strong>v1.0.0</strong> - a stable, production-ready release.</p>
+<hr>
+<h2>✅ What We Have (v0.1.0)</h2>
+<h3>Core Infrastructure</h3>
+<ul><li>✅ <strong>pan-bus</strong> - Working message bus with CustomEvents</li>
+<li>✅ <strong>pan-client</strong> - Client API for publish/subscribe/request</li>
+<li>✅ <strong>pan-autoload</strong> - Automatic component loading</li>
+<li>✅ <strong>Retained messages</strong> - State persistence for late joiners</li>
+<li>✅ <strong>Request/Reply</strong> - Async request-response pattern</li>
+</ul>
+<h3>Component Library (40+ components)</h3>
+<ul><li>✅ <strong>Core</strong> (3) - bus, client, autoload</li>
+<li>✅ <strong>UI</strong> (10) - Cards, modals, dropdowns, tabs, pagination, etc.</li>
+<li>✅ <strong>Components</strong> (28+) - Markdown editor, file manager, data tables, charts, forms, theme system</li>
+<li>✅ <strong>Data</strong> (1) - Invoice store (state management pattern)</li>
+<li>✅ <strong>App</strong> (6) - Invoice and devtools components</li>
+</ul>
+<h3>Demo Applications</h3>
+<ul><li>✅ Invoice creator (contenteditable, localStorage, multi-invoice)</li>
+<li>✅ Markdown notes (OPFS file system, live preview)</li>
+<li>✅ Contact manager</li>
+<li>✅ Data browser</li>
+</ul>
+<h3>Documentation</h3>
+<ul><li>✅ Comprehensive README.md</li>
+<li>✅ PAN_SPEC.v1.md (protocol specification)</li>
+<li>✅ LARC_ROADMAP.md (feature roadmap)</li>
+<li>✅ Component-specific docs (MARKDOWN_SYSTEM.md, THEME_SYSTEM.md)</li>
+<li>✅ REORGANIZATION.md (architecture guide)</li>
+<li>✅ Individual README files for each directory</li>
+</ul>
+<h3>Project Structure</h3>
+<ul><li>✅ Clean, organized top-level structure</li>
+<li>✅ Clear component layering (core → ui → components → data → app)</li>
+</ul>
+<hr>
+<h2>❌ What's Missing for v1.0</h2>
+<h3>1. Testing & Quality Assurance 🔴 CRITICAL</h3>
+<strong>Current:</strong> Only 1 test file (02-todos.spec.ts)
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>Core tests</strong> - pan-bus, pan-client, pan-autoload</li>
+</ul>  - Message delivery
+  - Topic matching and wildcards
+  - Retained messages
+  - Request/reply timeout handling
+  - Multiple bus instances
+  - Memory leak prevention
+<ul><li>[ ] <strong>Component tests</strong> - At least for critical components</li>
+</ul>  - pan-markdown-editor (editing, toolbar, keyboard shortcuts)
+  - pan-files (OPFS operations)
+  - pan-theme-provider (theme switching)
+  - pan-data-table (sorting, filtering)
+<ul><li>[ ] <strong>Integration tests</strong> - End-to-end scenarios</li>
+</ul>  - Invoice app workflow
+  - Markdown notes workflow
+<ul><li>[ ] <strong>Cross-browser tests</strong> - Chrome, Firefox, Safari, Edge</li>
+<li>[ ] <strong>Performance tests</strong> - Message throughput, large datasets</li>
+</ul>
+<strong>Target:</strong> 80%+ code coverage for core, 60%+ for components
+<hr>
+<h3>2. Browser Compatibility Matrix 🟡 HIGH PRIORITY</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] Document supported browsers and versions</li>
+</ul>  - Chrome/Edge (version X+)
+  - Firefox (version Y+)
+  - Safari (version Z+)
+  - Mobile browsers
+<ul><li>[ ] Test and document which features need polyfills</li>
+</ul>  - Shadow DOM
+  - CustomElements
+  - OPFS (File System Access API)
+  - CSS custom properties
+<ul><li>[ ] Add polyfill recommendations to docs</li>
+<li>[ ] Create compatibility table in README</li>
+</ul>
+<strong>Target:</strong> Support last 2 major versions of all modern browsers
+<hr>
+<h3>3. API Stability & Versioning 🔴 CRITICAL</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>API freeze</strong> - Lock down core APIs</li>
+</ul>  - PanClient interface
+  - PanMessage envelope format
+  - Core topic conventions
+  - pan-bus CustomEvent names
+<ul><li>[ ] <strong>Breaking change review</strong> - Identify and document any breaking changes from v0.x</li>
+<li>[ ] <strong>Migration guide</strong> - If breaking changes exist</li>
+<li>[ ] <strong>Semantic versioning commitment</strong> - Document versioning policy</li>
+</ul>  - Major: Breaking changes
+  - Minor: New features, backward compatible
+  - Patch: Bug fixes
+<strong>Target:</strong> No breaking changes in minor versions after 1.0
+<hr>
+<h3>4. Performance Benchmarks & Optimization 🟡 HIGH PRIORITY</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>Benchmark suite</strong></li>
+</ul>  - Message throughput (messages/second)
+  - Subscribe/unsubscribe performance
+  - Retained message retrieval time
+  - Large dataset rendering (10k+ rows)
+  - Memory usage over time
+<ul><li>[ ] <strong>Performance documentation</strong></li>
+</ul>  - Expected performance characteristics
+  - Best practices for performance
+  - Common pitfalls
+<ul><li>[ ] <strong>Optimization pass</strong></li>
+</ul>  - Profile and optimize hot paths
+  - Reduce memory allocations
+  - Optimize topic matching
+<strong>Target:</strong> 10k+ messages/second, <100ms for retained message replay
+<hr>
+<h3>5. Security Guidelines 🟡 HIGH PRIORITY</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>Security documentation</strong></li>
+</ul>  - XSS prevention in components
+  - CSRF considerations
+  - Content Security Policy compatibility
+  - localStorage security implications
+<ul><li>[ ] <strong>Sanitization helpers</strong> - For user-generated content</li>
+<li>[ ] <strong>Security audit</strong> - Review critical components</li>
+</ul>  - pan-markdown-renderer (XSS in markdown)
+  - pan-files (path traversal in OPFS)
+  - Any components handling user input
+<ul><li>[ ] <strong>Security best practices guide</strong></li>
+</ul>
+<strong>Target:</strong> No known security vulnerabilities in core
+<hr>
+<h3>6. Production Examples & Templates 🟢 NICE TO HAVE</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>Production starter template</strong></li>
+</ul>  - Build setup (optional)
+  - Testing setup
+  - Deployment config
+  - CI/CD example
+<ul><li>[ ] <strong>Real-world app example</strong> - Beyond demos</li>
+</ul>  - Authentication/authorization
+  - API integration
+  - Error handling
+  - Loading states
+<ul><li>[ ] <strong>Integration examples</strong></li>
+</ul>  - React wrapper
+  - Vue wrapper
+  - Svelte wrapper
+  - Angular wrapper
+<strong>Target:</strong> At least 1 production-ready template
+<hr>
+<h3>7. Developer Experience 🟡 HIGH PRIORITY</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>JSDoc comments</strong> - In all core source code (aligned with "no build" philosophy)</li>
+</ul>  - PanBus class methods
+  - PanClient class methods
+  - PanMessage envelope format
+  - Common topic patterns
+  - Provides IDE autocomplete/intellisense without requiring TypeScript
+<ul><li>[ ] <strong>IDE support</strong> - VS Code snippets, extensions</li>
+<li>[ ] <strong>Better error messages</strong> - Clear, actionable errors</li>
+<li>[ ] <strong>Debugging guide</strong> - Common issues and solutions</li>
+<li>[ ] <strong>Migration tools</strong> - If needed for v0.x → v1.0</li>
+<li>[ ] <strong>TypeScript definitions</strong> (.d.ts files) - Nice to have for TypeScript users, but JSDoc is sufficient</li>
+</ul>
+<strong>Target:</strong> Smooth onboarding experience without requiring a build process
+<hr>
+<h3>8. Documentation Completeness 🟡 HIGH PRIORITY</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>API reference</strong> - Complete API docs for all public APIs</li>
+<li>[ ] <strong>Component catalog</strong> - Visual catalog of all components</li>
+<li>[ ] <strong>Tutorial series</strong> - Step-by-step guides</li>
+</ul>  - Building your first PAN app
+  - State management patterns
+  - Testing PAN components
+  - Performance optimization
+<ul><li>[ ] <strong>Architecture guide</strong> - Detailed explanation of design decisions</li>
+<li>[ ] <strong>FAQ</strong> - Common questions and answers</li>
+<li>[ ] <strong>Troubleshooting guide</strong> - Common issues and solutions</li>
+</ul>
+<strong>Target:</strong> Complete, searchable documentation
+<hr>
+<h3>9. Accessibility (a11y) 🟡 HIGH PRIORITY</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>Accessibility audit</strong> - All UI components</li>
+</ul>  - ARIA labels
+  - Keyboard navigation
+  - Screen reader support
+  - Focus management
+<ul><li>[ ] <strong>Accessibility guidelines</strong> - For component authors</li>
+<li>[ ] <strong>a11y examples</strong> - Demonstrating best practices</li>
+<li>[ ] <strong>Automated a11y tests</strong> - In CI pipeline</li>
+</ul>
+<strong>Target:</strong> WCAG 2.1 Level AA compliance for UI components
+<hr>
+<h3>10. Package Distribution 📦 HIGH PRIORITY</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>npm packages</strong> - Publish core packages</li>
+</ul>  - @larc/pan-bus
+  - @larc/pan-client
+  - @larc/components (or individual component packages)
+<ul><li>[ ] <strong>CDN distribution</strong> - unpkg, jsdelivr</li>
+<li>[ ] <strong>Bundle optimization</strong> - Tree-shakeable builds</li>
+<li>[ ] <strong>Package documentation</strong> - Installation, usage</li>
+<li>[ ] <strong>SemVer policy</strong> - Documented versioning</li>
+</ul>
+<strong>Target:</strong> Easy installation via npm/cdn
+<hr>
+<h3>11. Community & Contribution 🟢 NICE TO HAVE</h3>
+<strong>Needed:</strong>
+<ul><li>[ ] <strong>CONTRIBUTING.md</strong> - Contribution guidelines</li>
+<li>[ ] <strong>CODE_OF_CONDUCT.md</strong> - Community guidelines</li>
+<li>[ ] <strong>Issue templates</strong> - Bug report, feature request</li>
+<li>[ ] <strong>PR templates</strong> - Pull request checklist</li>
+<li>[ ] <strong>Roadmap</strong> - Public roadmap for future versions</li>
+<li>[ ] <strong>Changelog</strong> - Detailed changelog with migration notes</li>
+</ul>
+<strong>Target:</strong> Welcoming contributor experience
+<hr>
+<h2>v1.0 Release Checklist</h2>
+<h3>Must Have (Blockers)</h3>
+<ul><li>[ ] Core API stability (no breaking changes)</li>
+<li>[ ] Core tests (80%+ coverage)</li>
+<li>[ ] Browser compatibility documented</li>
+<li>[ ] Security audit complete</li>
+<li>[ ] Performance benchmarks established</li>
+<li>[ ] JSDoc comments in all core source code</li>
+<li>[ ] Complete API reference</li>
+<li>[ ] Migration guide (if needed)</li>
+</ul>
+<h3>Should Have</h3>
+<ul><li>[ ] Component tests (60%+ coverage)</li>
+<li>[ ] Accessibility audit</li>
+<li>[ ] npm packages published</li>
+<li>[ ] Developer tools (inspector enhancements)</li>
+<li>[ ] Production template</li>
+<li>[ ] JSDoc comments in all components</li>
+</ul>
+<h3>Nice to Have</h3>
+<ul><li>[ ] TypeScript definitions (.d.ts files) for TypeScript users</li>
+<li>[ ] Framework integration examples</li>
+<li>[ ] Community guidelines</li>
+<li>[ ] Advanced tutorials</li>
+<li>[ ] Video tutorials</li>
+</ul>
+<hr>
+<h2>Proposed Milestones</h2>
+<h3>Milestone 1: Testing & Stability (2-3 weeks)</h3>
+<strong>Goal:</strong> Comprehensive test coverage and API stability
+<ul><li>Write core tests (pan-bus, pan-client)</li>
+<li>Write component tests (critical components)</li>
+<li>Fix any bugs discovered during testing</li>
+<li>Lock down core APIs</li>
+</ul>
+<h3>Milestone 2: Documentation & DX (2 weeks)</h3>
+<strong>Goal:</strong> Complete documentation and great developer experience
+<ul><li>Write complete API reference</li>
+<li>Add JSDoc comments to all core source code</li>
+<li>Write tutorials and guides</li>
+<li>Improve error messages</li>
+</ul>
+<h3>Milestone 3: Browser Compat & Performance (1-2 weeks)</h3>
+<strong>Goal:</strong> Production-ready performance and compatibility
+<ul><li>Test across all major browsers</li>
+<li>Create compatibility matrix</li>
+<li>Run performance benchmarks</li>
+<li>Optimize hot paths</li>
+</ul>
+<h3>Milestone 4: Security & Accessibility (1-2 weeks)</h3>
+<strong>Goal:</strong> Secure and accessible
+<ul><li>Security audit</li>
+<li>Fix any vulnerabilities</li>
+<li>Accessibility audit</li>
+<li>Add ARIA labels where needed</li>
+</ul>
+<h3>Milestone 5: Polish & Release (1 week)</h3>
+<strong>Goal:</strong> Final polish and release
+<ul><li>Final bug fixes</li>
+<li>Update all documentation</li>
+<li>Create release notes</li>
+<li>Publish npm packages</li>
+<li>Announce v1.0</li>
+</ul>
+<strong>Total Timeline:</strong> 7-10 weeks
+<hr>
+<h2>Version 1.x Roadmap (Post v1.0)</h2>
+<h3>v1.1 - Enhanced Developer Tools</h3>
+<ul><li>Advanced inspector features (time travel, latency analysis)</li>
+<li>Chrome DevTools extension</li>
+<li>Better debugging tools</li>
+</ul>
+<h3>v1.2 - Advanced Data Management</h3>
+<ul><li>IndexedDB cache layer</li>
+<li>Offline-first patterns</li>
+<li>Sync/conflict resolution</li>
+</ul>
+<h3>v1.3 - Real-time Features</h3>
+<ul><li>WebSocket/SSE integration</li>
+<li>Real-time collaboration primitives</li>
+<li>Presence awareness</li>
+</ul>
+<h3>v1.4 - Advanced Components</h3>
+<ul><li>Rich text editor</li>
+<li>Spreadsheet component</li>
+<li>Diagram/flowchart component</li>
+<li>Calendar/scheduling component</li>
+</ul>
+<hr>
+<h2>Success Criteria for v1.0</h2>
+<p>A successful v1.0 release means:</p>
+<li><strong>Stability</strong> - Core APIs are stable and tested</li>
+<li><strong>Performance</strong> - Meets or exceeds performance targets</li>
+<li><strong>Documentation</strong> - Complete and easy to follow</li>
+<li><strong>Compatibility</strong> - Works in all major browsers</li>
+<li><strong>Security</strong> - No known vulnerabilities</li>
+<li><strong>Accessibility</strong> - UI components are accessible</li>
+<li><strong>Developer Experience</strong> - Easy to get started</li>
+<li><strong>Production Ready</strong> - Used in at least one production app</li>
+<hr>
+<h2>Get Involved</h2>
+<p>Want to help get PAN to v1.0? Here's how:</p>
+<ul><li><strong>Testing</strong> - Write tests for core or components</li>
+<li><strong>Documentation</strong> - Improve docs, write tutorials</li>
+<li><strong>Browser Testing</strong> - Test on different browsers/devices</li>
+<li><strong>Security Review</strong> - Review code for security issues</li>
+<li><strong>Performance</strong> - Profile and optimize</li>
+<li><strong>Examples</strong> - Build demo apps, templates</li>
+</ul>
+<hr>
+<strong>Current Version:</strong> v0.1.0
+<strong>Target Version:</strong> v1.0.0
+<strong>Last Updated:</strong> October 2024
+      </article>
+      <footer class="docs-footer">
+        <a href="https://github.com/chrisrobison/pan/edit/main/docs/V1_ROADMAP.md" target="_blank">
+          Edit this page on GitHub
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="../assets/docs.js"></script>
+</body>
+</html>
