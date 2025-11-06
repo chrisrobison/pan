@@ -2,7 +2,7 @@
   "name": "larc",
   "private": true,
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "LARC (Lightweight Asynchronous Relay Core) — Page Area Network (PAN) examples and tests",
   "scripts": {
     "build": "node scripts/build.js",
