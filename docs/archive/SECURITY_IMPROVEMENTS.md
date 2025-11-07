@@ -429,8 +429,8 @@ client.subscribe('pan:sys.stats', metricsHandler);
 ## Files Added/Modified
 
 ### New Files
-- `src/core/pan-bus-enhanced.mjs` - Enhanced bus implementation
-- `src/core/pan-validation.mjs` - Validation utilities
+- `src/components/pan-bus-enhanced.mjs` - Enhanced bus implementation
+- `src/components/pan-validation.mjs` - Validation utilities
 - `docs/SECURITY.md` - Security guide
 - `docs/MIGRATION_ENHANCED.md` - Migration guide
 - `examples/17-enhanced-security.html` - Demo
@@ -438,8 +438,8 @@ client.subscribe('pan:sys.stats', metricsHandler);
 - `SECURITY_IMPROVEMENTS.md` - This document
 
 ### Preserved Files
-- `src/core/pan-bus.mjs` - Original (for backward compatibility)
-- `src/core/pan-client.mjs` - Unchanged (works with both)
+- `src/components/pan-bus.mjs` - Original (for backward compatibility)
+- `src/components/pan-client.mjs` - Unchanged (works with both)
 
 ---
 

@@ -39,13 +39,13 @@
 
 <script type="module">
   import '../src/components/pan-bus.js';
-  import '../src/core/pan-client.mjs';
+  import '../src/components/pan-client.mjs';
   import '../src/components/pan-data-table.js';
   import '../src/components/pan-data-connector.js';
   import '../src/components/pan-sse.js';
   import { createStore, bind } from '../src/components/pan-store.js';
   import { syncItem } from '../src/components/pan-store-pan.js';
-  import { PanClient } from '../src/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
 
   // REST connector points to the sidecar server
   const dc = document.createElement('pan-data-connector');

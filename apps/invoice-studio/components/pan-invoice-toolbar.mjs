@@ -10,7 +10,7 @@
  * - Import/Export data
  */
 
-import { PanClient } from '../../../src/core/pan-client.mjs';
+import { PanClient } from '../../../src/components/pan-client.mjs';
 
 class PanInvoiceToolbar extends HTMLElement {
   constructor() {

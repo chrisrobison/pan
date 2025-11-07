@@ -213,9 +213,9 @@
   <script type="module" src="./mock-auth-api.mjs"></script>
 
   <!-- PAN Core -->
-  <script type="module" src="../src/core/pan-bus.mjs"></script>
-  <script type="module" src="../src/core/pan-client.mjs"></script>
-  <script type="module" src="../src/core/pan-auth.mjs"></script>
+  <script type="module" src="../src/components/pan-bus.mjs"></script>
+  <script type="module" src="../src/components/pan-client.mjs"></script>
+  <script type="module" src="../src/components/pan-auth.mjs"></script>
   <script type="module" src="../src/components/pan-data-connector.mjs"></script>
 
   <!-- Auth Manager (no build, no config needed) -->
@@ -237,7 +237,7 @@
 
   <!-- Components -->
   <script type="module">
-    import { PanClient } from '../src/core/pan-client.mjs';
+    import { PanClient } from '../src/components/pan-client.mjs';
 
     // Auth Status Component
     customElements.define('auth-status', class extends HTMLElement {

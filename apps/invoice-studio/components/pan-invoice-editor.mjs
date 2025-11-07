@@ -6,7 +6,7 @@
  * All edits auto-save to current invoice state.
  */
 
-import { PanClient } from '../../../src/core/pan-client.mjs';
+import { PanClient } from '../../../src/components/pan-client.mjs';
 import db from '../lib/invoice-db.mjs';
 
 class PanInvoiceEditor extends HTMLElement {

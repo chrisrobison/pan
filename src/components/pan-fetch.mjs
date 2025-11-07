@@ -5,7 +5,7 @@
  * based on auth.internal.state from pan-auth
  *
  * @example
- * import { panFetch } from './pan/core/pan-fetch.mjs';
+ * import { panFetch } from './pan/components/pan-fetch.mjs';
  *
  * // Automatically includes auth header if user is logged in
  * const response = await panFetch('/api/users');

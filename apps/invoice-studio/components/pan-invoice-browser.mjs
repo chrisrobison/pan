@@ -4,7 +4,7 @@
  * Modal dialog for browsing, searching, and loading past invoices.
  */
 
-import { PanClient } from '../../../src/core/pan-client.mjs';
+import { PanClient } from '../../../src/components/pan-client.mjs';
 import db from '../lib/invoice-db.mjs';
 
 class PanInvoiceBrowser extends HTMLElement {

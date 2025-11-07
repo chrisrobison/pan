@@ -5,7 +5,7 @@
  * ```typescript
  * import type { PanMessage, PanClient } from './pan/types';
  * // or
- * import { PanClient } from './pan/core/pan-client.mjs';
+ * import { PanClient } from './pan/components/pan-client.mjs';
  * ```
  */
 
@@ -72,7 +72,7 @@ export type MessageHandler<T = unknown> = (message: PanMessage<T>) => void;
  *
  * @example
  * ```typescript
- * import { PanClient } from './pan/core/pan-client.mjs';
+ * import { PanClient } from './pan/components/pan-client.mjs';
  *
  * const client = new PanClient();
  * await client.ready();

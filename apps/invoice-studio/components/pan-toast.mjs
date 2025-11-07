@@ -4,7 +4,7 @@
  * Shows temporary notification messages.
  */
 
-import { PanClient } from '../../../src/core/pan-client.mjs';
+import { PanClient } from '../../../src/components/pan-client.mjs';
 
 class PanToast extends HTMLElement {
   constructor() {

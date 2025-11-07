@@ -66,13 +66,13 @@ Save this as `test-pan-inspector.html`:
   <button id="btn">Send Test Message</button>
   <div id="output"></div>
 
-  <script type="module" src="../src/core/pan-bus.mjs"></script>
-  <script type="module" src="../src/core/pan-client.mjs"></script>
+  <script type="module" src="../src/components/pan-bus.mjs"></script>
+  <script type="module" src="../src/components/pan-client.mjs"></script>
 
   <pan-bus></pan-bus>
 
   <script type="module">
-    import { PanClient } from '../src/core/pan-client.mjs';
+    import { PanClient } from '../src/components/pan-client.mjs';
 
     const client = new PanClient();
     await client.ready();

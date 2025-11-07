@@ -1,132 +1,126 @@
-# Components
+# Data & State Management
 
-Complex, feature-rich components that provide substantial functionality. These are widgets that combine multiple features into cohesive tools.
+Components that manage application state, data persistence, and business logic.
 
 ## Components
 
-### Markdown System
+### pan-invoice-store.mjs
+State management for invoice application.
 
-**pan-markdown-editor.mjs** - Full-featured markdown editor
-- Rich formatting toolbar
-- Keyboard shortcuts (Ctrl+B, Ctrl+I, etc.)
-- Live preview toggle
-- Auto-save support
-- Word/character count
-- Smart list continuation
+**Features:**
+- LocalStorage persistence
+- Multiple invoice management
+- Auto-save with debouncing
+- Import/Export JSON
+- Coordinates state via PAN bus
 
-**pan-markdown-renderer.mjs** - Markdown to HTML renderer
-- GitHub-flavored markdown
-- Tables, task lists, code blocks
-- Syntax highlighting
-- Safe HTML sanitization
-- Custom styling via CSS variables
+**PAN Events:**
+- Subscribes: `invoice.*` commands
+- Publishes: `invoice.load`, `invoice.saved`, `invoice.list-updated`
 
-### File Management
-
-**pan-files.mjs** - File system manager for OPFS
-- File browser UI
-- Create/rename/delete operations
-- File filtering by extension
-- Search functionality
-- Read/write file contents
-- Persistent browser storage (OPFS)
-
-### Forms & Data
-
-**pan-data-table.mjs** - Feature-rich data table
-- Sorting and filtering
-- Pagination
-- Column customization
-- Row selection
-- Export functionality
-
-**pan-schema-form.mjs** - Schema-driven form generator
-- JSON Schema support
-- Automatic field generation
-- Validation
-- Custom field types
-
-**pan-form.mjs** - Generic form component
-- Form state management
-- Validation
-- Submit handling
-- PAN event integration
-
-**pan-date-picker.mjs** - Date selection widget
-- Calendar interface
-- Date range selection
-- Min/max date constraints
-- Custom formatting
-
-### Data Visualization
-
-**pan-chart.mjs** - Charting component
-- Multiple chart types (line, bar, pie)
-- Responsive design
-- Data updates via PAN
-- Interactive tooltips
-
-### Theme System
-
-**pan-theme-provider.mjs** - Theme state management
-- System preference detection
-- Manual theme override
-- PAN event broadcasting
-- Light/dark mode support
-
-**pan-theme-toggle.mjs** - Theme switcher UI
-- Multiple variants (icon, button, dropdown)
-- Integrates with theme provider
-- Automatic state updates
-
-### Utility Components
-
-**todo-list.mjs** - Todo list widget
-- Add/remove/edit items
-- Persistence
-- Complete/incomplete state
-
-**drag-drop-list.mjs** - Sortable list with drag-drop
-- Reorderable items
-- Touch support
-- Visual feedback
-
-## Usage
-
-Import components as needed:
-
+**Usage:**
 ```html
-<script type="module" src="./components/pan-markdown-editor.mjs"></script>
+<pan-invoice-store auto-save="true"></pan-invoice-store>
 
-<pan-markdown-editor
-  value="# Hello World"
-  preview="true"
-  autosave="true">
-</pan-markdown-editor>
+<script type="module">
+  import { PanClient } from '../core/pan-client.mjs';
+  const pc = new PanClient();
+
+  // Save invoice
+  pc.publish({
+    topic: 'invoice.save',
+    data: {}
+  });
+
+  // Listen for saves
+  pc.subscribe('invoice.saved', (msg) => {
+    console.log('Invoice saved:', msg.data.id);
+  });
+</script>
 ```
 
 ## Design Philosophy
 
-Components are:
-- **Feature-rich** - Substantial functionality out of the box
-- **Self-contained** - Complete solutions for specific needs
-- **Configurable** - Many options and customization points
-- **Integrated** - Work seamlessly with PAN bus
-- **Production-ready** - Suitable for real applications
+Data components:
+- **Manage state** - Central source of truth
+- **Handle persistence** - LocalStorage, IndexedDB, etc.
+- **Coordinate updates** - Broadcast changes via PAN
+- **Encapsulate logic** - Business rules in one place
+- **No UI** - Pure data/logic layer
 
-## Dependencies
+## Pattern: State Management
 
-- Core: pan-bus, pan-client
-- UI: May use UI components internally
-- Theme: Respect theme CSS variables
+Data components follow this pattern:
+
+1. **Subscribe to commands** - Listen for actions (save, load, delete)
+2. **Update state** - Process commands and update internal state
+3. **Persist data** - Save to localStorage/IndexedDB/API
+4. **Broadcast changes** - Publish state updates via PAN
+5. **Coordinate components** - Keep UI in sync
 
 ## When to Use
 
-Use components from this directory when you need:
-- Complete, ready-to-use functionality
-- Rich feature sets
-- Production-grade widgets
-- Complex interactions
+Create a data component when you need:
+- Centralized state management
+- Persistent data storage
+- Complex business logic
+- Coordination between multiple UI components
+- Separation of concerns (data from presentation)
 
-For simpler building blocks, see `ui/` directory.
-For domain-specific tools, see `app/` directory.
+## Example: Creating a Data Component
+
+```javascript
+export class PanDataStore extends HTMLElement {
+  constructor() {
+    super();
+    this._data = {};
+  }
+
+  connectedCallback() {
+    this._setupPanListeners();
+    this._loadFromStorage();
+  }
+
+  _setupPanListeners() {
+    const bus = document.querySelector('pan-bus');
+
+    // Listen for commands
+    bus.subscribe('data.save', (msg) => {
+      this._save(msg.data);
+    });
+
+    bus.subscribe('data.load', (msg) => {
+      this._load(msg.data.id);
+    });
+  }
+
+  _save(data) {
+    this._data = data;
+    localStorage.setItem('mydata', JSON.stringify(data));
+
+    // Broadcast success
+    const bus = document.querySelector('pan-bus');
+    bus.publish('data.saved', { id: data.id });
+  }
+
+  _load(id) {
+    const data = JSON.parse(localStorage.getItem('mydata'));
+    const bus = document.querySelector('pan-bus');
+    bus.publish('data.loaded', data);
+  }
+}
+```
+
+## Dependencies
+
+- Core: pan-bus (required for state coordination)
+- Storage: Browser APIs (localStorage, IndexedDB, etc.)
+
+## Future Components
+
+Potential additions to this directory:
+- `pan-cache.mjs` - Caching layer with TTL
+- `pan-sync.mjs` - Sync state to backend
+- `pan-offline.mjs` - Offline-first data management
+- `pan-realtime.mjs` - Real-time data synchronization
+- `pan-history.mjs` - Undo/redo state management

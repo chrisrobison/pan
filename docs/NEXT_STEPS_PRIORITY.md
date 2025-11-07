@@ -164,8 +164,8 @@ npx playwright test --project=webkit
 ### 2. TypeScript Definitions
 ```typescript
 // pan.d.ts (add to package root)
-export * from './src/core/pan-bus.mjs';
-export * from './src/core/pan-client.mjs';
+export * from './src/components/pan-bus.mjs';
+export * from './src/components/pan-client.mjs';
 
 // package.json
 {

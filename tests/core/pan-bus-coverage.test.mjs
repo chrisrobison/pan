@@ -284,7 +284,7 @@ describe('pan-bus Coverage Tests', () => {
     await page.goto(fileUrl('examples/01-hello.html'));
 
     const result = await page.evaluate(async () => {
-      const { PanBus } = await import('../src/core/pan-bus.mjs');
+      const { PanBus } = await import('../src/components/pan-bus.mjs');
 
       return {
         // Should match literal characters, not regex
@@ -342,7 +342,7 @@ describe('pan-bus Coverage Tests', () => {
 <body>
   <div id="shadow-host"></div>
   <script type="module">
-    import { PanClient } from '${fileUrl('src/core/pan-client.mjs')}';
+    import { PanClient } from '${fileUrl('src/components/pan-client.mjs')}';
 
     // Create shadow DOM
     const host = document.getElementById('shadow-host');
@@ -370,7 +370,7 @@ describe('pan-bus Coverage Tests', () => {
 </html>`;
 
     await page.setContent(html);
-    await page.addScriptTag({ path: './src/core/pan-client.mjs', type: 'module' });
+    await page.addScriptTag({ path: './src/components/pan-client.mjs', type: 'module' });
     await page.addScriptTag({ path: './src/pan.mjs', type: 'module' });
 
     // Wait for setup

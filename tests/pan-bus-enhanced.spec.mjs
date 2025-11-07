@@ -14,8 +14,8 @@ test.describe('PAN Bus Enhanced', () => {
       <html>
       <head><meta charset="utf-8"></head>
       <body>
-        <script type="module" src="/src/core/pan-bus-enhanced.mjs"></script>
-        <script type="module" src="/src/core/pan-client.mjs"></script>
+        <script type="module" src="/src/components/pan-bus-enhanced.mjs"></script>
+        <script type="module" src="/src/components/pan-client.mjs"></script>
         <pan-bus-enhanced
           max-retained="10"
           max-message-size="1024"
@@ -34,7 +34,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should enforce retained message limit', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         // Publish 20 retained messages (limit is 10)
@@ -61,7 +61,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should implement LRU eviction', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         // Publish 15 retained messages
@@ -100,7 +100,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should clean up dead subscriptions', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         // Create element and subscribe
@@ -149,7 +149,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should reject non-serializable data', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         return new Promise((resolve) => {
@@ -171,7 +171,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should reject oversized messages', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         return new Promise((resolve) => {
@@ -194,7 +194,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should accept valid messages', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         return new Promise((resolve) => {
@@ -219,7 +219,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should reject global wildcard when disabled', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         return new Promise((resolve) => {
@@ -238,7 +238,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should allow scoped wildcards', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         return new Promise((resolve) => {
@@ -266,7 +266,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should enforce rate limits', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         let limitExceeded = false;
@@ -307,7 +307,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should track message statistics', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         // Subscribe to something
@@ -338,7 +338,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should clear all retained messages', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         // Publish retained messages
@@ -382,7 +382,7 @@ test.describe('PAN Bus Enhanced', () => {
 
     test('should clear retained messages by pattern', async ({ page }) => {
       const result = await page.evaluate(async () => {
-        const { PanClient } = await import('/src/core/pan-client.mjs');
+        const { PanClient } = await import('/src/components/pan-client.mjs');
         const client = new PanClient();
 
         // Publish retained messages with different prefixes

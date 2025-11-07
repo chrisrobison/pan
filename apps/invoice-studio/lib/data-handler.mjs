@@ -5,7 +5,7 @@
  * Subscribes to PAN messages from toolbar and other components.
  */
 
-import { PanClient } from '../../../src/core/pan-client.mjs';
+import { PanClient } from '../../../src/components/pan-client.mjs';
 import db from './invoice-db.mjs';
 
 class DataHandler {

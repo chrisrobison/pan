@@ -93,7 +93,7 @@
   <h1>🔒 PAN Enhanced: Security & Memory Management</h1>
 
   <!-- Enhanced bus with security features -->
-  <script type="module" src="../src/core/pan-bus-enhanced.mjs"></script>
+  <script type="module" src="../src/components/pan-bus-enhanced.mjs"></script>
 
   <pan-bus-enhanced
     max-retained="20"
@@ -145,7 +145,7 @@
   </div>
 
   <script type="module">
-    import { PanClient } from '../src/core/pan-client.mjs';
+    import { PanClient } from '../src/components/pan-client.mjs';
 
     const client = new PanClient();
     await client.ready();
