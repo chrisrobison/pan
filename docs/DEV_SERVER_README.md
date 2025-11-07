@@ -176,7 +176,7 @@ project/
 ├── .ssl/                     # Auto-generated certs (gitignored)
 │   ├── cert.pem
 │   └── key.pem
-├── api-secure.php           # Secured API
+├── api.php           # Secured API
 ├── auth.php                 # Authentication endpoint
 ├── sse.php                  # SSE endpoint
 └── [your files]

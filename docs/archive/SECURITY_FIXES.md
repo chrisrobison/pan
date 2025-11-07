@@ -23,7 +23,7 @@ All **critical** and **high-severity** security vulnerabilities have been addres
 ## Critical Fixes (All Complete)
 
 ### 1. ✅ SQL Injection Vulnerabilities
-**File**: `api.php` → `api-secure.php`
+**File**: `api.php` → `api.php`
 
 **Problem**: Direct SQL injection vulnerability in all database queries
 
@@ -46,12 +46,12 @@ $stmt->bind_param('i', $in['id']);
 $stmt->execute();
 ```
 
-**Migration**: Replace `api.php` with `api-secure.php` in production
+**Migration**: Replace `api.php` with `api.php` in production
 
 ---
 
 ### 2. ✅ No Authentication on API
-**Files**: `api-secure.php`, `auth.php` (new)
+**Files**: `api.php`, `auth.php` (new)
 
 **Problem**: Public API with no access control
 
@@ -83,7 +83,7 @@ checkRateLimit('api_request', 100, 60); // 100 requests/minute
 ---
 
 ### 3. ✅ CORS Misconfiguration
-**Files**: `sse.php`, `api-secure.php`, `auth.php`, `scripts/dev-server.mjs`
+**Files**: `sse.php`, `api.php`, `auth.php`, `scripts/dev-server.mjs`
 
 **Problem**: `Access-Control-Allow-Origin: *` allowed any site to access API
 
@@ -115,7 +115,7 @@ if (in_array($origin, $allowedOrigins)) {
 ---
 
 ### 4. ✅ Path Traversal Risk
-**File**: `api-secure.php`
+**File**: `api.php`
 
 **Problem**: File loading without path validation
 
@@ -333,7 +333,7 @@ enforceHTTPS({
 ---
 
 ### 11. ✅ Security Headers
-**Files**: `scripts/dev-server.mjs`, `api-secure.php`, `auth.php`, `sse.php`
+**Files**: `scripts/dev-server.mjs`, `api.php`, `auth.php`, `sse.php`
 
 **Headers Added**:
 ```
@@ -352,7 +352,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 ### Core Security Files
 1. **`scripts/dev-server.mjs`** - Secure HTTPS development server
-2. **`api-secure.php`** - Secured API with prepared statements & auth
+2. **`api.php`** - Secured API with prepared statements & auth
 3. **`auth.php`** - Authentication endpoint with HttpOnly cookies
 4. **`src/core/pan-security.mjs`** - Security utilities
 5. **`src/core/pan-bus-legacy.mjs`** - Backup of original bus
@@ -373,7 +373,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 cp api.php api-old.php
 
 # Use secure API
-cp api-secure.php api.php
+cp api.php api.php
 ```
 
 2. **Add .env configuration**:
@@ -399,7 +399,7 @@ CREATE TABLE users (
 );
 ```
 
-4. **Configure resources whitelist** in `api-secure.php`:
+4. **Configure resources whitelist** in `api.php`:
 ```php
 $ALLOWED_RESOURCES = [
     'users' => ['table' => 'users', 'pk' => 'userID'],
