@@ -219,11 +219,8 @@ export async function maybeLoadFor(el) {
 
   loading.add(url);
   try {
-    const mod = await import(url);
-    // Auto-define if module exports a class and element isn't defined yet
-    if (!customElements.get(el.localName) && mod?.default instanceof Function) {
-      customElements.define(el.localName, mod.default);
-    }
+    // Import the module - components self-register via customElements.define()
+    await import(url);
   } catch (err) {
     console.warn(`[pan-autoload] Failed to load ${url} for <${el.localName}>`, err);
   } finally {
