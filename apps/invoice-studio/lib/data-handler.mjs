@@ -90,6 +90,15 @@ class DataHandler {
       // Get current invoice data
       const invoice = invoiceEditor.getInvoiceData();
 
+      // Publish invoice state so line-items component can add items/totals
+      this.client.publish({
+        topic: 'invoice.state',
+        data: invoice
+      });
+
+      // Wait a tick for line-items to update the invoice object
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       // PDF styling
       const margin = 20;
       let y = margin;

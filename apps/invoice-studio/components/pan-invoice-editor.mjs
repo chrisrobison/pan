@@ -432,6 +432,16 @@ class PanInvoiceEditor extends HTMLElement {
   async saveInvoice() {
     try {
       const invoice = this.getInvoiceData();
+
+      // Publish invoice state so line-items component can add items/totals
+      this.client.publish({
+        topic: 'invoice.state',
+        data: invoice
+      });
+
+      // Wait a tick for line-items to update the invoice object
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       const id = await db.saveInvoice(invoice);
       this.currentInvoice = { ...invoice, id };
 
