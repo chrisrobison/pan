@@ -57,8 +57,8 @@ const pathMappings = {
   '../app/invoice/pan-invoice-totals.mjs': '../app/invoice/pan-invoice-totals.mjs',
 
   // App - Devtools
-  './app/devtools/pan-inspector.mjs': './app/devtools/pan-inspector.mjs',
-  '../app/devtools/pan-inspector.mjs': '../app/devtools/pan-inspector.mjs',
+  './components/pan-inspector.mjs': './components/pan-inspector.mjs',
+  '../components/pan-inspector.mjs': '../components/pan-inspector.mjs',
   './app/devtools/pan-demo-viewer.mjs': './app/devtools/pan-demo-viewer.mjs',
   '../app/devtools/pan-demo-viewer.mjs': '../app/devtools/pan-demo-viewer.mjs',
   './app/devtools/pan-demo-nav.mjs': './app/devtools/pan-demo-nav.mjs',
