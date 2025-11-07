@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Theme System Demo — LARC PAN</title>
-  <link rel="stylesheet" href="assets/theme.css">
   <style>
     body {
       padding: 2rem;
@@ -271,9 +270,9 @@
   <pan-theme-provider theme="auto"></pan-theme-provider>
 
   <script type="module">
-    import '../pan/components/pan-theme-provider.mjs';
-    import '../pan/components/pan-theme-toggle.mjs';
-    import '../pan/ui/pan-card.mjs';
+    import '../src/components/pan-theme-provider.mjs';
+    import '../src/components/pan-theme-toggle.mjs';
+    import '../src/components/pan-card.mjs';
 
     // Listen to theme changes
     const bus = document.querySelector('pan-theme-provider');

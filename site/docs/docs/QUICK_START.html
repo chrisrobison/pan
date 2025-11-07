@@ -69,11 +69,11 @@
   &lt;pan-bus&gt;&lt;/pan-bus&gt;
 
   &lt;!-- 2. Include autoloader --&gt;
-  &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
 
   &lt;!-- 3. Your app code --&gt;
   &lt;script type=&quot;module&quot;&gt;
-    import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+    import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
 
     const client = new PanClient();
     await client.ready();
@@ -112,12 +112,12 @@
     &lt;button id=&quot;reset&quot;&gt;Reset&lt;/button&gt;
   &lt;/div&gt;
 
-  &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
   &lt;script type=&quot;module&quot; src=&quot;./app.js&quot;&gt;&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 <h3>Step 2: Create app.js</h3>
-<pre><code class="language-javascript">import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+<pre><code class="language-javascript">import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
 
 // Create client and wait for bus
 const client = new PanClient();

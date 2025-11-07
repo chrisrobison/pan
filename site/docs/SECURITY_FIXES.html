@@ -192,7 +192,7 @@ setcookie(&#039;jwt&#039;, $token, [
 <li>✅ URL validation: <code>isSafeURL()</code>, <code>setSafeHref()</code></li>
 </ul>
 <strong>New Security Utilities</strong>:
-<pre><code class="language-javascript">import { safeSetHTML, escapeHTML, isSafeURL } from &#039;./pan/core/pan-security.mjs&#039;;
+<pre><code class="language-javascript">import { safeSetHTML, escapeHTML, isSafeURL } from &#039../src/components/pan-security.mjs&#039;;
 
 // Safe HTML setting
 safeSetHTML(element, userInput); // Uses DOMPurify if available
@@ -209,7 +209,7 @@ if (isSafeURL(url)) {
 container.innerHTML = userContent;
 
 // ✅ AFTER (Safe)
-import { safeSetHTML } from &#039;./pan/core/pan-security.mjs&#039;;
+import { safeSetHTML } from &#039../src/components/pan-security.mjs&#039;;
 safeSetHTML(container, userContent);
 
 // OR use textContent for plain text
@@ -277,7 +277,7 @@ this.clientId = `${tag}#${crypto.randomUUID()}`;</code></pre>
 <li>✅ Configurable enforcement</li>
 </ul>
 <strong>Usage</strong>:
-<pre><code class="language-javascript">import { initSecurity, enforceHTTPS } from &#039;./pan/core/pan-security.mjs&#039;;
+<pre><code class="language-javascript">import { initSecurity, enforceHTTPS } from &#039../src/components/pan-security.mjs&#039;;
 
 // Initialize all security features
 initSecurity({
@@ -349,7 +349,7 @@ jwt_secret=CHANGE_THIS_TO_RANDOM_SECRET</code></pre>
 <li><strong>Optional</strong>: Use new security utilities:</li>
 <pre><code class="language-javascript">// Add to your HTML
 &lt;script type=&quot;module&quot;&gt;
-    import { initSecurity } from &#039;./pan/core/pan-security.mjs&#039;;
+    import { initSecurity } from &#039../src/components/pan-security.mjs&#039;;
     initSecurity();
 &lt;/script&gt;</code></pre>
 <li><strong>Update authentication</strong> (if using pan-auth):</li>

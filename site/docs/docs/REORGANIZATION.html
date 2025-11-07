@@ -79,7 +79,7 @@
     ├── invoice/   # Invoice app components
     └── devtools/  # Developer tools components</code></pre>
 <h2>Component Categories</h2>
-<h3>Core (<code>pan/core/</code>) - Infrastructure</h3>
+<h3>Core (<code>src/components/</code>) - Infrastructure</h3>
 <strong>Purpose:</strong> Essential PAN infrastructure required for the system to function.
 <strong>Components:</strong>
 <ul><li><code>pan-bus.mjs</code> - Central message bus</li>
@@ -88,9 +88,9 @@
 </ul>
 <strong>When to use:</strong> Always - these are the foundation of PAN.
 <strong>Import example:</strong>
-<pre><code class="language-javascript">import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;</code></pre>
+<pre><code class="language-javascript">import { PanClient } from &#039../src/components/pan-client.mjs&#039;;</code></pre>
 <hr>
-<h3>UI (<code>pan/ui/</code>) - Simple Building Blocks</h3>
+<h3>UI (<code>src/components/</code>) - Simple Building Blocks</h3>
 <strong>Purpose:</strong> Lightweight, single-purpose UI components that are highly reusable.
 <strong>Components:</strong>
 <ul><li><code>pan-card.mjs</code> - Card container</li>
@@ -112,10 +112,10 @@
 </ul>
 <strong>When to use:</strong> Building basic UI layouts and interactions.
 <strong>Import example:</strong>
-<pre><code class="language-javascript">import &#039;./pan/ui/pan-card.mjs&#039;;
-import &#039;./pan/ui/pan-modal.mjs&#039;;</code></pre>
+<pre><code class="language-javascript">import &#039../src/components/pan-card.mjs&#039;;
+import &#039../src/components/pan-modal.mjs&#039;;</code></pre>
 <hr>
-<h3>Components (<code>pan/components/</code>) - Feature-Rich Widgets</h3>
+<h3>Components (<code>src/components/</code>) - Feature-Rich Widgets</h3>
 <strong>Purpose:</strong> Complex, production-ready components with substantial functionality.
 <strong>Components:</strong>
 <ul><li><code>pan-markdown-editor.mjs</code> - Full markdown IDE</li>
@@ -140,10 +140,10 @@ import &#039;./pan/ui/pan-modal.mjs&#039;;</code></pre>
 </ul>
 <strong>When to use:</strong> Need complete, ready-to-use functionality.
 <strong>Import example:</strong>
-<pre><code class="language-javascript">import &#039;./pan/components/pan-markdown-editor.mjs&#039;;
-import &#039;./pan/components/pan-files.mjs&#039;;</code></pre>
+<pre><code class="language-javascript">import &#039../src/components/pan-markdown-editor.mjs&#039;;
+import &#039../src/components/pan-files.mjs&#039;;</code></pre>
 <hr>
-<h3>Data (<code>pan/data/</code>) - State Management</h3>
+<h3>Data (<code>src/components/</code>) - State Management</h3>
 <strong>Purpose:</strong> Components that manage application state and persistence.
 <strong>Components:</strong>
 <ul><li><code>pan-invoice-store.mjs</code> - Invoice state management</li>
@@ -156,7 +156,7 @@ import &#039;./pan/components/pan-files.mjs&#039;;</code></pre>
 </ul>
 <strong>When to use:</strong> Need centralized state management for your application.
 <strong>Import example:</strong>
-<pre><code class="language-javascript">import &#039;./pan/data/pan-invoice-store.mjs&#039;;</code></pre>
+<pre><code class="language-javascript">import &#039;./src/components/pan-invoice-store.mjs&#039;;</code></pre>
 <hr>
 <h3>App (<code>pan/app/</code>) - Domain-Specific Components</h3>
 <strong>Purpose:</strong> Components built for specific applications, not intended for general reuse.
@@ -195,14 +195,14 @@ import &#039;./app/devtools/pan-inspector.mjs&#039;;</code></pre>
 <h3>Old vs New Paths</h3>
 <p>| Old Path | New Path | Category |
 |----------|----------|----------|
-| <code>components/pan-bus.mjs</code> | <code>pan/core/pan-bus.mjs</code> | Core |
-| <code>components/pan-client.mjs</code> | <code>pan/core/pan-client.mjs</code> | Core |
-| <code>components/pan-autoload.mjs</code> | <code>pan/core/pan-autoload.mjs</code> | Core |
-| <code>components/pan-card.mjs</code> | <code>pan/ui/pan-card.mjs</code> | UI |
-| <code>components/pan-modal.mjs</code> | <code>pan/ui/pan-modal.mjs</code> | UI |
-| <code>components/pan-markdown-editor.mjs</code> | <code>pan/components/pan-markdown-editor.mjs</code> | Components |
-| <code>components/pan-files.mjs</code> | <code>pan/components/pan-files.mjs</code> | Components |
-| <code>components/pan-invoice-store.mjs</code> | <code>pan/data/pan-invoice-store.mjs</code> | Data |
+| <code>components/pan-bus.mjs</code> | <code>src/components/pan-bus.mjs</code> | Core |
+| <code>components/pan-client.mjs</code> | <code>src/components/pan-client.mjs</code> | Core |
+| <code>components/pan-autoload.mjs</code> | <code>src/components/pan-autoload.mjs</code> | Core |
+| <code>components/pan-card.mjs</code> | <code>src/components/pan-card.mjs</code> | UI |
+| <code>components/pan-modal.mjs</code> | <code>src/components/pan-modal.mjs</code> | UI |
+| <code>components/pan-markdown-editor.mjs</code> | <code>src/components/pan-markdown-editor.mjs</code> | Components |
+| <code>components/pan-files.mjs</code> | <code>src/components/pan-files.mjs</code> | Components |
+| <code>components/pan-invoice-store.mjs</code> | <code>src/components/pan-invoice-store.mjs</code> | Data |
 | <code>components/pan-invoice-header.mjs</code> | <code>pan/app/invoice/pan-invoice-header.mjs</code> | App |
 | <code>components/pan-inspector.mjs</code> | <code>pan/app/devtools/pan-inspector.mjs</code> | App |
 | <code>demo-apps/</code> | <code>apps/</code> | Apps |</p>
@@ -220,8 +220,8 @@ import { PanClient } from &#039;./components/pan-client.mjs&#039;;
 import &#039;./components/pan-card.mjs&#039;;
 
 // New
-import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
-import &#039;./pan/ui/pan-card.mjs&#039;;</code></pre>
+import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
+import &#039../src/components/pan-card.mjs&#039;;</code></pre>
 <hr>
 <h2>Decision Criteria</h2>
 <strong>When creating a new component, where does it go?</strong>
@@ -287,8 +287,8 @@ Core Infrastructure (core/)</code></pre>
 <hr>
 <h2>Best Practices</h2>
 <h3>Creating New Components</h3>
-<li><strong>Start simple</strong> - Begin in <code>pan/ui/</code> if possible</li>
-<li><strong>Promote when needed</strong> - Move to <code>pan/components/</code> when complexity grows</li>
+<li><strong>Start simple</strong> - Begin in <code>src/components/</code> if possible</li>
+<li><strong>Promote when needed</strong> - Move to <code>src/components/</code> when complexity grows</li>
 <li><strong>Keep app-specific separate</strong> - Don't try to make everything reusable</li>
 <li><strong>Document dependencies</strong> - Be clear about what layer you depend on</li>
 <li><strong>Use README</strong> - Each directory has a README explaining its purpose</li>
@@ -299,16 +299,16 @@ Core Infrastructure (core/)</code></pre>
 </ul>
 <h3>Import Patterns</h3>
 <pre><code class="language-javascript">// Good - Import from appropriate layer
-import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
-import &#039;./pan/ui/pan-card.mjs&#039;;
-import &#039;./pan/components/pan-markdown-editor.mjs&#039;;
+import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
+import &#039../src/components/pan-card.mjs&#039;;
+import &#039../src/components/pan-markdown-editor.mjs&#039;;
 
 // Bad - Reaching across layers inappropriately
 // (app component importing from another app)
 import &#039;./pan/app/invoice/pan-invoice-header.mjs&#039;; // from app/devtools/</code></pre>
 <hr>
 <h2>FAQ</h2>
-<strong>Q: Why not just keep everything in <code>pan/components/</code>?</strong>
+<strong>Q: Why not just keep everything in <code>src/components/</code>?</strong>
 <p>A: It was getting too large and hard to navigate. The layered structure makes it clear what's infrastructure vs. building blocks vs. complete widgets.</p>
 <strong>Q: Can UI components use other UI components?</strong>
 <p>A: Yes, UI components can compose other UI components. They should not depend on complex components though.</p>
@@ -316,9 +316,9 @@ import &#039;./pan/app/invoice/pan-invoice-header.mjs&#039;; // from app/devtool
 <p>A: Yes, connectors are feature-rich components even though they may not have UI.</p>
 <strong>Q: What if a component could fit in multiple categories?</strong>
 <p>A: Use these guidelines:
-<ul><li>Does it have UI? If no → <code>pan/data/</code></li>
-<li>Is it simple and single-purpose? → <code>pan/ui/</code></li>
-<li>Is it complex or feature-rich? → <code>pan/components/</code></li>
+<ul><li>Does it have UI? If no → <code>src/components/</code></li>
+<li>Is it simple and single-purpose? → <code>src/components/</code></li>
+<li>Is it complex or feature-rich? → <code>src/components/</code></li>
 <li>Is it app-specific? → <code>pan/app/</code></li>
 </ul>
 <strong>Q: Will this break my existing code?</strong></p>
@@ -334,10 +334,10 @@ import &#039;./pan/app/invoice/pan-invoice-header.mjs&#039;; // from app/devtool
 </ul>
 <hr></p>
 <h2>Resources</h2>
-<ul><li>Core README: <code>pan/core/README.md</code></li>
-<li>UI README: <code>pan/ui/README.md</code></li>
-<li>Components README: <code>pan/components/README.md</code></li>
-<li>Data README: <code>pan/data/README.md</code></li>
+<ul><li>Core README: <code>src/components/README.md</code></li>
+<li>UI README: <code>src/components/README.md</code></li>
+<li>Components README: <code>src/components/README.md</code></li>
+<li>Data README: <code>src/components/README.md</code></li>
 <li>App README: <code>pan/app/README.md</code></li>
 <li>Apps README: <code>apps/README.md</code></li>
 <li>Main README: <code>README.md</code></li>

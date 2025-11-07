@@ -301,11 +301,11 @@ Enhanced Bus (max-retained=&quot;1000&quot;):
 <h2>Migration Path</h2>
 <h3>1. Drop-In Replacement</h3>
 <pre><code class="language-html">&lt;!-- Before --&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus.mjs&quot;&gt;&lt;/script&gt;
 &lt;pan-bus&gt;&lt;/pan-bus&gt;
 
 &lt;!-- After --&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
 &lt;pan-bus-enhanced&gt;&lt;/pan-bus-enhanced&gt;</code></pre>
 <strong>No code changes required!</strong>
 <h3>2. Configure for Your Needs</h3>

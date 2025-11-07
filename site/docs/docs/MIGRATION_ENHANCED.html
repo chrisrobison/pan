@@ -57,10 +57,10 @@
 <h2>Quick Migration</h2>
 <h3>1. Update Your HTML</h3>
 <strong>Before:</strong>
-<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus.mjs&quot;&gt;&lt;/script&gt;
 &lt;pan-bus&gt;&lt;/pan-bus&gt;</code></pre>
 <strong>After:</strong>
-<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
 &lt;pan-bus-enhanced
   max-retained=&quot;1000&quot;
   rate-limit=&quot;1000&quot;
@@ -68,7 +68,7 @@
 &lt;/pan-bus-enhanced&gt;</code></pre>
 <h3>2. Update Component Initialization</h3>
 <strong>No code changes required!</strong> The enhanced bus is a drop-in replacement.
-<pre><code class="language-javascript">import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+<pre><code class="language-javascript">import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
 
 const client = new PanClient();
 await client.ready();
@@ -368,7 +368,7 @@ client.subscribe(&#039;pan:sys.stats&#039;, (msg) =&gt; {
 <p>If you encounter issues:</p>
 <h3>1. Quick Rollback</h3>
 <pre><code class="language-html">&lt;!-- Change enhanced back to basic --&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus.mjs&quot;&gt;&lt;/script&gt;
 &lt;pan-bus&gt;&lt;/pan-bus&gt;</code></pre>
 <h3>2. Gradual Migration</h3>
 <p>Use both buses temporarily:</p>

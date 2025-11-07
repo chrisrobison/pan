@@ -24,12 +24,12 @@
     .controls button.secondary{ background:transparent; color:var(--fg); border:1px solid var(--border) }
   </style>
   <script type="module">
-    import '../pan/core/pan-bus.mjs';
-    import '../pan/core/pan-client.mjs';
-    import '../pan/components/pan-data-table.mjs';
-    import '../pan/components/pan-php-connector.mjs';
+    import '../src/components/pan-bus.mjs';
+    import '../src/components/pan-client.mjs';
+    import '../src/components/pan-data-table.mjs';
+    import '../src/components/pan-php-connector.mjs';
     import '../pan/app/devtools/pan-inspector.mjs';
-    import { PanClient } from '../pan/core/pan-client.mjs';
+    import { PanClient } from '../src/components/pan-client.mjs';
 
     window.addEventListener('DOMContentLoaded', () => {
       const pc = new PanClient();
@@ -91,7 +91,6 @@
       setTimeout(load, 0);
     });
   </script>
-    <link rel="stylesheet" href="assets/theme.css">
 </head>
 <body>
   <pan-bus></pan-bus>
@@ -127,8 +126,8 @@
   <pan-theme-provider theme="auto"></pan-theme-provider>
 
   <script type="module">
-    import '../pan/components/pan-theme-provider.mjs';
-    import '../pan/components/pan-theme-toggle.mjs';
+    import '../src/components/pan-theme-provider.mjs';
+    import '../src/components/pan-theme-toggle.mjs';
   </script>
 </body>
 </html>

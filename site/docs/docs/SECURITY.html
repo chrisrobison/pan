@@ -196,13 +196,13 @@ client.publish({
 &lt;/head&gt;
 &lt;body&gt;
   &lt;!-- ✅ Works with CSP --&gt;
-  &lt;script type=&quot;module&quot; src=&quot;/pan/core/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
-  &lt;script type=&quot;module&quot; src=&quot;/pan/core/pan-client.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quo../src/components/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quo../src/components/pan-client.mjs&quot;&gt;&lt;/script&gt;
 
   &lt;pan-bus-enhanced&gt;&lt;/pan-bus-enhanced&gt;
 
   &lt;script type=&quot;module&quot;&gt;
-    import { PanClient } from &#039;/pan/core/pan-client.mjs&#039;;
+    import { PanClient } from &#03../src/components/pan-client.mjs&#039;;
     const client = new PanClient();
     // ... your code
   &lt;/script&gt;
@@ -378,7 +378,7 @@ client.subscribe(&#039;link.clicked&#039;, (msg) =&gt; {
   &lt;/pan-bus-enhanced&gt;
 
   &lt;script type=&quot;module&quot;&gt;
-    import { PanClient } from &#039;/pan/core/pan-client.mjs&#039;;
+    import { PanClient } from &#03../src/components/pan-client.mjs&#039;;
 
     const client = new PanClient();
 

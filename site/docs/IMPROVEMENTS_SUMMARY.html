@@ -148,7 +148,7 @@ Full documentation of all improvements, benchmarks, and migration paths</p>
   &lt;/pan-bus-enhanced&gt;
 
   &lt;script type=&quot;module&quot;&gt;
-    import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+    import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
 
     const client = new PanClient();
 
@@ -171,10 +171,10 @@ Full documentation of all improvements, benchmarks, and migration paths</p>
 <hr>
 <h2>Migration Path</h2>
 <h3>✅ Drop-In Replacement</h3>
-<pre><code class="language-diff">- &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+<pre><code class="language-diff">- &lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus.mjs&quot;&gt;&lt;/script&gt;
 - &lt;pan-bus&gt;&lt;/pan-bus&gt;
 
-+ &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
++ &lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus-enhanced.mjs&quot;&gt;&lt;/script&gt;
 + &lt;pan-bus-enhanced max-retained=&quot;1000&quot;&gt;&lt;/pan-bus-enhanced&gt;</code></pre>
 <strong>No code changes required!</strong> The client API is identical.
 <hr>

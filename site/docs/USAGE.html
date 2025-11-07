@@ -187,10 +187,10 @@ client.subscribe(&#039;app.event&#039;, (msg: PanMessage) =&gt; {
   &lt;/script&gt;
 
   &lt;!-- Load autoload --&gt;
-  &lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+  &lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
 
   &lt;script type=&quot;module&quot;&gt;
-    import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+    import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
 
     const client = new PanClient();
     // Your app code...

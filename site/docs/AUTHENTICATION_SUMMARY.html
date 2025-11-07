@@ -51,7 +51,7 @@
 <hr>
 <h2>📦 Components Created</h2>
 <h3>1. <code>pan-auth.mjs</code> (12KB)</h3>
-<strong>Location:</strong> <code>pan/core/pan-auth.mjs</code>
+<strong>Location:</strong> <code>src/components/pan-auth.mjs</code>
 <p>JWT authentication manager:
 <ul><li>✅ Stores tokens in localStorage/sessionStorage/memory</li>
 <li>✅ Publishes retained <code>auth.state</code> (for UI)</li>
@@ -65,7 +65,7 @@
 <li>Events: <code>auth.state</code>, <code>auth.login.success</code>, <code>auth.login.error</code>, <code>auth.logout.success</code>, <code>auth.refresh.success</code>, <code>auth.refresh.error</code></li>
 </ul>
 <h3>2. <code>pan-fetch.mjs</code> (3.8KB)</h3>
-<strong>Location:</strong> <code>pan/core/pan-fetch.mjs</code></p>
+<strong>Location:</strong> <code>src/components/pan-fetch.mjs</code></p>
 <p>Authenticated fetch wrapper:
 <ul><li>✅ Drop-in replacement for <code>fetch()</code></li>
 <li>✅ Auto-injects <code>Authorization</code> header</li>
@@ -74,17 +74,17 @@
 <li>✅ <code>isAuthenticated()</code> - check login status</li>
 </ul>
 <strong>Usage:</strong>
-<pre><code class="language-javascript">import { panFetch } from &#039;./pan/core/pan-fetch.mjs&#039;;
+<pre><code class="language-javascript">import { panFetch } from &#039../src/components/pan-fetch.mjs&#039;;
 const users = await panFetch.get(&#039;/api/users&#039;); // Auth header auto-added!</code></pre></p>
 <h3>3. Enhanced Connectors</h3>
 <p>#### <code>pan-data-connector.mjs</code> (Enhanced)
-<strong>Location:</strong> <code>pan/components/pan-data-connector.mjs</code></p>
+<strong>Location:</strong> <code>src/components/pan-data-connector.mjs</code></p>
 <ul><li>✅ Subscribes to <code>auth.internal.state</code></li>
 <li>✅ Auto-injects <code>Authorization: Bearer ${token}</code> in all fetch requests</li>
 <li>✅ Works with existing CRUD topics</li>
 </ul>
 #### <code>pan-graphql-connector.mjs</code> (Enhanced)
-<strong>Location:</strong> <code>pan/components/pan-graphql-connector.mjs</code>
+<strong>Location:</strong> <code>src/components/pan-graphql-connector.mjs</code>
 <ul><li>✅ Subscribes to <code>auth.internal.state</code></li>
 <li>✅ Auto-injects <code>Authorization: Bearer ${token}</code> in GraphQL requests</li>
 <li>✅ Works with existing GraphQL queries/mutations</li>
@@ -212,13 +212,13 @@ const users = await panFetch.get(&#039;/api/users&#039;); // Auth header auto-ad
 <h3>Minimal Setup</h3>
 <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
 
 &lt;pan-auth storage=&quot;localStorage&quot; auto-refresh=&quot;true&quot;&gt;&lt;/pan-auth&gt;
 &lt;pan-data-connector resource=&quot;users&quot; base-url=&quot;/api&quot;&gt;&lt;/pan-data-connector&gt;
 
 &lt;script type=&quot;module&quot;&gt;
-  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
   const pc = new PanClient();
 
   // Login
@@ -281,7 +281,7 @@ const users = await panFetch.get(&#039;/api/users&#039;); // Auth header auto-ad
   }
 });</code></pre>
 <h3>Custom Fetch</h3>
-<pre><code class="language-javascript">import { panFetch } from &#039;./pan/core/pan-fetch.mjs&#039;;
+<pre><code class="language-javascript">import { panFetch } from &#039../src/components/pan-fetch.mjs&#039;;
 
 // All automatically include auth header
 const users = await panFetch.get(&#039;/api/users&#039;);
@@ -368,7 +368,7 @@ pc.publish({
 <hr>
 <h2>📊 Files Modified/Created</h2>
 <h3>New Files</h3>
-<pre><code class="language-plaintext">pan/core/
+<pre><code class="language-plaintext">src/components/
   ├── pan-auth.mjs              (12KB) - Auth manager component
   └── pan-fetch.mjs             (3.8KB) - Authenticated fetch wrapper
 
@@ -380,7 +380,7 @@ docs/
   ├── AUTHENTICATION.md         (17KB) - Complete documentation
   └── AUTH_QUICKSTART.md        (4.1KB) - Quick reference</code></pre>
 <h3>Modified Files</h3>
-<pre><code class="language-plaintext">pan/components/
+<pre><code class="language-plaintext">src/components/
   ├── pan-data-connector.mjs    - Added auto auth header injection
   └── pan-graphql-connector.mjs - Added auto auth header injection</code></pre>
 <strong>Total:</strong> 6 new files, 2 enhanced files, ~55KB of code + docs

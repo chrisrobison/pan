@@ -98,12 +98,12 @@ See <a href="RELEASE_NOTES.md">RELEASE_NOTES.md</a> for full details and <a href
 <strong>With autoload (recommended):</strong>
 <p>Drop one script tag, then use any component. That's it!</p>
 <pre><code class="language-html">&lt;!doctype html&gt;&lt;meta charset=&quot;utf-8&quot;&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
 
 &lt;!-- Just declare the components you want - they load automatically --&gt;
 &lt;x-counter&gt;&lt;/x-counter&gt;
 &lt;pan-inspector&gt;&lt;/pan-inspector&gt;</code></pre>
-<p>All components live in <code>./pan/components/</code> and load on demand as they approach the viewport. <strong>The <code><pan-bus></code> is automatically created for you.</strong> No imports, no <code>customElements.define()</code>, no bundler.</p>
+<p>All components live in <code../src/components/</code> and load on demand as they approach the viewport. <strong>The <code><pan-bus></code> is automatically created for you.</strong> No imports, no <code>customElements.define()</code>, no bundler.</p>
 <hr>
 <strong>Manual setup (for learning):</strong>
 <p>Copy this into an <code>.html</code> file and open it to see the minimal PAN implementation:</p>
@@ -144,7 +144,7 @@ See <a href="RELEASE_NOTES.md">RELEASE_NOTES.md</a> for full details and <a href
 <h2>Install</h2>
 <strong>Recommended: Use autoload</strong>
 <p>Clone the repo and drop a single script tag on your page:</p>
-<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
 <p>Then just use components in your HTML - they load automatically on demand:</p>
 <pre><code class="language-html">&lt;pan-bus&gt;&lt;/pan-bus&gt;
 &lt;todo-list&gt;&lt;/todo-list&gt;
@@ -153,17 +153,17 @@ See <a href="RELEASE_NOTES.md">RELEASE_NOTES.md</a> for full details and <a href
 <hr>
 <strong>Alternative: Manual imports</strong>
 <p>For fine-grained control or CDN usage (when published):</p>
-<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-bus.mjs&quot;&gt;&lt;/script&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-client.mjs&quot;&gt;&lt;/script&gt;
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot../src/components/pan-bus.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-client.mjs&quot;&gt;&lt;/script&gt;
 &lt;script type=&quot;module&quot; src=&quot;./pan/app/devtools/pan-inspector.mjs&quot;&gt;&lt;/script&gt;</code></pre>
 <hr>
 <h2>Autoloading Custom Elements</h2>
 <strong>This is the recommended way to use LARC.</strong>
 <p>Drop a single script tag on the page to progressively load Web Components from the
 <code>components/</code> folder. Tags with a dash (<code><my-widget></code>) are auto-detected; when they
-approach the viewport, the loader imports <code>./pan/components/<tag>.mjs</code> and registers them.</p>
+approach the viewport, the loader imports <code../src/components/<tag>.mjs</code> and registers them.</p>
 <strong>The <code><pan-bus></code> is automatically created</strong> so you can start using components immediately:
-<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+<pre><code class="language-html">&lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
 
 &lt;!-- All of these load automatically - no imports needed --&gt;
 &lt;my-widget&gt;&lt;/my-widget&gt;
@@ -178,10 +178,10 @@ approach the viewport, the loader imports <code>./pan/components/<tag>.mjs</code
     rootMargin: 600  // px from viewport to trigger load
   };
 &lt;/script&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;</code></pre>
 <strong>Per-element override:</strong>
 <p>Point a specific element to a different module:</p>
-<pre><code class="language-html">&lt;my-card data-module=&quot;/pan/components/cards/my-card.mjs&quot;&gt;&lt;/my-card&gt;</code></pre>
+<pre><code class="language-html">&lt;my-card data-module=&quo../src/components/cards/my-card.mjs&quot;&gt;&lt;/my-card&gt;</code></pre>
 <p>Components that don't self-register are defined automatically when they export a
 default class matching the tag name.</p>
 <hr>
@@ -204,24 +204,24 @@ default class matching the tag name.</p>
 ├── scripts/       # 🔧 Build and utility scripts
 └── tests/         # ✅ Test suite</code></pre>
 <h3>Component Layers</h3>
-<strong>Core</strong> (<code>pan/core/</code>) - Required infrastructure
+<strong>Core</strong> (<code>src/components/</code>) - Required infrastructure
 <ul><li><code>pan-bus.mjs</code> - Message bus</li>
 <li><code>pan-client.mjs</code> - Client library</li>
 <li><code>pan-autoload.mjs</code> - Component autoloader</li>
 </ul>
-<strong>UI</strong> (<code>pan/ui/</code>) - Simple building blocks
+<strong>UI</strong> (<code>src/components/</code>) - Simple building blocks
 <ul><li>Cards, modals, dropdowns, tabs, etc.</li>
 <li>Lightweight, single-purpose components</li>
 <li>Highly reusable across projects</li>
 </ul>
-<strong>Components</strong> (<code>pan/components/</code>) - Feature-rich widgets
+<strong>Components</strong> (<code>src/components/</code>) - Feature-rich widgets
 <ul><li>Markdown editor/renderer</li>
 <li>Data tables, charts, date pickers</li>
 <li>File system manager</li>
 <li>Theme system</li>
 <li>Complex, production-ready tools</li>
 </ul>
-<strong>Data</strong> (<code>pan/data/</code>) - State management
+<strong>Data</strong> (<code>src/components/</code>) - State management
 <ul><li>Store components for application state</li>
 <li>Persistence logic (localStorage, IndexedDB)</li>
 <li>Coordinates state via PAN bus</li>

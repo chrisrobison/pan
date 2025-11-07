@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/theme.css">
   <style>
 
     * {
@@ -422,7 +421,7 @@
         status: 'stable',
         code: `<pan-bus></pan-bus>
 <script type="module">
-  import { PanClient } from '../pan/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
   const pc = new PanClient();
   pc.subscribe('test.topic', (msg) => {
     console.log('Received:', msg.data);
@@ -436,7 +435,7 @@
         category: ['core'],
         status: 'stable',
         code: `<script type="module">
-  import { PanClient } from '../pan/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
   const pc = new PanClient();
 
   // Subscribe to a topic
@@ -470,7 +469,7 @@
 <div id="content"></div>
 
 <script type="module">
-  import { PanClient } from '../pan/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
   const pc = new PanClient();
 
   pc.subscribe('nav.state', (msg) => {
@@ -517,7 +516,7 @@
 </pan-idb>
 
 <script type="module">
-  import { PanClient } from '../pan/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
   const pc = new PanClient();
 
   // Wait for ready
@@ -556,7 +555,7 @@
 </pan-websocket>
 
 <script type="module">
-  import { PanClient } from '../pan/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
   const pc = new PanClient();
 
   pc.subscribe('ws.connected', () => {
@@ -588,7 +587,7 @@
 </pan-sse>
 
 <script type="module">
-  import { PanClient } from '../pan/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
   const pc = new PanClient();
 
   pc.subscribe('notifications.*', (msg) => {
@@ -605,7 +604,7 @@
 <pan-inspector style="height: 400px;"></pan-inspector>
 
 <script type="module">
-  import { PanClient } from '../pan/core/pan-client.mjs';
+  import { PanClient } from '../src/components/pan-client.mjs';
   const pc = new PanClient();
 
   // Generate some messages to inspect
@@ -686,7 +685,7 @@
             <button class="btn btn-primary" onclick="openPlayground('${comp.name}')">
               Try it
             </button>
-            <a href="../pan/components/${comp.name}.mjs" class="btn btn-secondary" target="_blank">
+            <a href="../src/components/${comp.name}.mjs" class="btn btn-secondary" target="_blank">
               View Source
             </a>
           </div>
@@ -749,7 +748,7 @@
     const base = '${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '')}';
     window.panAutoload = { componentsPath: base + '/components/' };
   <\/script>
-  <script type="module" src="../pan/core/pan-autoload.mjs"><\/script>
+  <script type="module" src="../src/components/pan-autoload.mjs"><\/script>
   ${code}
 </body>
 </html>`;
@@ -774,14 +773,14 @@
     renderComponents();
   </script>
 
-  <script type="module" src="../pan/core/pan-autoload.mjs"></script>
+  <script type="module" src="../src/components/pan-autoload.mjs"></script>
 
   <!-- Theme System -->
   <pan-theme-provider theme="auto"></pan-theme-provider>
 
   <script type="module">
-    import '../pan/components/pan-theme-provider.mjs';
-    import '../pan/components/pan-theme-toggle.mjs';
+    import '../src/components/pan-theme-provider.mjs';
+    import '../src/components/pan-theme-toggle.mjs';
   </script>
 </body>
 </html>

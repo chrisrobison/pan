@@ -182,7 +182,7 @@ without needing to trigger the action again</code></pre>
 <li>✅ Filters are not hiding messages</li>
 <strong>Solution:</strong>
 <pre><code class="language-javascript">// Test in console
-import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
 const client = new PanClient();
 client.publish({ topic: &#039;test&#039;, data: { hello: &#039;world&#039; } });
 // Should appear in PAN Inspector</code></pre>

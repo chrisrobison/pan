@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/theme.css">
   <style>
 
     * {
@@ -492,7 +491,7 @@
   <header class="header">
     <div class="header-content">
       <a href="/" class="logo">
-        <img src="logo.svg" alt="LARC Logo">
+        
         <span>LARC</span>
       </a>
       <nav class="nav">
@@ -583,7 +582,7 @@
       <div class="code-example">
 <pre><code><span class="code-comment">&lt;!doctype html&gt;</span>
 <span class="code-comment">&lt;!-- Drop one script tag, then use any component. That's it! --&gt;</span>
-<span class="code-tag">&lt;script</span> <span class="code-attr">type</span>=<span class="code-string">"module"</span> <span class="code-attr">src</span>=<span class="code-string">"https://chrisrobison.github.io/pan/components/pan-autoload.mjs"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
+<span class="code-tag">&lt;script</span> <span class="code-attr">type</span>=<span class="code-string">"module"</span> <span class="code-attr">src</span>=<span class="code-string">"https://chrisrobison.github.io/pan/src/components/pan-autoload.mjs"</span><span class="code-tag">&gt;&lt;/script&gt;</span>
 
 <span class="code-comment">&lt;!-- Components load automatically (including pan-bus!) --&gt;</span>
 <span class="code-tag">&lt;x-counter&gt;&lt;/x-counter&gt;</span>
@@ -694,8 +693,8 @@
   <pan-theme-provider theme="auto"></pan-theme-provider>
 
   <script type="module">
-    import '../pan/components/pan-theme-provider.mjs';
-    import '../pan/components/pan-theme-toggle.mjs';
+    import '../src/components/pan-theme-provider.mjs';
+    import '../src/components/pan-theme-toggle.mjs';
   </script>
 </body>
 </html>

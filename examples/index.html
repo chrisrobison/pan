@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN Component Gallery - Examples & Documentation</title>
+  <meta name="description" content="Browse all PAN components with live examples, descriptions, and source code">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --color-primary: #6366f1;
+      --color-primary-dark: #4f46e5;
+      --color-bg: #ffffff;
+      --color-bg-alt: #f8fafc;
+      --color-text: #1e293b;
+      --color-text-muted: #64748b;
+      --color-border: #e2e8f0;
+      --color-success: #10b981;
+      --border-radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .header p {
+      font-size: 1.125rem;
+      opacity: 0.95;
+    }
+
+    .nav {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      padding: 0.625rem 1.25rem;
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      text-decoration: none;
+      color: var(--color-text);
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav a:hover {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin: 3rem 0 1.5rem;
+      color: var(--color-text);
+      border-bottom: 3px solid var(--color-primary);
+      padding-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+      color: var(--color-text-muted);
+      margin-bottom: 2rem;
+      font-size: 1.125rem;
+    }
+
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .component-card {
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .component-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--color-primary);
+    }
+
+    .component-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    .component-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+      font-family: 'Courier New', monospace;
+    }
+
+    .component-description {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .component-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      background: var(--color-primary);
+      color: white;
+      font-size: 0.75rem;
+      border-radius: 1rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    .tag-core { background: #ef4444; }
+    .tag-ui { background: #3b82f6; }
+    .tag-data { background: #10b981; }
+    .tag-integration { background: #f59e0b; }
+
+    .examples-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .example-link {
+      padding: 1rem;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      text-decoration: none;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .example-link:hover {
+      border-color: var(--color-primary);
+      background: var(--color-bg-alt);
+      transform: translateX(4px);
+    }
+
+    .example-number {
+      font-weight: 700;
+      color: var(--color-primary);
+      font-size: 1.125rem;
+      min-width: 2rem;
+    }
+
+    .footer {
+      background: var(--color-bg-alt);
+      border-top: 1px solid var(--color-border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--color-text-muted);
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>🎨 PAN Component Gallery</h1>
+    <p>Explore all available components with live examples and documentation</p>
+  </header>
+
+  <nav class="nav">
+    <a href="../site/index.html">← Home</a>
+    <a href="../site/docs/index.html">Documentation</a>
+    <a href="../site/apps.html">Demo Apps</a>
+    <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a>
+  </nav>
+
+  <div class="container">
+    <!-- Core Components -->
+    <h2 class="section-title">🔧 Core Components</h2>
+    <p class="section-subtitle">Essential messaging and state management components</p>
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-icon">📡</div>
+        <div class="component-name">&lt;pan-bus&gt;</div>
+        <div class="component-description">DOM-native message bus with pub/sub, wildcards, and retained messages</div>
+        <div class="component-links">
+          <a href="../src/components/pan-bus.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="01-hello.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-core">CORE</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🔌</div>
+        <div class="component-name">PanClient</div>
+        <div class="component-description">High-level JavaScript API for publish/subscribe messaging</div>
+        <div class="component-links">
+          <a href="../src/components/pan-client.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="01-hello.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-core">CORE</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🔐</div>
+        <div class="component-name">&lt;pan-auth&gt;</div>
+        <div class="component-description">JWT authentication with auto-refresh and secure token management</div>
+        <div class="component-links">
+          <a href="../src/components/pan-auth.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="auth-demo.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-core">CORE</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🛡️</div>
+        <div class="component-name">pan-security</div>
+        <div class="component-description">Security utilities for CSP, sanitization, and validation</div>
+        <div class="component-links">
+          <a href="../src/components/pan-security.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="17-enhanced-security.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-core">CORE</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">✅</div>
+        <div class="component-name">pan-validation</div>
+        <div class="component-description">Declarative schema validation for forms and data</div>
+        <div class="component-links">
+          <a href="../src/components/pan-validation.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="09-schema-form.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-core">CORE</span>
+      </div>
+    </div>
+
+    <!-- Data Components -->
+    <h2 class="section-title">💾 Data Components</h2>
+    <p class="section-subtitle">Data fetching, storage, and state management</p>
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-icon">🌐</div>
+        <div class="component-name">&lt;pan-data-connector&gt;</div>
+        <div class="component-description">REST API integration with automatic data fetching and caching</div>
+        <div class="component-links">
+          <a href="../src/components/pan-data-connector.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="07-rest-connector.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-data">DATA</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🔗</div>
+        <div class="component-name">&lt;pan-graphql-connector&gt;</div>
+        <div class="component-description">GraphQL queries and mutations via PAN messaging</div>
+        <div class="component-links">
+          <a href="../src/components/pan-graphql-connector.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="11-graphql-connector.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-integration">INTEGRATION</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🐘</div>
+        <div class="component-name">&lt;pan-php-connector&gt;</div>
+        <div class="component-description">PHP backend integration with session management</div>
+        <div class="component-links">
+          <a href="../src/components/pan-php-connector.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="12-php-connector.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-integration">INTEGRATION</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">💿</div>
+        <div class="component-name">&lt;pan-idb&gt;</div>
+        <div class="component-description">IndexedDB storage with PAN messaging integration</div>
+        <div class="component-links">
+          <a href="../src/components/pan-idb.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="17-indexeddb.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-data">DATA</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📦</div>
+        <div class="component-name">&lt;pan-store&gt;</div>
+        <div class="component-description">Reactive state management with persistence options</div>
+        <div class="component-links">
+          <a href="../src/components/pan-store.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="10-sse-store.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-data">DATA</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🔄</div>
+        <div class="component-name">&lt;pan-sse&gt;</div>
+        <div class="component-description">Server-Sent Events bridge for real-time updates</div>
+        <div class="component-links">
+          <a href="../src/components/pan-sse.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="13-sse-pan.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-integration">INTEGRATION</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">⚡</div>
+        <div class="component-name">&lt;pan-websocket&gt;</div>
+        <div class="component-description">WebSocket bridge with automatic reconnection</div>
+        <div class="component-links">
+          <a href="../src/components/pan-websocket.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="16-websocket.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-integration">INTEGRATION</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">👷</div>
+        <div class="component-name">&lt;pan-worker&gt;</div>
+        <div class="component-description">Web Worker bridge for background processing</div>
+        <div class="component-links">
+          <a href="../src/components/pan-worker.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="08-workers.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-integration">INTEGRATION</span>
+      </div>
+    </div>
+
+    <!-- UI Components -->
+    <h2 class="section-title">🎨 UI Components</h2>
+    <p class="section-subtitle">Pre-built user interface components</p>
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-icon">📊</div>
+        <div class="component-name">&lt;pan-data-table&gt;</div>
+        <div class="component-description">Sortable, filterable data table with pagination</div>
+        <div class="component-links">
+          <a href="../src/components/pan-data-table.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="06-crud.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📝</div>
+        <div class="component-name">&lt;pan-form&gt;</div>
+        <div class="component-description">Schema-driven forms with validation</div>
+        <div class="component-links">
+          <a href="../src/components/pan-form.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="09-schema-form.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🗂️</div>
+        <div class="component-name">&lt;pan-tabs&gt;</div>
+        <div class="component-description">Tabbed interface with keyboard navigation</div>
+        <div class="component-links">
+          <a href="../src/components/pan-tabs.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../apps/invoice-studio/index.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🪟</div>
+        <div class="component-name">&lt;pan-modal&gt;</div>
+        <div class="component-description">Accessible modal dialogs with focus management</div>
+        <div class="component-links">
+          <a href="../src/components/pan-modal.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../apps/invoice-studio/index.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🔽</div>
+        <div class="component-name">&lt;pan-dropdown&gt;</div>
+        <div class="component-description">Accessible dropdown menus with keyboard support</div>
+        <div class="component-links">
+          <a href="../src/components/pan-dropdown.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../apps/invoice-studio/index.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🃏</div>
+        <div class="component-name">&lt;pan-card&gt;</div>
+        <div class="component-description">Styled card container for content grouping</div>
+        <div class="component-links">
+          <a href="../src/components/pan-card.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../apps/contact-manager/index.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📄</div>
+        <div class="component-name">&lt;pan-pagination&gt;</div>
+        <div class="component-description">Pagination controls with customizable styling</div>
+        <div class="component-links">
+          <a href="../src/components/pan-pagination.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="06-crud.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🔍</div>
+        <div class="component-name">&lt;pan-search-bar&gt;</div>
+        <div class="component-description">Search input with debouncing and suggestions</div>
+        <div class="component-links">
+          <a href="../src/components/pan-search-bar.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../apps/data-browser/index.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📅</div>
+        <div class="component-name">&lt;pan-date-picker&gt;</div>
+        <div class="component-description">Date picker with calendar UI and validation</div>
+        <div class="component-links">
+          <a href="../src/components/pan-date-picker.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../apps/invoice-studio/index.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📈</div>
+        <div class="component-name">&lt;pan-chart&gt;</div>
+        <div class="component-description">Simple chart visualization component</div>
+        <div class="component-links">
+          <a href="../src/components/pan-chart.mjs" class="btn btn-primary" target="_blank">Source</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📝</div>
+        <div class="component-name">&lt;pan-markdown-editor&gt;</div>
+        <div class="component-description">Markdown editor with live preview</div>
+        <div class="component-links">
+          <a href="../src/components/pan-markdown-editor.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="markdown-components.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📖</div>
+        <div class="component-name">&lt;pan-markdown-renderer&gt;</div>
+        <div class="component-description">Render markdown with syntax highlighting</div>
+        <div class="component-links">
+          <a href="../src/components/pan-markdown-renderer.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="markdown-components.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+    </div>
+
+    <!-- Utilities -->
+    <h2 class="section-title">🛠️ Utilities</h2>
+    <p class="section-subtitle">Helper components and routing</p>
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-icon">🧭</div>
+        <div class="component-name">&lt;pan-router&gt;</div>
+        <div class="component-description">Client-side routing with hash or history mode</div>
+        <div class="component-links">
+          <a href="../src/components/pan-router.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="15-router.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-core">CORE</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📡</div>
+        <div class="component-name">&lt;pan-forwarder&gt;</div>
+        <div class="component-description">Bridge messages between PAN buses and other systems</div>
+        <div class="component-links">
+          <a href="../src/components/pan-forwarder.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="14-forwarder.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-integration">INTEGRATION</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">📁</div>
+        <div class="component-name">&lt;pan-files&gt;</div>
+        <div class="component-description">File upload and management component</div>
+        <div class="component-links">
+          <a href="../src/components/pan-files.mjs" class="btn btn-primary" target="_blank">Source</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🎨</div>
+        <div class="component-name">&lt;pan-theme-provider&gt;</div>
+        <div class="component-description">Theme management with light/dark mode support</div>
+        <div class="component-links">
+          <a href="../src/components/pan-theme-provider.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../site/theme-demo.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+
+      <div class="component-card">
+        <div class="component-icon">🔦</div>
+        <div class="component-name">&lt;pan-theme-toggle&gt;</div>
+        <div class="component-description">Toggle button for theme switching</div>
+        <div class="component-links">
+          <a href="../src/components/pan-theme-toggle.mjs" class="btn btn-primary" target="_blank">Source</a>
+          <a href="../site/theme-demo.html" class="btn btn-secondary">Demo</a>
+        </div>
+        <span class="tag tag-ui">UI</span>
+      </div>
+    </div>
+
+    <!-- Examples List -->
+    <h2 class="section-title">📚 Live Examples</h2>
+    <p class="section-subtitle">Progressive examples from basic to advanced patterns</p>
+    <div class="examples-list">
+      <a href="00-intro.html" class="example-link">
+        <span class="example-number">00</span>
+        <span>Introduction</span>
+      </a>
+      <a href="01-hello.html" class="example-link">
+        <span class="example-number">01</span>
+        <span>Hello Counter</span>
+      </a>
+      <a href="02-todos-and-inspector.html" class="example-link">
+        <span class="example-number">02</span>
+        <span>Todos & Inspector</span>
+      </a>
+      <a href="03-broadcastchannel.html" class="example-link">
+        <span class="example-number">03</span>
+        <span>BroadcastChannel</span>
+      </a>
+      <a href="04-react-wrapper.html" class="example-link">
+        <span class="example-number">04</span>
+        <span>React Integration</span>
+      </a>
+      <a href="05-lit-wrapper.html" class="example-link">
+        <span class="example-number">05</span>
+        <span>Lit Integration</span>
+      </a>
+      <a href="06-crud.html" class="example-link">
+        <span class="example-number">06</span>
+        <span>CRUD Stack</span>
+      </a>
+      <a href="07-rest-connector.html" class="example-link">
+        <span class="example-number">07</span>
+        <span>REST API</span>
+      </a>
+      <a href="08-workers.html" class="example-link">
+        <span class="example-number">08</span>
+        <span>Web Workers</span>
+      </a>
+      <a href="09-schema-form.html" class="example-link">
+        <span class="example-number">09</span>
+        <span>Schema Forms</span>
+      </a>
+      <a href="10-sse-store.html" class="example-link">
+        <span class="example-number">10</span>
+        <span>SSE Store</span>
+      </a>
+      <a href="11-graphql-connector.html" class="example-link">
+        <span class="example-number">11</span>
+        <span>GraphQL</span>
+      </a>
+      <a href="12-php-connector.html" class="example-link">
+        <span class="example-number">12</span>
+        <span>PHP Backend</span>
+      </a>
+      <a href="13-sse-pan.html" class="example-link">
+        <span class="example-number">13</span>
+        <span>SSE Bridge</span>
+      </a>
+      <a href="14-forwarder.html" class="example-link">
+        <span class="example-number">14</span>
+        <span>Message Forwarder</span>
+      </a>
+      <a href="15-router.html" class="example-link">
+        <span class="example-number">15</span>
+        <span>Client Routing</span>
+      </a>
+      <a href="16-websocket.html" class="example-link">
+        <span class="example-number">16</span>
+        <span>WebSocket</span>
+      </a>
+      <a href="17-enhanced-security.html" class="example-link">
+        <span class="example-number">17a</span>
+        <span>Security</span>
+      </a>
+      <a href="17-indexeddb.html" class="example-link">
+        <span class="example-number">17b</span>
+        <span>IndexedDB</span>
+      </a>
+      <a href="auth-demo.html" class="example-link">
+        <span class="example-number">🔐</span>
+        <span>Authentication</span>
+      </a>
+      <a href="markdown-components.html" class="example-link">
+        <span class="example-number">📝</span>
+        <span>Markdown</span>
+      </a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>PAN (Page Area Network) Component Gallery · <a href="../site/index.html">Home</a> · <a href="https://github.com/chrisrobison/pan" target="_blank">GitHub</a></p>
+  </footer>
+</body>
+</html>

@@ -56,7 +56,7 @@
 <h2>Quick Start</h2>
 <pre><code class="language-html">&lt;!DOCTYPE html&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
-&lt;script type=&quot;module&quot; src=&quot;./pan/core/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
+&lt;script type=&quot;module&quot; src=&quot../src/components/pan-autoload.mjs&quot;&gt;&lt;/script&gt;
 
 &lt;!-- 1. Auth Manager --&gt;
 &lt;pan-auth storage=&quot;localStorage&quot; auto-refresh=&quot;true&quot;&gt;&lt;/pan-auth&gt;
@@ -68,7 +68,7 @@
 &lt;user-list&gt;&lt;/user-list&gt;
 
 &lt;script type=&quot;module&quot;&gt;
-  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
   const pc = new PanClient();
 
   // Login - that&#039;s it!
@@ -208,7 +208,7 @@ pc.subscribe(&#039;auth.refresh.error&#039;, msg =&gt; {
 &lt;/pan-data-connector&gt;
 
 &lt;script type=&quot;module&quot;&gt;
-  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
   const pc = new PanClient();
 
   // This request automatically includes:
@@ -227,7 +227,7 @@ pc.subscribe(&#039;auth.refresh.error&#039;, msg =&gt; {
 &lt;/pan-graphql-connector&gt;
 
 &lt;script type=&quot;module&quot;&gt;
-  import { PanClient } from &#039;./pan/core/pan-client.mjs&#039;;
+  import { PanClient } from &#039../src/components/pan-client.mjs&#039;;
   const pc = new PanClient();
 
   // GraphQL request automatically includes:
@@ -237,7 +237,7 @@ pc.subscribe(&#039;auth.refresh.error&#039;, msg =&gt; {
 <hr>
 <h3><code>panFetch</code> - Authenticated Fetch Utility</h3>
 <p>For custom API calls, use <code>panFetch</code> - a drop-in replacement for <code>fetch()</code> that auto-injects auth headers.</p>
-<pre><code class="language-javascript">import { panFetch } from &#039;./pan/core/pan-fetch.mjs&#039;;
+<pre><code class="language-javascript">import { panFetch } from &#039../src/components/pan-fetch.mjs&#039;;
 
 // Automatically includes Authorization header if logged in
 const response = await panFetch.fetch(&#039;/api/users&#039;);
