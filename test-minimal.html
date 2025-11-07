@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Minimal PAN Test</title>
+</head>
+<body>
+  <h1>Minimal Test</h1>
+  <p>Check console for errors</p>
+  
+  <pan-bus></pan-bus>
+  <pan-inspector style="height:300px"></pan-inspector>
+  
+  <script type="module">
+    // Log the pan.js location
+    console.log('Loading pan.js from:', new URL('./src/pan.js', window.location.href).href);
+    
+    // Import and check config
+    const pan = await import('./src/pan.js');
+    console.log('pan.js loaded:', pan);
+    
+    // Wait for components to load
+    await new Promise(r => setTimeout(r, 1000));
+    
+    console.log('pan-bus defined?', customElements.get('pan-bus'));
+    console.log('pan-inspector defined?', customElements.get('pan-inspector'));
+    
+    if (!customElements.get('pan-bus')) {
+      console.error('❌ pan-bus NOT defined');
+    } else {
+      console.log('✅ pan-bus is defined');
+    }
+    
+    if (!customElements.get('pan-inspector')) {
+      console.error('❌ pan-inspector NOT defined');
+    } else {
+      console.log('✅ pan-inspector is defined');
+    }
+  </script>
+</body>
+</html>

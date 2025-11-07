@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test</title></head>
+<body>
+<h1>Testing pan.js autoloader</h1>
+<pan-bus></pan-bus>
+<pan-inspector></pan-inspector>
+<script type="module" src="/src/pan.js"></script>
+<script>
+  setTimeout(() => {
+    console.log('Custom elements:', customElements);
+    console.log('pan-bus defined:', customElements.get('pan-bus'));
+    console.log('pan-inspector defined:', customElements.get('pan-inspector'));
+  }, 2000);
+</script>
+</body>
+</html>
