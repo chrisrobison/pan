@@ -635,7 +635,11 @@ class PanBusEnhanced extends HTMLElement {
   }
 }
 
-// Export for use
-customElements.define('pan-bus-enhanced', PanBusEnhanced);
+// Export for use - register as both 'pan-bus' and 'pan-bus-enhanced'
+customElements.define('pan-bus', PanBusEnhanced);
+// Also define as pan-bus-enhanced for backward compatibility
+if (!customElements.get('pan-bus-enhanced')) {
+  customElements.define('pan-bus-enhanced', PanBusEnhanced);
+}
 export { PanBusEnhanced };
 export default PanBusEnhanced;
