@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Simple PAN Test</title>
+  <style>
+    body { font: 14px/1.5 system-ui; padding: 20px; }
+    #output { background: #f5f5f5; padding: 20px; border: 2px solid #ddd; white-space: pre-wrap; font-family: monospace; }
+    button { padding: 15px 30px; font-size: 16px; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Simple PAN Test</h1>
+  <button id="test">Test Add User</button>
+  <button id="clear">Clear Log</button>
+  <div id="output"></div>
+  
+  <pan-data-provider resource="users">
+    <script type="application/json">[
+      {"id":"u1","name":"Ada","email":"ada@example.com"}
+    ]</script>
+  </pan-data-provider>
+
+  <script type="module" src="./src/pan.js"></script>
+  <script type="module">
+    import { PanClient } from './src/components/pan-client.mjs';
+    
+    const output = document.getElementById('output');
+    function log(msg) {
+      output.textContent += new Date().toLocaleTimeString() + ': ' + msg + '\n';
+      console.log(msg);
+    }
+    
+    document.getElementById('clear').onclick = () => output.textContent = '';
+    
+    // Wait for initialization
+    await new Promise(r => setTimeout(r, 2000));
+    
+    log('=== Starting Test ===');
+    log('pan-bus defined: ' + !!customElements.get('pan-bus'));
+    log('pan-data-provider defined: ' + !!customElements.get('pan-data-provider'));
+    
+    const bus = document.querySelector('pan-bus');
+    log('pan-bus element exists: ' + !!bus);
+    
+    const provider = document.querySelector('pan-data-provider');
+    log('pan-data-provider element exists: ' + !!provider);
+    
+    const pc = new PanClient();
+    log('PanClient created');
+    
+    await pc.ready();
+    log('PanClient ready');
+    
+    // Subscribe to everything
+    let messageCount = 0;
+    pc.subscribe('*', (msg) => {
+      messageCount++;
+      log(`Message #${messageCount}: ${msg.topic}`);
+    });
+    
+    log('Subscribed to all messages');
+    
+    // Test button
+    document.getElementById('test').onclick = async () => {
+      log('\n=== Test Button Clicked ===');
+      
+      try {
+        log('Sending users.item.save request...');
+        
+        const response = await pc.request('users.item.save', {
+          item: { name: 'Bob', email: 'bob@test.com' }
+        }, { timeoutMs: 5000 });
+        
+        log('✅ SUCCESS! Response: ' + JSON.stringify(response, null, 2));
+        
+        // Check the list
+        const listResponse = await pc.request('users.list.get', {});
+        log('Current users: ' + JSON.stringify(listResponse.data.items, null, 2));
+        
+      } catch (err) {
+        log('❌ ERROR: ' + err.message);
+        log('Error stack: ' + err.stack);
+      }
+    };
+    
+    log('\n=== Ready! Click "Test Add User" button ===');
+  </script>
+</body>
+</html>

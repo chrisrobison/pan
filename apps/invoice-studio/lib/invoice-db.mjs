@@ -90,6 +90,12 @@ class InvoiceDB {
     const tx = this.db.transaction('invoices', 'readwrite');
     const store = tx.objectStore('invoices');
 
+    // Clean up the invoice object - remove undefined/null id for new invoices
+    // This allows autoIncrement to work properly
+    if (invoice.id === undefined || invoice.id === null || invoice.id === '') {
+      delete invoice.id;
+    }
+
     // Add timestamps
     if (!invoice.createdAt) {
       invoice.createdAt = Date.now();

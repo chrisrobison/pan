@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Manual CRUD Test</title>
+  <style>
+    body { font-family: system-ui; padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .section { margin: 20px 0; padding: 20px; border: 2px solid #ddd; border-radius: 8px; }
+    button { padding: 10px 20px; margin: 5px; }
+    input { padding: 8px; margin: 5px; width: 200px; }
+    #log { background: #f5f5f5; padding: 10px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px; }
+    .log-entry { margin: 2px 0; }
+    .log-pub { color: blue; }
+    .log-del { color: green; }
+    .log-err { color: red; }
+    pan-data-table { display: block; margin: 10px 0; min-height: 200px; }
+    pan-inspector { display: block; height: 300px; }
+  </style>
+</head>
+<body>
+  <h1>Manual CRUD Test</h1>
+  
+  <div class="section">
+    <h2>Manual Add User</h2>
+    <input id="newName" placeholder="Name" value="Test User">
+    <input id="newEmail" placeholder="Email" value="test@example.com">
+    <button id="addBtn">Add User (Manual)</button>
+  </div>
+  
+  <div class="section">
+    <h2>Data Table</h2>
+    <pan-data-table resource="users" columns="id,name,email"></pan-data-table>
+  </div>
+  
+  <div class="section">
+    <h2>PAN Form</h2>
+    <pan-form resource="users" fields="name,email"></pan-form>
+  </div>
+  
+  <div class="section">
+    <h2>Message Log</h2>
+    <div id="log"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Inspector</h2>
+    <pan-inspector></pan-inspector>
+  </div>
+  
+  <pan-data-provider resource="users" persist="localStorage">
+    <script type="application/json">[
+      {"id":"u1","name":"Ada Lovelace","email":"ada@example.com"},
+      {"id":"u2","name":"Grace Hopper","email":"grace@example.com"},
+      {"id":"u3","name":"Alan Turing","email":"alan@example.com"}
+    ]</script>
+  </pan-data-provider>
+
+  <script type="module" src="./src/pan.js"></script>
+  <script type="module">
+    import { PanClient } from './src/components/pan-client.mjs';
+    
+    const log = document.getElementById('log');
+    function addLog(msg, type = '') {
+      const div = document.createElement('div');
+      div.className = `log-entry log-${type}`;
+      div.textContent = `${new Date().toLocaleTimeString()}: ${msg}`;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+      console.log(msg);
+    }
+    
+    // Wait for components to load
+    await new Promise(r => setTimeout(r, 1500));
+    
+    const pc = new PanClient();
+    await pc.ready();
+    
+    addLog('PanClient ready', 'pub');
+    
+    // Listen to all messages
+    pc.subscribe('*', (msg) => {
+      addLog(`📨 ${msg.topic}`, 'del');
+    });
+    
+    // Manual add button
+    document.getElementById('addBtn').addEventListener('click', async () => {
+      const name = document.getElementById('newName').value;
+      const email = document.getElementById('newEmail').value;
+      
+      addLog(`Sending users.item.save for: ${name}`, 'pub');
+      
+      try {
+        const response = await pc.request('users.item.save', {
+          item: { name, email }
+        }, { timeoutMs: 10000 });
+        
+        addLog(`✅ Save response: ${JSON.stringify(response.data)}`, 'del');
+      } catch (err) {
+        addLog(`❌ Save failed: ${err.message}`, 'err');
+      }
+    });
+    
+    addLog('Setup complete - try adding a user!', 'pub');
+  </script>
+</body>
+</html>
