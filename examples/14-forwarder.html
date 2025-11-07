@@ -20,7 +20,6 @@
   }
 </style>
 
-<pan-bus></pan-bus>
 <!-- Receive from server -->
 <pan-sse src="/pan/sse.php" topics="chat.message" persist-last-event="forwarder"></pan-sse>
 <!-- Forward local topics to server (beware of loops if also publishing locally) -->
@@ -43,12 +42,8 @@
   
 </div>
 
+<script type="module" src="../src/pan.js"></script>
 <script type="module">
-  import '../src/components/pan-bus.mjs';
-  import '../src/components/pan-client.mjs';
-  import '../src/app/devtools/pan-inspector.mjs';
-  import '../src/components/pan-sse.mjs';
-  import '../src/components/pan-forwarder.mjs';
   import { PanClient } from '../src/components/pan-client.mjs';
 
   const pc = new PanClient();

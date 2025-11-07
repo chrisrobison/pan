@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="./assets/grail.css">
 </head>
 <body>
-  <pan-bus></pan-bus>
   <div class="app-shell">
     
 
@@ -109,13 +108,8 @@
     </script>
   </pan-worker>
 
+  <script type="module" src="../src/pan.js"></script>
   <script type="module">
-    import '../src/components/pan-bus.mjs';
-    import '../src/components/pan-client.mjs';
-    import '../src/app/devtools/pan-inspector.mjs';
-    import '../src/components/pan-data-table.mjs';
-    import '../src/components/pan-query.mjs';
-    import '../src/components/pan-worker.mjs';
     import { PanClient } from '../src/components/pan-client.mjs';
 
     const pc = new PanClient();

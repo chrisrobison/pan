@@ -21,7 +21,6 @@
   }
   </style>
 
-<pan-bus></pan-bus>
 <pan-sse id="sse" src="http://localhost:3000/events" topics="users.list.state users.item.state.*" persist-last-event="users"></pan-sse>
 
 <div class="grid">
@@ -37,12 +36,8 @@
   </div>
 </div>
 
+<script type="module" src="../src/pan.js"></script>
 <script type="module">
-  import '../src/components/pan-bus.mjs';
-  import '../src/components/pan-client.mjs';
-  import '../src/components/pan-data-table.mjs';
-  import '../src/components/pan-data-connector.mjs';
-  import '../src/components/pan-sse.mjs';
   import { createStore, bind } from '../src/components/pan-store.mjs';
   import { syncItem } from '../src/components/pan-store-pan.mjs';
   import { PanClient } from '../src/components/pan-client.mjs';

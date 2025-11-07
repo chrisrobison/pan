@@ -75,7 +75,6 @@
   }
 </style>
 
-<pan-bus></pan-bus>
 <div class="grid">
   <div class="card">
     <div class="header">
@@ -113,11 +112,8 @@
   </div>
 </div>
 
+<script type="module" src="../src/pan.js"></script>
 <script type="module">
-  import '../src/components/pan-bus.mjs';
-  import '../src/components/pan-client.mjs';
-  import '../src/app/devtools/pan-inspector.mjs';
-  import '../src/components/pan-sse.mjs';
   import { PanClient } from '../src/components/pan-client.mjs';
 
   const pc = new PanClient();

@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="./assets/grail.css">
 </head>
 <body>
-  <pan-bus></pan-bus>
   <div class="app-shell">
     
 
@@ -72,13 +71,6 @@
     ]</script>
   </pan-data-provider>
 
-  <script type="module">
-    import '../src/components/pan-bus.mjs';
-    import '../src/components/pan-client.mjs';
-    import '../src/app/devtools/pan-inspector.mjs';
-    import '../src/components/pan-data-provider-mock.mjs';
-    import '../src/components/pan-data-table.mjs';
-    import '../src/components/pan-form.mjs';
-  </script>
+  <script type="module" src="../src/pan.js"></script>
 </body>
 </html>

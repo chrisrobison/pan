@@ -286,18 +286,11 @@ Click the buttons above to see programmatic control in action!" preview="false">
   </div>
 
   <!-- Components -->
-  <pan-bus></pan-bus>
   <pan-theme-provider theme="auto"></pan-theme-provider>
   <pan-theme-toggle variant="icon" style="position: fixed; top: 1rem; right: 1rem;"></pan-theme-toggle>
 
+  <script type="module" src="../src/pan.js"></script>
   <script type="module">
-    import '../src/components/pan-bus.mjs';
-    import '../src/components/pan-markdown-editor.mjs';
-    import '../src/components/pan-markdown-renderer.mjs';
-    import '../src/components/pan-files.mjs';
-    import '../src/components/pan-theme-provider.mjs';
-    import '../src/components/pan-theme-toggle.mjs';
-
     const bus = document.querySelector('pan-bus');
 
     // Example 4: Integrated editor + files
