@@ -3,6 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/chrisrobison/pan)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](CHANGELOG.md)
+[![Security](https://img.shields.io/badge/security-audited-brightgreen.svg)](docs/COMPONENT_SECURITY_AUDIT.md)
 [![Browser Support](https://img.shields.io/badge/browser-chrome--tested-green.svg)](CHANGELOG.md#browser-support)
 [![Test Coverage](https://img.shields.io/badge/coverage-80%25+-success.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-exceptional-brightgreen.svg)](docs/PERFORMANCE.md)
@@ -28,14 +29,15 @@ PAN (Page Area Network) is the messaging model and bus that enables a central co
 
 **What's Production-Ready:**
 - ✅ **Core Infrastructure** (pan-bus, pan-client, pan-autoload) - Fully stable with locked APIs
+- ✅ **UI Components** - Security audit completed, 0 critical vulnerabilities ([audit report](docs/COMPONENT_SECURITY_AUDIT.md))
 - ✅ **80%+ Test Coverage** - 85 comprehensive test suites
 - ✅ **Exceptional Performance** - 300k+ msg/sec, zero memory leaks ([benchmarks](docs/PERFORMANCE.md))
 - ✅ **Complete Documentation** - API reference, guides, and examples
 
 **Important Notes for v1.0:**
-- ⚠️ **Components are experimental** - Need security audit before production use
+- ✅ **Components security audited** - All high-risk components approved for production ([audit report](docs/COMPONENT_SECURITY_AUDIT.md))
 - ⚠️ **Browser support: Chrome-only** - Multi-browser testing planned for v1.1
-- ⚠️ **Core is rock-solid** - Use pan-bus and pan-client with confidence in production
+- ✅ **Production ready** - Both core and components can be used with confidence
 
 See [CHANGELOG.md](CHANGELOG.md) for full details and version history.
 
