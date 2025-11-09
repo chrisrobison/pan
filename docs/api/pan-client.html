@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PanClient - PAN Documentation</title>
+  <link rel="stylesheet" href="../styles/docs.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="logo">
+      <a href="../index.html">PAN Docs</a>
+    </div>
+    <div class="nav-section">
+      <a href="../index.html">← Back to Index</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>PanClient</h1>
+      <div class="file-path">src/components/pan-client.mjs</div>
+    </header>
+
+    <section class="section">
+      <div class="description">
+        PanClient provides a clean, promise-based API for publish/subscribe messaging<br>and request/reply patterns. It handles the low-level CustomEvent details and<br>provides convenient methods for common operations.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="PanClient">Class: PanClient</h2>
+      
+      <div class="description">PanClient provides a clean, promise-based API for publish/subscribe messaging<br>and request/reply patterns. It handles the low-level CustomEvent details and<br>provides convenient methods for common operations.<br>/<br>/**<br>/<br>/**<br>/<br>/**<br>/<br>/**<br>/<br>/**<br>PAN Client - Simplified API for PAN bus interaction<br>Provides a clean interface for:<br>- Publishing messages<br>- Subscribing to topics (with wildcard support)<br>- Request/reply pattern with automatic correlation<br>- Retained message support<br>- Automatic cleanup with AbortSignal</div>
+
+      <h3>Examples</h3>
+
+      <pre><code>// Basic usage
+import { PanClient } from &#039;./pan-client.mjs&#039;;
+const client = new PanClient();
+await client.ready();
+// Publish a message
+client.publish({
+  topic: &#039;users.list.state&#039;,
+  data: { users: [...] },
+  retain: true
+});
+// Subscribe to messages
+const unsubscribe = client.subscribe(&#039;users.*&#039;, (msg) =&gt; {
+  console.log(&#039;Received:&#039;, msg.topic, msg.data);
+});
+// Request/reply
+const response = await client.request(&#039;users.get&#039;, { id: 123 });
+console.log(&#039;User:&#039;, response.data);
+/
+/**</code></pre>
+
+      <pre><code>// Create client for the document
+const client = new PanClient();
+// Or create client for a specific element
+const myElement = document.querySelector(&#039;#my-component&#039;);
+const client = new PanClient(myElement);</code></pre>
+
+    </section>
+
+  </main>
+</body>
+</html>

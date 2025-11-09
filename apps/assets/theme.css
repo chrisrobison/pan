@@ -1,0 +1,224 @@
+/**
+ * PAN Theme System
+ * Supports automatic light/dark mode based on system preference
+ * Uses a blue color scheme as the primary accent
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Primary Sky Blue Color Scheme - #006699 base */
+  --color-primary: #006699;
+  --color-primary-dark: #004d73;
+  --color-primary-light: #0088cc;
+  --color-primary-soft: #cce6f5;
+
+  /* Accent Colors */
+  --color-accent: #0077aa;
+  --color-accent-soft: #d6eaf7;
+
+  /* Secondary Colors */
+  --color-secondary: #64748b;
+  --color-secondary-light: #94a3b8;
+
+  /* Semantic Colors - Light Mode */
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-danger: #ef4444;
+  --color-danger-light: #fee2e2;
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+
+  /* Background Colors */
+  --color-bg: #ffffff;
+  --color-bg-alt: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;
+
+  /* Text Colors */
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+
+  /* Border Colors */
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+
+  /* Code/Inspector Colors */
+  --color-code-bg: #1e293b;
+  --color-code-text: #e2e8f0;
+  --color-inspector-bg: #0f172a;
+
+  /* Component-specific Variables */
+  --card-bg: var(--color-surface);
+  --card-border: var(--color-border);
+  --card-radius: 0.75rem;
+  --card-header-color: var(--color-text);
+  --card-text-color: var(--color-text);
+  --card-footer-bg: var(--color-bg-alt);
+  --card-footer-color: var(--color-text-muted);
+
+  --modal-bg: var(--color-surface);
+  --modal-border: var(--color-border);
+  --modal-radius: 0.75rem;
+  --modal-title-color: var(--color-text);
+  --modal-text-color: var(--color-text);
+  --modal-footer-bg: var(--color-bg-alt);
+  --modal-close-color: var(--color-text-muted);
+  --modal-close-hover-bg: var(--color-bg-alt);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+
+  --dropdown-trigger-bg: var(--color-surface);
+  --dropdown-trigger-border: var(--color-border);
+  --dropdown-trigger-color: var(--color-text);
+  --dropdown-menu-bg: var(--color-surface);
+  --dropdown-item-color: var(--color-text);
+  --dropdown-item-hover-bg: var(--color-bg-alt);
+  --dropdown-divider-color: var(--color-border);
+
+  /* Spacing */
+  --spacing: 1rem;
+  --spacing-unit: 1rem;
+
+  /* Border Radius */
+  --border-radius: 0.75rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Primary Sky Blue Color Scheme - Dark Mode - Brighter for contrast */
+    --color-primary: #0099dd;
+    --color-primary-dark: #0077bb;
+    --color-primary-light: #33aaee;
+    --color-primary-soft: rgba(0, 153, 221, 0.15);
+
+    /* Accent Colors */
+    --color-accent: #00aaee;
+    --color-accent-soft: rgba(0, 170, 238, 0.15);
+
+    /* Secondary Colors */
+    --color-secondary: #94a3b8;
+    --color-secondary-light: #cbd5e1;
+
+    /* Semantic Colors - Dark Mode */
+    --color-success: #22c55e;
+    --color-success-light: rgba(34, 197, 94, 0.15);
+    --color-warning: #fbbf24;
+    --color-warning-light: rgba(251, 191, 36, 0.15);
+    --color-danger: #f87171;
+    --color-danger-light: rgba(248, 113, 113, 0.15);
+    --color-info: #60a5fa;
+    --color-info-light: rgba(96, 165, 250, 0.15);
+
+    /* Background Colors */
+    --color-bg: #0f1115;
+    --color-bg-alt: #1a1d24;
+    --color-surface: #151823;
+    --color-surface-alt: #1e2230;
+
+    /* Text Colors */
+    --color-text: #e8e8e8;
+    --color-text-muted: #a8a8a8;
+    --color-text-subtle: #888888;
+
+    /* Border Colors */
+    --color-border: #262a36;
+    --color-border-strong: #3a4054;
+
+    /* Code/Inspector Colors */
+    --color-code-bg: #0f1115;
+    --color-code-text: #e2e8f0;
+    --color-inspector-bg: #0b0e14;
+
+    /* Shadows - Adjusted for dark mode */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+
+    /* Modal overlay darker in dark mode */
+    --modal-overlay-bg: rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Base styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Code blocks */
+code, pre {
+  font-family: var(--font-mono);
+  background-color: var(--color-code-bg);
+  color: var(--color-code-text);
+}
+
+/* Links */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* Utility classes */
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-subtle {
+  color: var(--color-text-subtle);
+}
+
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.bg-alt {
+  background-color: var(--color-bg-alt);
+}
+
+.border {
+  border: 1px solid var(--color-border);
+}
+
+.rounded {
+  border-radius: var(--border-radius);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}

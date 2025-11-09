@@ -45,12 +45,38 @@
     return originalDispatchEvent.call(this, event);
   };
 
+  // Get all custom elements (components) on the page
+  function getComponents() {
+    const components = [];
+    const seen = new Set();
+
+    // Get all defined custom elements
+    const allElements = document.querySelectorAll('*');
+    allElements.forEach(el => {
+      const tagName = el.tagName.toLowerCase();
+      // Check if it's a custom element (contains hyphen)
+      if (tagName.includes('-') && !seen.has(tagName)) {
+        seen.add(tagName);
+        const constructor = customElements.get(tagName);
+        components.push({
+          tagName,
+          isDefined: !!constructor,
+          constructorName: constructor?.name || 'Unknown',
+          instances: document.querySelectorAll(tagName).length
+        });
+      }
+    });
+
+    return components.sort((a, b) => a.tagName.localeCompare(b.tagName));
+  }
+
   // Expose API for DevTools
   window.__panDevTools = {
     getHistory: () => messageHistory,
     clearHistory: () => {
       messageHistory.length = 0;
     },
+    getComponents: () => getComponents(),
     getStats: () => {
       const stats = {
         total: messageHistory.length,

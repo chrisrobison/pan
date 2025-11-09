@@ -452,3 +452,123 @@ body.paused #pause-btn {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
 }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.1s;
+}
+
+.tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.tab.active {
+  color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
+}
+
+/* Tab content */
+.tab-content {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+}
+
+.tab-content.active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Components table */
+.components-container {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.components-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.components-table thead {
+  position: sticky;
+  top: 0;
+  background: var(--bg-secondary);
+  z-index: 1;
+}
+
+.components-table th {
+  padding: 8px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.components-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.components-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.components-table code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg-tertiary);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-defined {
+  background: #e6f4ea;
+  color: var(--accent-green);
+}
+
+.status-undefined {
+  background: #fce8e6;
+  color: var(--accent-red);
+}
+
+@media (prefers-color-scheme: dark) {
+  .status-defined {
+    background: #1e3a28;
+    color: #81c995;
+  }
+
+  .status-undefined {
+    background: #3b1f1e;
+    color: #f28b82;
+  }
+}

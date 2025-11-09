@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAN JWT Authentication Example</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .login-form, .user-info {
+      display: none;
+    }
+
+    .login-form.active, .user-info.active {
+      display: block;
+    }
+
+    input {
+      padding: 8px 12px;
+      margin: 8px 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 8px 4px;
+      border: none;
+      border-radius: 4px;
+      background: #007bff;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    button.secondary {
+      background: #6c757d;
+    }
+
+    button.secondary:hover {
+      background: #545b62;
+    }
+
+    button.danger {
+      background: #dc3545;
+    }
+
+    button.danger:hover {
+      background: #c82333;
+    }
+
+    .status {
+      padding: 12px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .token-info {
+      font-family: monospace;
+      font-size: 12px;
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .auth-state {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+
+    .indicator.authenticated {
+      background: #28a745;
+    }
+
+    pre {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 PAN JWT Authentication</h1>
+  <p>Demonstrates JWT token management with automatic refresh, storage, and auth state.</p>
+
+  <!-- JWT Component -->
+  <pan-jwt
+    storage="localStorage"
+    auto-refresh="true"
+    refresh-before="300"
+    api-url=""
+    login-endpoint="/api/auth/login"
+    refresh-endpoint="/api/auth/refresh">
+  </pan-jwt>
+
+  <!-- Auth Status -->
+  <div class="section">
+    <h2>Authentication Status</h2>
+    <div class="auth-state">
+      <span class="indicator" id="auth-indicator"></span>
+      <span id="auth-status">Not authenticated</span>
+    </div>
+    <div id="status-message"></div>
+  </div>
+
+  <!-- Login Form -->
+  <div class="section login-form active" id="login-section">
+    <h2>Login</h2>
+    <form id="login-form">
+      <div>
+        <input
+          type="text"
+          id="username"
+          placeholder="Username"
+          value="demo"
+          required
+        >
+      </div>
+      <div>
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          value="password"
+          required
+        >
+      </div>
+      <button type="submit">Login</button>
+    </form>
+    <p style="color: #666; font-size: 14px;">
+      💡 This is a demo. Use any username/password (mock authentication).
+    </p>
+  </div>
+
+  <!-- User Info (shown when logged in) -->
+  <div class="section user-info" id="user-section">
+    <h2>User Information</h2>
+    <div id="user-info"></div>
+    <div style="margin-top: 15px;">
+      <button id="refresh-btn" class="secondary">🔄 Refresh Token</button>
+      <button id="logout-btn" class="danger">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- Token Details -->
+  <div class="section">
+    <h2>Token Details</h2>
+    <div>
+      <strong>Expires in:</strong> <span id="expires-in">-</span> seconds
+    </div>
+    <div style="margin-top: 10px;">
+      <strong>Token Payload:</strong>
+      <div class="token-info" id="token-payload">No token</div>
+    </div>
+  </div>
+
+  <!-- Event Log -->
+  <div class="section">
+    <h2>Event Log</h2>
+    <button id="clear-log" class="secondary" style="float: right;">Clear</button>
+    <pre id="event-log" style="clear: both; max-height: 300px; overflow-y: auto;">Waiting for events...</pre>
+  </div>
+
+  <script type="module" src="../src/pan.js"></script>
+  <script type="module">
+    import { PanClient } from '../src/components/pan-client.mjs';
+
+    const client = new PanClient();
+    await client.ready();
+
+    const log = document.getElementById('event-log');
+    const statusMessage = document.getElementById('status-message');
+    const authIndicator = document.getElementById('auth-indicator');
+    const authStatus = document.getElementById('auth-status');
+    const loginSection = document.getElementById('login-section');
+    const userSection = document.getElementById('user-section');
+    const expiresIn = document.getElementById('expires-in');
+    const tokenPayload = document.getElementById('token-payload');
+    const userInfo = document.getElementById('user-info');
+
+    // Event logging
+    function logEvent(topic, data) {
+      const time = new Date().toLocaleTimeString();
+      const entry = `[${time}] ${topic}\n${JSON.stringify(data, null, 2)}\n\n`;
+      log.textContent = entry + log.textContent;
+    }
+
+    // Update UI based on auth state
+    function updateUI(state) {
+      if (state.authenticated) {
+        authIndicator.classList.add('authenticated');
+        authStatus.textContent = 'Authenticated ✓';
+        loginSection.classList.remove('active');
+        userSection.classList.add('active');
+        expiresIn.textContent = state.expiresIn;
+
+        if (state.tokenData) {
+          tokenPayload.textContent = JSON.stringify(state.tokenData, null, 2);
+          userInfo.innerHTML = `
+            <p><strong>User:</strong> ${state.tokenData.sub || state.tokenData.username || 'Unknown'}</p>
+            <p><strong>Issued:</strong> ${new Date((state.tokenData.iat || 0) * 1000).toLocaleString()}</p>
+            <p><strong>Expires:</strong> ${new Date((state.tokenData.exp || 0) * 1000).toLocaleString()}</p>
+          `;
+        }
+      } else {
+        authIndicator.classList.remove('authenticated');
+        authStatus.textContent = 'Not authenticated';
+        loginSection.classList.add('active');
+        userSection.classList.remove('active');
+        expiresIn.textContent = '-';
+        tokenPayload.textContent = 'No token';
+      }
+    }
+
+    // Show status message
+    function showStatus(message, type = 'info') {
+      statusMessage.innerHTML = `<div class="status ${type}">${message}</div>`;
+      setTimeout(() => {
+        statusMessage.innerHTML = '';
+      }, 5000);
+    }
+
+    // Subscribe to all auth events
+    client.subscribe('auth.*', (msg) => {
+      logEvent(msg.topic, msg.data);
+
+      switch (msg.topic) {
+        case 'auth.state':
+          updateUI(msg.data);
+          break;
+
+        case 'auth.login.success':
+          showStatus('Login successful!', 'success');
+          break;
+
+        case 'auth.login.error':
+          showStatus(`Login failed: ${msg.data.error}`, 'error');
+          break;
+
+        case 'auth.token.refreshed':
+          showStatus('Token refreshed', 'success');
+          break;
+
+        case 'auth.token.expired':
+          showStatus('Token expired. Please login again.', 'error');
+          break;
+
+        case 'auth.logout':
+          showStatus('Logged out', 'info');
+          break;
+      }
+    });
+
+    // Request initial state
+    client.publish({ topic: 'auth.state.get', data: {} });
+
+    // Update expiry timer
+    setInterval(() => {
+      client.publish({ topic: 'auth.state.get', data: {} });
+    }, 1000);
+
+    // Login form
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Mock login (generates a fake JWT)
+      // In production, this would call your real API
+      const mockToken = generateMockJWT(username);
+
+      // Manually set token for demo purposes
+      const jwtComponent = document.querySelector('pan-jwt');
+      jwtComponent.setToken(mockToken);
+      jwtComponent.publishState();
+
+      showStatus('Mock login successful (using fake JWT)', 'success');
+    });
+
+    // Logout button
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      client.publish({ topic: 'auth.logout.request', data: {} });
+    });
+
+    // Refresh button
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      // Generate new mock token
+      const jwtComponent = document.querySelector('pan-jwt');
+      const currentData = jwtComponent.tokenData;
+      if (currentData) {
+        const mockToken = generateMockJWT(currentData.sub || 'demo');
+        jwtComponent.setToken(mockToken);
+        jwtComponent.publishState();
+        showStatus('Token refreshed (mock)', 'success');
+      }
+    });
+
+    // Clear log button
+    document.getElementById('clear-log').addEventListener('click', () => {
+      log.textContent = 'Log cleared...\n';
+    });
+
+    // Mock JWT generator (for demo purposes only)
+    function generateMockJWT(username) {
+      const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+      const now = Math.floor(Date.now() / 1000);
+      const payload = btoa(JSON.stringify({
+        sub: username,
+        username: username,
+        iat: now,
+        exp: now + 3600, // 1 hour
+        role: 'user'
+      }));
+      const signature = btoa('mock-signature');
+      return `${header}.${payload}.${signature}`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pan-validation - PAN Documentation</title>
+  <link rel="stylesheet" href="../styles/docs.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="logo">
+      <a href="../index.html">PAN Docs</a>
+    </div>
+    <div class="nav-section">
+      <a href="../index.html">← Back to Index</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>pan-validation</h1>
+      <div class="file-path">src/components/pan-validation.mjs</div>
+    </header>
+
+    <section class="section">
+      <div class="description">
+        Shared validation functions for message and topic validation<br>Used by both PAN Bus and PAN Client for consistency
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Methods</h2>
+
+      <div class="method" id="isSerializable">
+        <h3><code>isSerializable(data)</code></h3>
+        <div class="description">Shared validation functions for message and topic validation<br>Used by both PAN Bus and PAN Client for consistency<br>/<br>/**<br>Check if data is JSON-serializable</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>data</code></td>
+              <td><code>*</code></td>
+              <td>Data to check</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>boolean</code> - True if serializable</p>
+
+      </div>
+
+      <div class="method" id="checkSerializable">
+        <h3><code>checkSerializable(data)</code></h3>
+        <div class="description">Get detailed reason why data is not serializable</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>data</code></td>
+              <td><code>*</code></td>
+              <td>Data to check</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>{valid: boolean, error?: string</code> - } Validation result</p>
+
+      </div>
+
+      <div class="method" id="estimateSize">
+        <h3><code>estimateSize(obj)</code></h3>
+        <div class="description">Estimate size of object in bytes</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>obj</code></td>
+              <td><code>*</code></td>
+              <td>Object to measure</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>number</code> - Approximate size in bytes</p>
+
+      </div>
+
+      <div class="method" id="validateTopic">
+        <h3><code>validateTopic(topic)</code></h3>
+        <div class="description">Validate topic string</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>topic</code></td>
+              <td><code>string</code></td>
+              <td>Topic to validate</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>{valid: boolean, error?: string</code> - } Validation result</p>
+
+      </div>
+
+      <div class="method" id="validatePattern">
+        <h3><code>validatePattern(pattern, options, [options.allowGlobalWildcard=true], [options.maxWildcards=5])</code></h3>
+        <div class="description">Validate subscription pattern</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>pattern</code></td>
+              <td><code>string</code></td>
+              <td>Pattern to validate</td>
+            </tr>
+
+            <tr>
+              <td><code>options</code></td>
+              <td><code>Object</code></td>
+              <td>Validation options</td>
+            </tr>
+
+            <tr>
+              <td><code>[options.allowGlobalWildcard=true]</code></td>
+              <td><code>boolean</code></td>
+              <td>Allow '*' pattern</td>
+            </tr>
+
+            <tr>
+              <td><code>[options.maxWildcards=5]</code></td>
+              <td><code>number</code></td>
+              <td>Max wildcard segments</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>{valid: boolean, error?: string</code> - } Validation result</p>
+
+      </div>
+
+      <div class="method" id="validateMessage">
+        <h3><code>validateMessage(msg, limits, [limits.maxMessageSize=1048576], [limits.maxPayloadSize=524288])</code></h3>
+        <div class="description">Validate complete PAN message</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>msg</code></td>
+              <td><code>Object</code></td>
+              <td>Message to validate</td>
+            </tr>
+
+            <tr>
+              <td><code>limits</code></td>
+              <td><code>Object</code></td>
+              <td>Size limits</td>
+            </tr>
+
+            <tr>
+              <td><code>[limits.maxMessageSize=1048576]</code></td>
+              <td><code>number</code></td>
+              <td>Max total message size</td>
+            </tr>
+
+            <tr>
+              <td><code>[limits.maxPayloadSize=524288]</code></td>
+              <td><code>number</code></td>
+              <td>Max data payload size</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>{valid: boolean, error?: string</code> - } Validation result</p>
+
+      </div>
+
+      <div class="method" id="isElementAlive">
+        <h3><code>isElementAlive(el)</code></h3>
+        <div class="description">Check if element is still alive in DOM</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>el</code></td>
+              <td><code>Element</code></td>
+              <td>Element to check</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>boolean</code> - True if element is in DOM</p>
+
+      </div>
+
+      <div class="method" id="sanitizeError">
+        <h3><code>sanitizeError(error)</code></h3>
+        <div class="description">Sanitize error message for safe display</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>error</code></td>
+              <td><code>*</code></td>
+              <td>Error to sanitize</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>string</code> - Safe error message</p>
+
+      </div>
+
+    </section>
+
+  </main>
+</body>
+</html>

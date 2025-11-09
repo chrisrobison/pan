@@ -633,6 +633,61 @@ class PanBusEnhanced extends HTMLElement {
 
     return false;
   }
+
+  /**
+   * Convenience method: publish a message
+   * @param {string} topic - Topic name
+   * @param {*} data - Message payload
+   * @param {Object} options - Additional options (retain, etc.)
+   */
+  publish(topic, data, options = {}) {
+    this.dispatchEvent(new CustomEvent('pan:publish', {
+      detail: { topic, data, ...options },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  /**
+   * Convenience method: subscribe to a topic
+   * @param {string|string[]} topics - Topic pattern(s) to subscribe to
+   * @param {Function} handler - Callback function(msg)
+   * @returns {Function} Unsubscribe function
+   */
+  subscribe(topics, handler) {
+    topics = Array.isArray(topics) ? topics : [topics];
+    const clientId = `bus-direct-${crypto.randomUUID()}`;
+
+    // Listen for deliveries
+    const onDeliver = (ev) => {
+      const m = ev.detail;
+      if (!m || !m.topic) return;
+
+      // Check if message matches any of our topic patterns
+      if (topics.some((t) => PanBusEnhanced.matches(m.topic, t))) {
+        handler(m);
+      }
+    };
+
+    document.addEventListener('pan:deliver', onDeliver);
+
+    // Subscribe on bus
+    this.dispatchEvent(new CustomEvent('pan:subscribe', {
+      detail: { clientId, topics, options: {} },
+      bubbles: true,
+      composed: true
+    }));
+
+    // Return unsubscribe function
+    return () => {
+      document.removeEventListener('pan:deliver', onDeliver);
+      this.dispatchEvent(new CustomEvent('pan:unsubscribe', {
+        detail: { clientId, topics },
+        bubbles: true,
+        composed: true
+      }));
+    };
+  }
 }
 
 // Export for use - register as both 'pan-bus' and 'pan-bus-enhanced'

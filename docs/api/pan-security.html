@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pan-security - PAN Documentation</title>
+  <link rel="stylesheet" href="../styles/docs.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="logo">
+      <a href="../index.html">PAN Docs</a>
+    </div>
+    <div class="nav-section">
+      <a href="../index.html">← Back to Index</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>pan-security</h1>
+      <div class="file-path">src/components/pan-security.mjs</div>
+    </header>
+
+    <section class="section">
+      <div class="description">
+        Security helpers for PAN framework:<br>- HTTPS enforcement<br>- XSS prevention<br>- Input sanitization<br>- Security best practices
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Methods</h2>
+
+      <div class="method" id="enforceHTTPS">
+        <h3><code>enforceHTTPS(options, [options.enforce=true], [options.allowedHosts=[]])</code></h3>
+        <div class="description">Security helpers for PAN framework:<br>- HTTPS enforcement<br>- XSS prevention<br>- Input sanitization<br>- Security best practices<br>/<br>/**<br>Check if running in production and enforce HTTPS</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>options</code></td>
+              <td><code>Object</code></td>
+              <td>Configuration options</td>
+            </tr>
+
+            <tr>
+              <td><code>[options.enforce=true]</code></td>
+              <td><code>boolean</code></td>
+              <td>Whether to enforce HTTPS</td>
+            </tr>
+
+            <tr>
+              <td><code>[options.allowedHosts=[]]</code></td>
+              <td><code>string[]</code></td>
+              <td>Hosts exempt from HTTPS (e.g., localhost)</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="method" id="sanitizeHTML">
+        <h3><code>sanitizeHTML(html)</code></h3>
+        <div class="description">Sanitize HTML to prevent XSS<br>Basic implementation - use DOMPurify for production</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>html</code></td>
+              <td><code>string</code></td>
+              <td>HTML string to sanitize</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>string</code> - Sanitized HTML</p>
+
+      </div>
+
+      <div class="method" id="safeSetHTML">
+        <h3><code>safeSetHTML(element, html)</code></h3>
+        <div class="description">Safe innerHTML setter that sanitizes content</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>element</code></td>
+              <td><code>HTMLElement</code></td>
+              <td>Element to set content on</td>
+            </tr>
+
+            <tr>
+              <td><code>html</code></td>
+              <td><code>string</code></td>
+              <td>HTML content (will be sanitized)</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="method" id="createTextNode">
+        <h3><code>createTextNode(text)</code></h3>
+        <div class="description">Create a safe text node (alternative to innerHTML)</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>text</code></td>
+              <td><code>string</code></td>
+              <td>Text content</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>Text</code> - Text node</p>
+
+      </div>
+
+      <div class="method" id="createElement">
+        <h3><code>createElement(tag, attrs, content)</code></h3>
+        <div class="description">Safely create an element with attributes</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>tag</code></td>
+              <td><code>string</code></td>
+              <td>Element tag name</td>
+            </tr>
+
+            <tr>
+              <td><code>attrs</code></td>
+              <td><code>Object</code></td>
+              <td>Attributes to set</td>
+            </tr>
+
+            <tr>
+              <td><code>content</code></td>
+              <td><code>string</code></td>
+              <td>Text content (not HTML)</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>HTMLElement</code> - </p>
+
+      </div>
+
+      <div class="method" id="isSafeURL">
+        <h3><code>isSafeURL(url)</code></h3>
+        <div class="description">Validate URL to prevent javascript: and data: schemes</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>url</code></td>
+              <td><code>string</code></td>
+              <td>URL to validate</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>boolean</code> - True if URL is safe</p>
+
+      </div>
+
+      <div class="method" id="setSafeHref">
+        <h3><code>setSafeHref(element, href)</code></h3>
+        <div class="description">Safely set element href (for links)</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>element</code></td>
+              <td><code>HTMLAnchorElement</code></td>
+              <td>Link element</td>
+            </tr>
+
+            <tr>
+              <td><code>href</code></td>
+              <td><code>string</code></td>
+              <td>URL to set</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="method" id="checkCSP">
+        <h3><code>checkCSP()</code></h3>
+        <div class="description">Check if Content Security Policy is properly configured</div>
+
+        <h4>Returns</h4>
+        <p><code>Object</code> - CSP status</p>
+
+      </div>
+
+      <div class="method" id="initSecurity">
+        <h3><code>initSecurity(options)</code></h3>
+        <div class="description">Initialize PAN security features</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>options</code></td>
+              <td><code>Object</code></td>
+              <td>Configuration options</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="method" id="escapeHTML">
+        <h3><code>escapeHTML(text)</code></h3>
+        <div class="description">Escape HTML special characters</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>text</code></td>
+              <td><code>string</code></td>
+              <td>Text to escape</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>string</code> - Escaped text</p>
+
+      </div>
+
+      <div class="method" id="stripHTML">
+        <h3><code>stripHTML(html)</code></h3>
+        <div class="description">Strip all HTML tags from a string</div>
+
+        <h4>Parameters</h4>
+        <table class="params-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr>
+              <td><code>html</code></td>
+              <td><code>string</code></td>
+              <td>HTML string</td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <h4>Returns</h4>
+        <p><code>string</code> - Plain text</p>
+
+      </div>
+
+    </section>
+
+  </main>
+</body>
+</html>

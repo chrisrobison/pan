@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PanFiles - PAN Documentation</title>
+  <link rel="stylesheet" href="../styles/docs.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="logo">
+      <a href="../index.html">PAN Docs</a>
+    </div>
+    <div class="nav-section">
+      <a href="../index.html">← Back to Index</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>PanFiles</h1>
+      <div class="file-path">src/components/pan-files.mjs</div>
+    </header>
+
+    <section class="section">
+      <div class="description">
+        pan-files<br>File system manager for browser's Origin Private File System (OPFS).<br>Provides a file browser UI and manages file operations.<br>Features:<br>- List files in current directory<br>- Create/rename/delete files and folders<br>- Read/write file contents<br>- Navigate directory tree<br>- File search and filtering<br>- Drag and drop support<br>- Context menu actions<br>Attributes:<br>- path: Current directory path (default: '/')<br>- filter: File extension filter (e.g., '.md,.txt')<br>- show-hidden: Show hidden files (default: false)<br>PAN Events (published):<br>- file.selected: { path, name, isDirectory }<br>- file.created: { path, name }<br>- file.deleted: { path }<br>- file.renamed: { oldPath, newPath }<br>- file.content-loaded: { path, content }<br>PAN Events (subscribed):<br>- file.save: { path, content }<br>- file.load: { path }<br>- file.delete: { path }<br>- file.create: { path, content }<br>Usage:<br>  <pan-files path="/" filter=".md"></pan-files>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="PanFiles">Class: PanFiles</h2>
+      
+      <div class="description">pan-files<br>File system manager for browser's Origin Private File System (OPFS).<br>Provides a file browser UI and manages file operations.<br>Features:<br>- List files in current directory<br>- Create/rename/delete files and folders<br>- Read/write file contents<br>- Navigate directory tree<br>- File search and filtering<br>- Drag and drop support<br>- Context menu actions<br>Attributes:<br>- path: Current directory path (default: '/')<br>- filter: File extension filter (e.g., '.md,.txt')<br>- show-hidden: Show hidden files (default: false)<br>PAN Events (published):<br>- file.selected: { path, name, isDirectory }<br>- file.created: { path, name }<br>- file.deleted: { path }<br>- file.renamed: { oldPath, newPath }<br>- file.content-loaded: { path, content }<br>PAN Events (subscribed):<br>- file.save: { path, content }<br>- file.load: { path }<br>- file.delete: { path }<br>- file.create: { path, content }<br>Usage:<br>  <pan-files path="/" filter=".md"></pan-files></div>
+
+    </section>
+
+  </main>
+</body>
+</html>

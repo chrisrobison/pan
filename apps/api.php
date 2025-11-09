@@ -119,19 +119,30 @@ $ALLOWED_FIELDS = [
 $env = loadEnvironment('.env');
 
 // Database connection with error handling
+$db_type = $env['db']['type'] ?? 'mysql';
+$link = null;
+
 try {
-	$link = new mysqli(
-		$env['db']['host'],
-		$env['db']['user'],
-		$env['db']['pass'],
-		$env['db']['db']
-	);
+	if ($db_type === 'sqlite') {
+		// SQLite connection
+		$db_file = $env['db']['file'] ?? 'pan_demo.db';
+		$link = new SQLite3($db_file);
+		$link->busyTimeout(5000); // Set busy timeout to 5 seconds
+	} else {
+		// MySQL connection
+		$link = new mysqli(
+			$env['db']['host'],
+			$env['db']['user'],
+			$env['db']['pass'],
+			$env['db']['db']
+		);
 
-	if ($link->connect_error) {
-		throw new Exception('Database connection failed');
+		if ($link->connect_error) {
+			throw new Exception('Database connection failed');
+		}
+
+		$link->set_charset('utf8mb4');
 	}
-
-	$link->set_charset('utf8mb4');
 } catch (Exception $e) {
 	http_response_code(500);
 	sendJSON(['status' => 'error', 'msg' => 'Database unavailable']);

@@ -112,13 +112,14 @@ function generateSelfSignedCert() {
 
   // Generate self-signed cert using openssl
   try {
-    const { execSync } = require('child_process');
-    execSync(
-      `openssl req -x509 -newkey rsa:4096 -nodes ` +
-      `-keyout "${keyPath}" -out "${certPath}" -days 365 ` +
-      `-subj "/C=US/ST=Dev/L=Dev/O=Dev/CN=${CONFIG.domain}"`,
-      { stdio: 'inherit' }
-    );
+    import('child_process').then(({ execSync }) => {
+      execSync(
+        `openssl req -x509 -newkey rsa:4096 -nodes ` +
+        `-keyout "${keyPath}" -out "${certPath}" -days 365 ` +
+        `-subj "/C=US/ST=Dev/L=Dev/O=Dev/CN=${CONFIG.domain}"`,
+        { stdio: 'inherit' }
+      );
+    });
 
     console.log('✓ Generated self-signed certificate');
 
@@ -128,8 +129,8 @@ function generateSelfSignedCert() {
     };
   } catch (err) {
     console.error('✗ Failed to generate self-signed certificate:', err.message);
-    console.log('Please install openssl or provide SSL certificates manually');
-    process.exit(1);
+    console.log('⚠️  Falling back to HTTP server (no HTTPS)');
+    return null;
   }
 }
 
@@ -345,6 +346,12 @@ function handleRequest(req, res) {
 function startHTTPSServer() {
   const sslOptions = getSSLCertificates();
 
+  if (!sslOptions) {
+    // Fall back to HTTP
+    startHTTPServer();
+    return;
+  }
+
   const server = https.createServer(sslOptions, handleRequest);
 
   server.listen(CONFIG.port, CONFIG.host, () => {
@@ -358,6 +365,7 @@ function startHTTPSServer() {
     console.log('  ✓ Content Security Policy (CSP)');
     console.log('  ✓ CORS whitelist enabled');
     console.log('  ✓ Security headers configured');
+    console.log('  ✓ PHP support via php-cgi');
     console.log('\n📋 Allowed Origins:');
     CONFIG.allowedOrigins.forEach(origin => console.log(`  • ${origin}`));
     console.log('\n⌨️  Press Ctrl+C to stop\n');
@@ -366,6 +374,35 @@ function startHTTPSServer() {
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
       console.error(`✗ Port ${CONFIG.port} is already in use`);
+      process.exit(1);
+    } else {
+      console.error('✗ Server error:', err);
+    }
+  });
+}
+
+/**
+ * Start HTTP server (fallback)
+ */
+function startHTTPServer() {
+  const server = http.createServer(handleRequest);
+
+  const port = 8000;
+  server.listen(port, CONFIG.host, () => {
+    console.log('\n🌐 HTTP Development Server');
+    console.log('━'.repeat(50));
+    console.log(`✓ Server running at: http://localhost:${port}`);
+    console.log(`✓ Root: ${ROOT_DIR}`);
+    console.log('\n🛡️  Features:');
+    console.log('  ✓ Static file serving');
+    console.log('  ✓ PHP support via php-cgi');
+    console.log('  ✓ CORS enabled');
+    console.log('\n⌨️  Press Ctrl+C to stop\n');
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`✗ Port ${port} is already in use`);
       process.exit(1);
     } else {
       console.error('✗ Server error:', err);

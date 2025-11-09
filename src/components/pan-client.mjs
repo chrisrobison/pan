@@ -125,6 +125,20 @@ export class PanClient {
     this.clientId = `${tag}#${crypto.randomUUID()}`;
 
     /**
+     * Queue for operations before bus is ready
+     * @type {Array<Function>}
+     * @private
+     */
+    this._pendingOps = [];
+
+    /**
+     * Whether the bus is ready
+     * @type {boolean}
+     * @private
+     */
+    this._isReady = false;
+
+    /**
      * Promise that resolves when PAN bus is ready
      * @type {Promise<void>}
      * @private
@@ -141,8 +155,15 @@ export class PanClient {
       // Wait for ready event
       document.addEventListener('pan:sys.ready', onReady, true);
     }).then(() => {
+      this._isReady = true;
+
       // Announce presence to bus
-      this._dispatch('pan:hello', { id: this.clientId, caps: ['client'] });
+      this._dispatchImmediate('pan:hello', { id: this.clientId, caps: ['client'] });
+
+      // Flush any pending operations
+      const ops = this._pendingOps.slice();
+      this._pendingOps = [];
+      ops.forEach(op => op());
     });
   }
 
@@ -162,7 +183,22 @@ export class PanClient {
   }
 
   /**
+   * Dispatches a CustomEvent immediately (no queuing)
+   * Use this only when you know the bus is ready
+   *
+   * @param {string} type - Event type (e.g., 'pan:publish')
+   * @param {*} detail - Event detail payload
+   * @private
+   */
+  _dispatchImmediate(type, detail) {
+    this.host.dispatchEvent(
+      new CustomEvent(type, { detail, bubbles: true, composed: true })
+    );
+  }
+
+  /**
    * Dispatches a CustomEvent on the host element
+   * If bus is not ready, queues the operation for later
    * Events bubble and are composed to cross shadow DOM
    *
    * @param {string} type - Event type (e.g., 'pan:publish')
@@ -170,9 +206,12 @@ export class PanClient {
    * @private
    */
   _dispatch(type, detail) {
-    this.host.dispatchEvent(
-      new CustomEvent(type, { detail, bubbles: true, composed: true })
-    );
+    if (this._isReady) {
+      this._dispatchImmediate(type, detail);
+    } else {
+      // Queue the operation until bus is ready
+      this._pendingOps.push(() => this._dispatchImmediate(type, detail));
+    }
   }
 
   /**

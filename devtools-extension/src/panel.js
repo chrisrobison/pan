@@ -34,6 +34,8 @@
     importBtn: document.getElementById('import-btn'),
     messagesBody: document.getElementById('messages-body'),
     emptyState: document.getElementById('empty-state'),
+    componentsBody: document.getElementById('components-body'),
+    componentsEmpty: document.getElementById('components-empty'),
     detailsPanel: document.getElementById('details-panel'),
     closeDetailsBtn: document.getElementById('close-details-btn'),
     replayBtn: document.getElementById('replay-btn'),
@@ -49,6 +51,26 @@
     if (message.type === 'PAN_MESSAGE' && !state.isPaused) {
       addMessage(message.data);
     }
+  });
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.dataset.tab;
+
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+
+      // Load components if switching to components tab
+      if (tabName === 'components') {
+        loadComponents();
+      }
+    });
   });
 
   // Event Listeners
@@ -319,6 +341,45 @@
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  // Load components from page
+  function loadComponents() {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { type: 'GET_COMPONENTS' }, (response) => {
+          if (response && Array.isArray(response)) {
+            renderComponents(response);
+          }
+        });
+      }
+    });
+  }
+
+  // Render components table
+  function renderComponents(components) {
+    if (components.length === 0) {
+      elements.componentsEmpty.classList.remove('hidden');
+      elements.componentsBody.innerHTML = '';
+      return;
+    }
+
+    elements.componentsEmpty.classList.add('hidden');
+
+    elements.componentsBody.innerHTML = components.map(comp => {
+      const statusBadge = comp.isDefined
+        ? '<span class="status-badge status-defined">Defined</span>'
+        : '<span class="status-badge status-undefined">Undefined</span>';
+
+      return `
+        <tr>
+          <td><code>${escapeHtml(comp.tagName)}</code></td>
+          <td><code>${escapeHtml(comp.constructorName)}</code></td>
+          <td>${comp.instances}</td>
+          <td>${statusBadge}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
   // Expose functions for inline handlers

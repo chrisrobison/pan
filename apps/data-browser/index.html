@@ -74,14 +74,9 @@
       .menu-btn{ display:inline-flex }
     }
   </style>
+  <script type="module" src="../../src/pan.js"></script>
   <script type="module">
-    import '../../src/components/pan-bus.mjs';
-    import '../dist/pan-client.mjs';
-    import '../dist/pan-data-table.js';
-    import '../dist/pan-php-connector.js';
-    import '../dist/pan-form.js';
-
-    import { PanClient } from '../dist/pan-client.mjs';
+    import { PanClient } from '../../src/components/pan-client.mjs';
 
     // Simple helper to fetch resources from api.php
     async function listResources(api){
@@ -101,6 +96,7 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       const pc = new PanClient();
+      await pc.ready(); // Wait for bus to be ready
       // API endpoint relative to this demo page
       const api = '../api.php';
       const nav = document.getElementById('nav');
@@ -289,7 +285,6 @@
   <link rel="stylesheet" href="../assets/theme.css">
 </head>
 <body>
-  <pan-bus></pan-bus>
   <div class="app">
     <header class="topbar">
       <div class="brand"><span class="dot"></span><span>PAN Data Browser</span></div>

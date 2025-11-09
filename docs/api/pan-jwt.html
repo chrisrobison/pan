@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PanJWT - PAN Documentation</title>
+  <link rel="stylesheet" href="../styles/docs.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="logo">
+      <a href="../index.html">PAN Docs</a>
+    </div>
+    <div class="nav-section">
+      <a href="../index.html">← Back to Index</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>PanJWT</h1>
+      <div class="file-path">src/components/pan-jwt.mjs</div>
+    </header>
+
+    <section class="section">
+      <div class="description">
+        Provides JWT token management with:<br>- Secure token storage (localStorage/sessionStorage/memory)<br>- Automatic token refresh<br>- Request header injection<br>- Token validation and expiry checking<br>- Login/logout state management<br>- PAN bus integration for auth events
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="PanJWT">Class: PanJWT</h2>
+      <div class="extends">Extends: <code>HTMLElement</code></div>
+      <div class="description">Provides JWT token management with:<br>- Secure token storage (localStorage/sessionStorage/memory)<br>- Automatic token refresh<br>- Request header injection<br>- Token validation and expiry checking<br>- Login/logout state management<br>- PAN bus integration for auth events</div>
+
+      <h3>Attributes</h3>
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><code>storage</code></td>
+            <td><code>string</code></td>
+            <td>Storage type: "localStorage", "sessionStorage", or "memory" (default: "localStorage")</td>
+          </tr>
+
+          <tr>
+            <td><code>auto-refresh</code></td>
+            <td><code>boolean</code></td>
+            <td>Enable automatic token refresh (default: true)</td>
+          </tr>
+
+          <tr>
+            <td><code>refresh-before</code></td>
+            <td><code>number</code></td>
+            <td>Seconds before expiry to refresh (default: 300)</td>
+          </tr>
+
+          <tr>
+            <td><code>token-key</code></td>
+            <td><code>string</code></td>
+            <td>Storage key for token (default: "jwt_token")</td>
+          </tr>
+
+          <tr>
+            <td><code>refresh-key</code></td>
+            <td><code>string</code></td>
+            <td>Storage key for refresh token (default: "jwt_refresh")</td>
+          </tr>
+
+          <tr>
+            <td><code>api-url</code></td>
+            <td><code>string</code></td>
+            <td>Base API URL for authentication endpoints</td>
+          </tr>
+
+          <tr>
+            <td><code>login-endpoint</code></td>
+            <td><code>string</code></td>
+            <td>Login endpoint path (default: "/auth/login")</td>
+          </tr>
+
+          <tr>
+            <td><code>refresh-endpoint</code></td>
+            <td><code>string</code></td>
+            <td>Refresh endpoint path (default: "/auth/refresh")</td>
+          </tr>
+
+          <tr>
+            <td><code>logout-endpoint</code></td>
+            <td><code>string</code></td>
+            <td>Logout endpoint path (default: "/auth/logout")</td>
+          </tr>
+
+        </tbody>
+      </table>
+
+      <h3>Events</h3>
+      <ul class="events-list">
+        <li><code>auth.login.request - When login is requested</code></li>
+        <li><code>auth.login.success - When login succeeds</code></li>
+        <li><code>auth.login.error - When login fails</code></li>
+        <li><code>auth.logout - When logout occurs</code></li>
+        <li><code>auth.token.refreshed - When token is refreshed</code></li>
+        <li><code>auth.token.expired - When token expires</code></li>
+        <li><code>auth.state.changed - When auth state changes</code></li>
+
+      </ul>
+
+      <h3>Examples</h3>
+
+      <pre><code>&lt;pan-jwt
+  storage=&quot;localStorage&quot;
+  auto-refresh=&quot;true&quot;
+  refresh-before=&quot;300&quot;
+  token-key=&quot;auth_token&quot;&gt;
+&lt;/pan-jwt&gt;
+/
+import { PanClient } from &#039;./pan-client.mjs&#039;;
+/**
+PAN JWT Authentication Component
+Handles JWT token lifecycle and authentication state</code></pre>
+
+    </section>
+
+  </main>
+</body>
+</html>

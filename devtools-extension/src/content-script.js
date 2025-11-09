@@ -48,6 +48,22 @@
       return true; // Async response
     }
 
+    if (message.type === 'GET_COMPONENTS') {
+      // Get components from injected script
+      window.postMessage({ type: 'PAN_GET_COMPONENTS' }, '*');
+
+      // Set up listener for response
+      const listener = (event) => {
+        if (event.data && event.data.type === 'PAN_COMPONENTS_RESPONSE') {
+          window.removeEventListener('message', listener);
+          sendResponse(event.data.data);
+        }
+      };
+      window.addEventListener('message', listener);
+
+      return true; // Async response
+    }
+
     if (message.type === 'CLEAR_HISTORY') {
       window.postMessage({ type: 'PAN_CLEAR_HISTORY' }, '*');
       sendResponse({ success: true });
@@ -73,6 +89,14 @@
       window.postMessage({
         type: 'PAN_HISTORY_RESPONSE',
         data: history
+      }, '*');
+    }
+
+    if (type === 'PAN_GET_COMPONENTS') {
+      const components = window.__panDevTools?.getComponents() || [];
+      window.postMessage({
+        type: 'PAN_COMPONENTS_RESPONSE',
+        data: components
       }, '*');
     }
 

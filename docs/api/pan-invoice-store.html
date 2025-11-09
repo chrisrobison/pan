@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PanInvoiceStore - PAN Documentation</title>
+  <link rel="stylesheet" href="../styles/docs.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="logo">
+      <a href="../index.html">PAN Docs</a>
+    </div>
+    <div class="nav-section">
+      <a href="../index.html">← Back to Index</a>
+    </div>
+  </nav>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>PanInvoiceStore</h1>
+      <div class="file-path">src/components/pan-invoice-store.mjs</div>
+    </header>
+
+    <section class="section">
+      <div class="description">
+        pan-invoice-store<br>Centralized state management for invoice application.<br>Handles localStorage persistence, invoice management, and coordinates<br>state between all invoice components via PAN.<br>Features:<br>- LocalStorage persistence with encryption support<br>- Multiple invoice management (create, load, save, delete)<br>- Auto-save on changes<br>- Import/Export JSON<br>- Coordinates state via PAN bus<br>PAN Events (subscribed):<br>- invoice.header.changed<br>- invoice.items.changed<br>- invoice.total.calculated<br>- invoice.save<br>- invoice.load-by-id<br>- invoice.new<br>- invoice.delete<br>- invoice.export<br>- invoice.import<br>PAN Events (published):<br>- invoice.load: { header, items, totals }<br>- invoice.saved: { id, timestamp }<br>- invoice.list-updated: { invoices }<br>- invoice.current-changed: { id, invoice }<br>Usage:<br>  <pan-invoice-store auto-save="true"></pan-invoice-store>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 id="PanInvoiceStore">Class: PanInvoiceStore</h2>
+      
+      <div class="description">pan-invoice-store<br>Centralized state management for invoice application.<br>Handles localStorage persistence, invoice management, and coordinates<br>state between all invoice components via PAN.<br>Features:<br>- LocalStorage persistence with encryption support<br>- Multiple invoice management (create, load, save, delete)<br>- Auto-save on changes<br>- Import/Export JSON<br>- Coordinates state via PAN bus<br>PAN Events (subscribed):<br>- invoice.header.changed<br>- invoice.items.changed<br>- invoice.total.calculated<br>- invoice.save<br>- invoice.load-by-id<br>- invoice.new<br>- invoice.delete<br>- invoice.export<br>- invoice.import<br>PAN Events (published):<br>- invoice.load: { header, items, totals }<br>- invoice.saved: { id, timestamp }<br>- invoice.list-updated: { invoices }<br>- invoice.current-changed: { id, invoice }<br>Usage:<br>  <pan-invoice-store auto-save="true"></pan-invoice-store></div>
+
+    </section>
+
+  </main>
+</body>
+</html>
