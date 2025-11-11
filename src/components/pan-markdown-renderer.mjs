@@ -297,10 +297,16 @@ export class PanMarkdownRenderer extends HTMLElement {
     html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
 
     // Links
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+      const safeUrl = this._sanitizeUrl(url);
+      return `<a href="${safeUrl}">${text}</a>`;
+    });
 
     // Images
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+      const safeUrl = this._sanitizeUrl(url);
+      return `<img src="${safeUrl}" alt="${alt}">`;
+    });
 
     // Paragraphs (wrap text not in tags)
     const lines = html.split('\n');
@@ -384,6 +390,39 @@ export class PanMarkdownRenderer extends HTMLElement {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  _sanitizeUrl(url) {
+    if (!url) return '#';
+
+    const trimmed = url.trim();
+    if (trimmed.startsWith('#')) {
+      return trimmed;
+    }
+
+    const lower = trimmed.toLowerCase();
+
+    // Block dangerous protocols
+    const blocked = ['javascript:', 'data:', 'vbscript:', 'file:'];
+    if (blocked.some(protocol => lower.startsWith(protocol))) {
+      return '#';
+    }
+
+    // Allow protocol-relative URLs (e.g., //example.com)
+    if (lower.startsWith('//')) {
+      return trimmed;
+    }
+
+    // Allow http, https, mailto, tel. For other protocols require explicit whitelist.
+    const schemeMatch = lower.match(/^([a-z0-9+.-]+):/);
+    if (schemeMatch) {
+      const allowed = new Set(['http', 'https', 'mailto', 'tel']);
+      if (!allowed.has(schemeMatch[1])) {
+        return '#';
+      }
+    }
+
+    return trimmed;
   }
 
   _setupPanListeners() {

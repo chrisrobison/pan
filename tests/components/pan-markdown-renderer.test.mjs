@@ -533,6 +533,52 @@ describe('pan-markdown-renderer', () => {
     expect(html).not.toContain('<script>');
   });
 
+  test('sanitizes unsafe link protocols', async () => {
+    await page.setContent(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <script type="module" src="${fileUrl('dist/components/pan-markdown-renderer.js')}"></script>
+      </head>
+      <body>
+        <pan-markdown-renderer content="[click me](javascript:alert('xss'))"></pan-markdown-renderer>
+      </body>
+      </html>
+    `);
+
+    await page.waitForFunction(() => customElements.get('pan-markdown-renderer') !== undefined);
+
+    const href = await page.evaluate(() => {
+      const renderer = document.querySelector('pan-markdown-renderer');
+      return renderer.shadowRoot.querySelector('a')?.getAttribute('href');
+    });
+
+    expect(href).toBe('#');
+  });
+
+  test('sanitizes unsafe image protocols', async () => {
+    await page.setContent(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <script type="module" src="${fileUrl('dist/components/pan-markdown-renderer.js')}"></script>
+      </head>
+      <body>
+        <pan-markdown-renderer content="![logo](data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==)"></pan-markdown-renderer>
+      </body>
+      </html>
+    `);
+
+    await page.waitForFunction(() => customElements.get('pan-markdown-renderer') !== undefined);
+
+    const src = await page.evaluate(() => {
+      const renderer = document.querySelector('pan-markdown-renderer');
+      return renderer.shadowRoot.querySelector('img')?.getAttribute('src');
+    });
+
+    expect(src).toBe('#');
+  });
+
   test('renders paragraphs for plain text', async () => {
     await page.setContent(`
       <!DOCTYPE html>

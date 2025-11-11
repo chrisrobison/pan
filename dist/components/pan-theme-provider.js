@@ -72,9 +72,14 @@ class PanThemeProvider extends HTMLElement {
     });
   }
   _broadcast(topic, data) {
-    const bus = document.querySelector("pan-bus");
-    if (bus) {
-      bus.publish(topic, data);
+    if (!this._panClient) {
+      import("./pan-client.mjs").then(({ PanClient }) => {
+        this._panClient = new PanClient(this);
+        this._panClient.publish({ topic, data });
+      }).catch(() => {
+      });
+    } else {
+      this._panClient.publish({ topic, data });
     }
     this.dispatchEvent(new CustomEvent("theme-change", {
       bubbles: true,

@@ -18,6 +18,14 @@ This project adheres to Keep a Changelog, and aims to follow Semantic Versioning
   - **Status:** All components approved for production use
   - See [COMPONENT_SECURITY_AUDIT.md](docs/COMPONENT_SECURITY_AUDIT.md) for full report
 
+### Added
+
+- 100% Playwright coverage across all 51 shipped components, including new suites for `pan-auth`, `pan-jwt`, `pan-fetch`, `pan-inspector`, `pan-bus-legacy`, `pan-security`, and `pan-validation`.
+
+### Fixed
+
+- Hardened `pan-markdown-renderer` by introducing a `_sanitizeUrl` helper that rejects `javascript:`, `data:`, `vbscript:` and other unsafe protocols for link and image targets.
+
 ### Changed
 
 - Updated README to reflect component security audit completion
