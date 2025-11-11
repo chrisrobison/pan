@@ -5,7 +5,7 @@
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](CHANGELOG.md)
 [![Security](https://img.shields.io/badge/security-audited-brightgreen.svg)](docs/COMPONENT_SECURITY_AUDIT.md)
 [![Browser Support](https://img.shields.io/badge/browser-chrome--tested-green.svg)](CHANGELOG.md#browser-support)
-[![Test Coverage](https://img.shields.io/badge/coverage-80%25+-success.svg)](tests/)
+[![Test Coverage](https://img.shields.io/badge/coverage-100%25-success.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-exceptional-brightgreen.svg)](docs/PERFORMANCE.md)
 
 > **A very lightweight DOM‑native message bus reference (PAN) and its reference implementation:** topics, request/reply, retained messages, lightweight, no build, with an Inspector!
@@ -30,7 +30,7 @@ PAN (Page Area Network) is the messaging model and bus that enables a central co
 **What's Production-Ready:**
 - ✅ **Core Infrastructure** (pan-bus, pan-client, pan-autoload) - Fully stable with locked APIs
 - ✅ **UI Components** - Security audit completed, 0 critical vulnerabilities ([audit report](docs/COMPONENT_SECURITY_AUDIT.md))
-- ✅ **80%+ Test Coverage** - 85 comprehensive test suites
+- ✅ **100% Test Coverage** - 120+ comprehensive Playwright suites exercising every component
 - ✅ **Exceptional Performance** - 300k+ msg/sec, zero memory leaks ([benchmarks](docs/PERFORMANCE.md))
 - ✅ **Complete Documentation** - API reference, guides, and examples
 
@@ -66,6 +66,7 @@ Security tips:
 
 - Mirror only non-sensitive topics across tabs; avoid secrets in mirrored traffic.
 - Keep payloads JSON-serializable; prefer headers for schema/version metadata.
+- Markdown rendering now enforces safe link and image protocols via `_sanitizeUrl`, blocking `javascript:` and `data:` payloads by default.
 
 ## Quickstart (10‑second demo)
 

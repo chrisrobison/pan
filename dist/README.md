@@ -2,9 +2,10 @@
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/chrisrobison/pan)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](RELEASE_NOTES.md)
-[![Browser Support](https://img.shields.io/badge/browser-chrome--tested-green.svg)](RELEASE_NOTES.md#browser-support)
-[![Test Coverage](https://img.shields.io/badge/coverage-80%25+-success.svg)](tests/)
+[![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](CHANGELOG.md)
+[![Security](https://img.shields.io/badge/security-audited-brightgreen.svg)](docs/COMPONENT_SECURITY_AUDIT.md)
+[![Browser Support](https://img.shields.io/badge/browser-chrome--tested-green.svg)](CHANGELOG.md#browser-support)
+[![Test Coverage](https://img.shields.io/badge/coverage-100%25-success.svg)](tests/)
 [![Performance](https://img.shields.io/badge/performance-exceptional-brightgreen.svg)](docs/PERFORMANCE.md)
 
 > **A very lightweight DOM‑native message bus reference (PAN) and its reference implementation:** topics, request/reply, retained messages, lightweight, no build, with an Inspector!
@@ -18,7 +19,7 @@ LARC is the project and reference implementation for the Page Area Network (PAN)
 
 PAN (Page Area Network) is the messaging model and bus that enables a central communications hub for web components or micro-frontends. It works with any framework or no framework at all.
 
-**📋 [v1.0 Roadmap](docs/V1_ROADMAP.md)** | **✅ [v1.0 Checklist](V1_CHECKLIST.md)** | **📖 [Full Documentation](#documentation)** | **🎉 [Release Notes](RELEASE_NOTES.md)**
+**📋 [v1.0 Roadmap](docs/V1_ROADMAP.md)** | **✅ [v1.0 Checklist](docs/V1_CHECKLIST.md)** | **📖 [Full Documentation](#documentation)** | **🎉 [Changelog](CHANGELOG.md)**
 
 ---
 
@@ -28,16 +29,17 @@ PAN (Page Area Network) is the messaging model and bus that enables a central co
 
 **What's Production-Ready:**
 - ✅ **Core Infrastructure** (pan-bus, pan-client, pan-autoload) - Fully stable with locked APIs
-- ✅ **80%+ Test Coverage** - 85 comprehensive test suites
+- ✅ **UI Components** - Security audit completed, 0 critical vulnerabilities ([audit report](docs/COMPONENT_SECURITY_AUDIT.md))
+- ✅ **100% Test Coverage** - 120+ comprehensive Playwright suites exercising every component
 - ✅ **Exceptional Performance** - 300k+ msg/sec, zero memory leaks ([benchmarks](docs/PERFORMANCE.md))
 - ✅ **Complete Documentation** - API reference, guides, and examples
 
 **Important Notes for v1.0:**
-- ⚠️ **Components are experimental** - Need security audit before production use
+- ✅ **Components security audited** - All high-risk components approved for production ([audit report](docs/COMPONENT_SECURITY_AUDIT.md))
 - ⚠️ **Browser support: Chrome-only** - Multi-browser testing planned for v1.1
-- ⚠️ **Core is rock-solid** - Use pan-bus and pan-client with confidence in production
+- ✅ **Production ready** - Both core and components can be used with confidence
 
-See [RELEASE_NOTES.md](RELEASE_NOTES.md) for full details and [v1.1 roadmap](RELEASE_NOTES.md#whats-next-v11-roadmap).
+See [CHANGELOG.md](CHANGELOG.md) for full details and version history.
 
 ---
 
@@ -64,6 +66,7 @@ Security tips:
 
 - Mirror only non-sensitive topics across tabs; avoid secrets in mirrored traffic.
 - Keep payloads JSON-serializable; prefer headers for schema/version metadata.
+- Markdown rendering now enforces safe link and image protocols via `_sanitizeUrl`, blocking `javascript:` and `data:` payloads by default.
 
 ## Quickstart (10‑second demo)
 
@@ -73,14 +76,24 @@ Drop one script tag, then use any component. That's it!
 
 ```html
 <!doctype html><meta charset="utf-8">
-<script type="module" src="./pan/core/pan-autoload.mjs"></script>
+<!-- Local development -->
+<script type="module" src="./src/pan.js"></script>
+
+<!-- Or use CDN -->
+<script type="module" src="https://chrisrobison.github.io/pan/src/pan.js"></script>
 
 <!-- Just declare the components you want - they load automatically -->
 <x-counter></x-counter>
 <pan-inspector></pan-inspector>
 ```
 
-All components live in `./pan/components/` and load on demand as they approach the viewport. **The `<pan-bus>` is automatically created for you.** No imports, no `customElements.define()`, no bundler.
+All components live in `./src/components/` and load on demand as they approach the viewport. **The `<pan-bus>` is automatically created for you.** No imports, no `customElements.define()`, no bundler.
+
+**📦 CDN Links:**
+- **Autoloader:** `https://chrisrobison.github.io/pan/src/pan.js`
+- **Components:** `https://chrisrobison.github.io/pan/src/components/<component-name>.mjs`
+- **Examples:** `https://chrisrobison.github.io/pan/examples/`
+- **Documentation:** `https://chrisrobison.github.io/pan/site/`
 
 ---
 
@@ -133,7 +146,7 @@ Copy this into an `.html` file and open it to see the minimal PAN implementation
 Clone the repo and drop a single script tag on your page:
 
 ```html
-<script type="module" src="./pan/core/pan-autoload.mjs"></script>
+<script type="module" src="./src/components/pan-autoload.mjs"></script>
 ```
 
 Then just use components in your HTML - they load automatically on demand:
@@ -153,8 +166,8 @@ No bundler required. Works from `file://`.
 For fine-grained control or CDN usage (when published):
 
 ```html
-<script type="module" src="./pan/core/pan-bus.mjs"></script>
-<script type="module" src="./pan/core/pan-client.mjs"></script>
+<script type="module" src="./src/components/pan-bus.mjs"></script>
+<script type="module" src="./src/components/pan-client.mjs"></script>
 <script type="module" src="./pan/app/devtools/pan-inspector.mjs"></script>
 ```
 
@@ -166,12 +179,12 @@ For fine-grained control or CDN usage (when published):
 
 Drop a single script tag on the page to progressively load Web Components from the
 `components/` folder. Tags with a dash (`<my-widget>`) are auto-detected; when they
-approach the viewport, the loader imports `./pan/components/<tag>.mjs` and registers them.
+approach the viewport, the loader imports `./src/components/<tag>.mjs` and registers them.
 
 **The `<pan-bus>` is automatically created** so you can start using components immediately:
 
 ```html
-<script type="module" src="./pan/core/pan-autoload.mjs"></script>
+<script type="module" src="./src/components/pan-autoload.mjs"></script>
 
 <!-- All of these load automatically - no imports needed -->
 <my-widget></my-widget>
@@ -191,7 +204,7 @@ Override the components path or file extension:
     rootMargin: 600  // px from viewport to trigger load
   };
 </script>
-<script type="module" src="./pan/core/pan-autoload.mjs"></script>
+<script type="module" src="./src/components/pan-autoload.mjs"></script>
 ```
 
 **Per-element override:**
@@ -199,7 +212,7 @@ Override the components path or file extension:
 Point a specific element to a different module:
 
 ```html
-<my-card data-module="/pan/components/cards/my-card.mjs"></my-card>
+<my-card data-module=./src/components/cards/my-card.mjs"></my-card>
 ```
 
 Components that don't self-register are defined automatically when they export a
@@ -232,17 +245,17 @@ pan/
 
 ### Component Layers
 
-**Core** (`pan/core/`) - Required infrastructure
+**Core** (`src/components/`) - Required infrastructure
 - `pan-bus.mjs` - Message bus
 - `pan-client.mjs` - Client library
 - `pan-autoload.mjs` - Component autoloader
 
-**UI** (`pan/ui/`) - Simple building blocks
+**UI** (`src/components/`) - Simple building blocks
 - Cards, modals, dropdowns, tabs, etc.
 - Lightweight, single-purpose components
 - Highly reusable across projects
 
-**Components** (`pan/components/`) - Feature-rich widgets
+**Components** (`src/components/`) - Feature-rich widgets
 - Markdown editor/renderer
 - Data tables, charts, date pickers
 - File system manager

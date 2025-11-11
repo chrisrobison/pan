@@ -234,8 +234,14 @@ class PanMarkdownRenderer extends HTMLElement {
     html = html.replace(/_(.+?)_/g, "<em>$1</em>");
     html = html.replace(/~~(.+?)~~/g, "<del>$1</del>");
     html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+      const safeUrl = this._sanitizeUrl(url);
+      return `<a href="${safeUrl}">${text}</a>`;
+    });
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+      const safeUrl = this._sanitizeUrl(url);
+      return `<img src="${safeUrl}" alt="${alt}">`;
+    });
     const lines = html.split("\n");
     const processed = [];
     let inBlock = false;
@@ -300,6 +306,29 @@ class PanMarkdownRenderer extends HTMLElement {
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+  }
+  _sanitizeUrl(url) {
+    if (!url) return "#";
+    const trimmed = url.trim();
+    if (trimmed.startsWith("#")) {
+      return trimmed;
+    }
+    const lower = trimmed.toLowerCase();
+    const blocked = ["javascript:", "data:", "vbscript:", "file:"];
+    if (blocked.some((protocol) => lower.startsWith(protocol))) {
+      return "#";
+    }
+    if (lower.startsWith("//")) {
+      return trimmed;
+    }
+    const schemeMatch = lower.match(/^([a-z0-9+.-]+):/);
+    if (schemeMatch) {
+      const allowed = /* @__PURE__ */ new Set(["http", "https", "mailto", "tel"]);
+      if (!allowed.has(schemeMatch[1])) {
+        return "#";
+      }
+    }
+    return trimmed;
   }
   _setupPanListeners() {
     const bus = document.querySelector("pan-bus");
